@@ -5,4 +5,6 @@ class Database {
     constructor(public sequelizeInstance: Sequelize) {}
 }
 
+// Define foreign key relations here
+
 export const database = new Database(sequelizeInstance);
