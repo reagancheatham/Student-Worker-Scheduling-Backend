@@ -1,5 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
+import { Sequelize } from "sequelize";
+import { sequelizeInstance } from "./sequelizeInstance.ts";
 
 let port: string = process.env.PORT ?? "3000";
 let databaseName: string = process.env.DATABASE_NAME ?? "MISSING";
@@ -15,4 +17,16 @@ class DatabaseConfiguration {
     ) {}
 }
 
-export const databaseConfig = new DatabaseConfiguration(port, databaseName, user, password);
+class Database {
+    public config: DatabaseConfiguration;
+
+    constructor(public sequelizeInstance: Sequelize) {
+        this.config = new DatabaseConfiguration(port, databaseName, user, password);
+    }
+
+    initializeSequelize() {
+        sequelizeInstance.sync({ alter: true });
+    }
+}
+
+export const database = new Database(sequelizeInstance);
