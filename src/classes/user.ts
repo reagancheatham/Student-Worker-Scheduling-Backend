@@ -1,5 +1,5 @@
 export default class User {
-    public id: number = -1;
+    public id: number = -1; //PK
     public firstName: string;
     public lastName: string;
     public email: string;
@@ -28,7 +28,7 @@ export default class User {
         this.state = state;
     }
 
-    static createInvalidUser(
+    static createData(
         firstName: string,
         lastName: string,
         email: string,
