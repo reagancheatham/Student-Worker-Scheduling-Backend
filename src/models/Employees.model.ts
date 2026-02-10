@@ -3,7 +3,7 @@ import sequelizeInstance from "../database/sequelizeInstance.js";
 
 class Employees extends Model<InferAttributes<Employees>, InferCreationAttributes<Employees>> {
     declare id: CreationOptional<number>;
-    declare userID: CreationOptional<number>;
+    declare userID: number;
     declare buisinessID: number;
     declare studentID: number;
     declare hourlyPayRate: number;
@@ -18,7 +18,7 @@ Employees.init ( {
         autoIncrement: true
     },
     userID: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     buisinessID: {
