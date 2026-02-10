@@ -39,7 +39,9 @@ Business.init ( {
     indexes: [
       {
         unique: true,
-        fields: ["id", "name", "address", "city", "state"],
+        fields: ["name", "address", "city", "state"],
       },
     ],
   })
+
+  export default Business;
