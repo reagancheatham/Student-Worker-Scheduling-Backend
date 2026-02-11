@@ -55,9 +55,9 @@ jobs:
           privateKey: ${{ secrets.SERVER_SSH_KEY }}
           debug: false
           command: |
-            cd nodenodeapps/sev2026/t6
+            cd nodeapps/sev2026/t6
             npm install
             sudo systemctl stop workerscheduling-t6
-            sudo cp workerscheduling-t6.service /lib/systemd/system/workerscheduling-t6.service
+            sudo cp workerscheduling-t6-backend.service /lib/systemd/system/workerscheduling-t6-backend.service
             sudo systemctl daemon-reload
             sudo systemctl start workerscheduling-t6
