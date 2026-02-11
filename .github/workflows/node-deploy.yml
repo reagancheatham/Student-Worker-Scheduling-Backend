@@ -57,7 +57,7 @@ jobs:
           command: |
             cd nodeapps/sev2026/t6
             npm install
-            sudo systemctl stop workerscheduling-t6
-            sudo cp workerscheduling-t6-backend.service /lib/systemd/system/workerscheduling-t6-backend.service
+            sudo systemctl stop workerScheduling-t6-backend
+            sudo cp workerScheduling-t6-backend.service /lib/systemd/system/workerScheduling-t6-backend.service
             sudo systemctl daemon-reload
-            sudo systemctl start workerscheduling-t6
+            sudo systemctl start workerScheduling-t6-backend
