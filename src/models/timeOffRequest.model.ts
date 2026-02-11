@@ -6,39 +6,40 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import TaskList from "./TaskList.model";
+import { ApprovalStatus } from "../util/ApprovalStatus";
 import Employee from "./employee.model";
 
-class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
+class TimeOffRequest extends Model<InferAttributes<TimeOffRequest>, InferCreationAttributes<TimeOffRequest>> {
     declare id: CreationOptional<number>;
-    declare startTime: Date;
-    declare endTime: Date;
-    declare taskListID: number;
+    declare startDate: Date;
+    declare endDate: Date;
+    declare timeOffReason: string;
+    declare status: ApprovalStatus;
     declare employeeID: number;
 }
 
-Shift.init(
+TimeOffRequest.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        startTime: {
+        startDate: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        endTime: {
+        endDate: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        taskListID: {
-            type: DataTypes.NUMBER,
+        timeOffReason: {
+            type: DataTypes.STRING,
             allowNull: false,
-            references: {
-                model: TaskList,
-                key: "id",
-            },
+        },
+        status: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
+            allowNull: false,
         },
         employeeID: {
             type: DataTypes.NUMBER,
@@ -51,15 +52,15 @@ Shift.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "Shift",
+        tableName: "TimeOffRequest",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["startTime", "endTime", "taskListID", "employeeID"],
+                fields: ["startDate", "endDate", "timeOffReason", "status", "employeeID"],
             },
         ],
     },
 );
 
-export default Shift;
+export default TimeOffRequest;

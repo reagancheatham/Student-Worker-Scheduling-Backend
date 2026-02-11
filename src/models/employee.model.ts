@@ -7,6 +7,9 @@ import {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
 import Business from "./business.model";
+import PermissionRole from "./permissionRole.model";
+import Role from "./role.model";
+import User from "./user.model";
 
 class Employee extends Model<
     InferAttributes<Employee>,

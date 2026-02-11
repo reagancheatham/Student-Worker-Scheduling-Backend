@@ -7,7 +7,7 @@ import {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
 import { WeekDay } from "../util/WeekDay";
-import tasklist
+import TaskList from "./TaskList.model";
 import Employee from "./employee.model";
 
 class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
