@@ -1,11 +1,11 @@
 {
     "scripts": {
-        "start": "cd src && nodemon server.js"
+        "start": "cd src && nodemon server.ts"
     },
     "type": "module",
     "dependencies": {
         "cors": "^2.8.5",
-        "dotenv": "^17.2.3",
+        "dotenv": "^17.2.4",
         "express": "^5.2.1",
         "lts": "^2.0.0",
         "mysql2": "^3.16.0",
