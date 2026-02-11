@@ -6,50 +6,59 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import Shift from "./shift.model";
+import Employee from "./employee.model";
 
-class ScheduleTemplate extends Model<InferAttributes<ScheduleTemplate>, InferCreationAttributes<ScheduleTemplate>> {
+class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
     declare id: CreationOptional<number>;
-    declare offerMessage: string;
-    declare timeSent: Date;
-    declare shiftID: number;
+    declare startTime: Date;
+    declare endTime: Date;
+    declare taskListID: number;
+    declare employeeID: number;
 }
 
-ScheduleTemplate.init(
+Shift.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        offerMessage: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        timeSent: {
+        startTime: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        shiftID: {
+        endTime: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        taskListID: {
             type: DataTypes.NUMBER,
             allowNull: false,
             references: {
-                model: Shift,
+                model: TaskList,
+                key: "id",
+            },
+        },
+        employeeID: {
+            type: DataTypes.NUMBER,
+            allowNull: false,
+            references: {
+                model: Employee,
                 key: "id",
             },
         },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "shiftOfferRequest",
+        tableName: "Shift",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["offerMessage", "timeSent", "shiftID"],
+                fields: ["startTime", "endTime", "taskListID", "employeeID"],
             },
         ],
     },
 );
 
-export default ScheduleTemplate;
+export default Shift;
