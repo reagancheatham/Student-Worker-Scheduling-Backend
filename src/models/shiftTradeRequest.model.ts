@@ -6,15 +6,17 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import { DaysOfWeek } from "../util/DaysOfWeek";
 import Shift from "./shift.model";
 import Employee from "./employee.model";
 
-class ShiftTradeRequest extends Model<InferAttributes<ShiftTradeRequest>, InferCreationAttributes<ShiftTradeRequest>> {
+class ShiftTradeRequest extends Model<
+    InferAttributes<ShiftTradeRequest>,
+    InferCreationAttributes<ShiftTradeRequest>
+> {
     declare id: CreationOptional<number>;
     declare tradeMessage: string;
     declare timeSent: Date;
-    declare shiftID: number
+    declare shiftID: number;
     declare targetEmployeeID: number;
 }
 
@@ -57,7 +59,12 @@ ShiftTradeRequest.init(
         indexes: [
             {
                 unique: true,
-                fields: ["tradeMessage", "timeSent", "shiftID", "targetEmployeeID"],
+                fields: [
+                    "tradeMessage",
+                    "timeSent",
+                    "shiftID",
+                    "targetEmployeeID",
+                ],
             },
         ],
     },

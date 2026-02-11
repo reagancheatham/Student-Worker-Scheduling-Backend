@@ -6,14 +6,14 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import { DaysOfWeek } from "../util/DaysOfWeek";
+import { WeekDay } from "../util/WeekDay";
 import tasklist
 import Employee from "./employee.model";
 
 class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
     declare id: CreationOptional<number>;
-    declare startDay: DaysOfWeek;
-    declare endDay: DaysOfWeek;
+    declare startDay: WeekDay;
+    declare endDay: WeekDay;
     declare startTime: Date;
     declare endTime: Date;
     declare taskListID: number;
@@ -28,11 +28,11 @@ ShiftTemplate.init(
             autoIncrement: true,
         },
         startDay: {
-            type: DataTypes.ENUM(...Object.values(DaysOfWeek)),
+            type: DataTypes.ENUM(...Object.values(WeekDay)),
             allowNull: false,
         },
         endDay: {
-            type: DataTypes.ENUM(...Object.values(DaysOfWeek)),
+            type: DataTypes.ENUM(...Object.values(WeekDay)),
             allowNull: false,
         },
         startTime: {

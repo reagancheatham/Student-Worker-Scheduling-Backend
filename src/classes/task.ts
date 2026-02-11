@@ -1,3 +1,5 @@
+import { TaskStatus } from "../util/TaskStatus";
+
 export default class Task {
     public id: number = -1; //PK
     public name: string;
@@ -17,10 +19,4 @@ export default class Task {
         this.completeStatus = TaskStatus.Incomplete;
         this.taskListID = taskListID;
     }
-}
-
-//ENUM for task completed status, must be same as sequelize
-enum TaskStatus {
-    Complete = "COMPLETE",
-    Incomplete = "INCOMPLETE"
 }

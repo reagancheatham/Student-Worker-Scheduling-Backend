@@ -1,9 +1,9 @@
-import { DaysOfWeek } from "../util/DaysOfWeek";
+import { WeekDay } from "../util/WeekDay";
 
 export default class ShiftTemplate {
     public id: number = -1; //PK
-    public startDay: DaysOfWeek;
-    public endDay: DaysOfWeek;
+    public startDay: WeekDay;
+    public endDay: WeekDay;
     public startTime: Date;
     public endTime: Date;
     public taskListID: number;
@@ -11,8 +11,8 @@ export default class ShiftTemplate {
 
     constructor(
         id: number,
-        startDay: DaysOfWeek,
-        endDay: DaysOfWeek,
+        startDay: WeekDay,
+        endDay: WeekDay,
         startTime: Date,
         endTime: Date,
         taskListID: number,
@@ -28,8 +28,8 @@ export default class ShiftTemplate {
     }
 
     createData(
-        startDay: DaysOfWeek,
-        endDay: DaysOfWeek,
+        startDay: WeekDay,
+        endDay: WeekDay,
         startTime: Date,
         endTime: Date,
         taskListID: number,
