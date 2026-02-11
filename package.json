@@ -1,7 +1,7 @@
 {
     "scripts": {
         "start": "cd src && nodemon server.js",
-        "bundle": "mkdir deploy && cp -r app server.js package.json package-lock.json tracker-t6-backend.service .env deploy"
+        "bundle": "mkdir deploy && cp -r src src/server.ts package.json package-lock.json workerScheduling-t6-backend.service .env deploy"
     },
     "type": "module",
     "dependencies": {
