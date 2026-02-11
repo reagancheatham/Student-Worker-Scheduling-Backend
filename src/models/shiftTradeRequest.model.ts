@@ -7,51 +7,41 @@ import {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
 import { DaysOfWeek } from "../util/DaysOfWeek";
-import tasklist
+import Shift from "./shift.model";
 import Employee from "./employee.model";
 
-class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
+class ShiftTradeRequest extends Model<InferAttributes<ShiftTradeRequest>, InferCreationAttributes<ShiftTradeRequest>> {
     declare id: CreationOptional<number>;
-    declare startDay: DaysOfWeek;
-    declare endDay: DaysOfWeek;
-    declare startTime: Date;
-    declare endTime: Date;
-    declare taskListID: number;
-    declare lastEmployeeID: number;
+    declare tradeMessage: string;
+    declare timeSent: Date;
+    declare shiftID: number
+    declare targetEmployeeID: number;
 }
 
-ShiftTemplate.init(
+ShiftTradeRequest.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        startDay: {
-            type: DataTypes.ENUM(...Object.values(DaysOfWeek)),
-            allowNull: false,
+        tradeMessage: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
-        endDay: {
-            type: DataTypes.ENUM(...Object.values(DaysOfWeek)),
-            allowNull: false,
-        },
-        startTime: {
+        timeSent: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        endTime: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
-        taskListID: {
+        shiftID: {
             type: DataTypes.NUMBER,
             allowNull: false,
             references: {
-                model: TaskList,
+                model: Shift,
                 key: "id",
             },
         },
-        lastEmployeeID: {
+        targetEmployeeID: {
             type: DataTypes.NUMBER,
             allowNull: false,
             references: {
@@ -62,15 +52,15 @@ ShiftTemplate.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "ShiftTemplate",
+        tableName: "ShiftTradeRequest",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["startDay", "endDay", "startTime", "endTime", "taskListID", "lastEmployeeID"],
+                fields: ["tradeMessage", "timeSent", "shiftID", "targetEmployeeID"],
             },
         ],
     },
 );
 
-export default ShiftTemplate;
+export default ShiftTradeRequest;
