@@ -6,45 +6,40 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import Business from "./business.model";
 
-class TaskList extends Model<InferAttributes<TaskList>, InferCreationAttributes<TaskList>> {
+class PermissionRole extends Model<
+    InferAttributes<PermissionRole>,
+    InferCreationAttributes<PermissionRole>
+> {
     declare id: CreationOptional<number>;
-    declare name: string;
-    declare businessID: number;
+    declare role: string;
 }
 
-TaskList.init(
+PermissionRole.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        name: {
+        role: {
             type: DataTypes.STRING,
             allowNull: false,
-        },
-        businessID: {
-            type: DataTypes.NUMBER,
-            allowNull: false,
-            references: {
-                model: Business,
-                key: "id",
-            },
         },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "TaskList",
+        tableName: "permissionRole",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["name", "businessID"],
+                fields: [
+                    "role",
+                ],
             },
         ],
     },
 );
 
-export default TaskList;
+export default PermissionRole;

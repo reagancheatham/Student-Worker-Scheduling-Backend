@@ -1,9 +1,11 @@
+import { ApprovalStatus } from "../util/ApprovalStatus";
+
 export default class TimeOffRequest {
     public id: number = -1; //PK
     public startDate: Date;
     public endDate: Date;
     public timeOffReason: string;
-    public status: Status;
+    public status: ApprovalStatus;
     public employeeID: number; //FK
 
     constructor(
@@ -11,7 +13,7 @@ export default class TimeOffRequest {
         startDate: Date,
         endDate: Date,
         timeOffReason: string,
-        status: Status,
+        status: ApprovalStatus,
         employeeID: number,
     ) {
         this.id = id;
@@ -32,13 +34,9 @@ export default class TimeOffRequest {
         this.startDate = startDate;
         this.endDate = endDate;
         this.timeOffReason = timeOffReason;
-        this.status = Status.Pending;
+        this.status = ApprovalStatus.Pending;
         this.employeeID = employeeID;
     }
 }
 
-enum Status {
-    Pending = "Pending",
-    Approved = "Approved",
-    Denied = "Denied",
-}
+

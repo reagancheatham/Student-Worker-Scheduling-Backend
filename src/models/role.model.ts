@@ -6,51 +6,45 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import { TaskStatus } from "../util/TaskStatus";
-import TaskList from "./TaskList.model";
+import Business from "./business.model";
 
-class Task extends Model<InferAttributes<Task>, InferCreationAttributes<Task>> {
+class Role extends Model<InferAttributes<Role>, InferCreationAttributes<Role>> {
     declare id: CreationOptional<number>;
-    declare name: string;
-    declare completeStatus: TaskStatus;
-    declare taskListID: number;
+    declare role: string;
+    declare businessID: number;
 }
 
-Task.init(
+Role.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        name: {
+        role: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        completeStatus: {
-            type: DataTypes.ENUM(...Object.values(TaskStatus)),
-            allowNull: false,
-        },
-        taskListID: {
+        businessID: {
             type: DataTypes.NUMBER,
             allowNull: false,
             references: {
-                model: TaskList,
+                model: Business,
                 key: "id",
             },
         },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "Task",
+        tableName: "role",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["name", "completeStatus", "taskListID"],
+                fields: ["role", "businessID"],
             },
         ],
     },
 );
 
-export default Task;
+export default Role;

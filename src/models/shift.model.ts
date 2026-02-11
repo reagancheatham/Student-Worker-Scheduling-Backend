@@ -6,29 +6,30 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import { TaskStatus } from "../util/TaskStatus";
 import TaskList from "./TaskList.model";
+import Employee from "./employee.model";
 
-class Task extends Model<InferAttributes<Task>, InferCreationAttributes<Task>> {
+class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
     declare id: CreationOptional<number>;
-    declare name: string;
-    declare completeStatus: TaskStatus;
+    declare startTime: Date;
+    declare endTime: Date;
     declare taskListID: number;
+    declare employeeID: number;
 }
 
-Task.init(
+Shift.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        name: {
-            type: DataTypes.STRING,
+        startTime: {
+            type: DataTypes.DATE,
             allowNull: false,
         },
-        completeStatus: {
-            type: DataTypes.ENUM(...Object.values(TaskStatus)),
+        endTime: {
+            type: DataTypes.DATE,
             allowNull: false,
         },
         taskListID: {
@@ -39,18 +40,26 @@ Task.init(
                 key: "id",
             },
         },
+        employeeID: {
+            type: DataTypes.NUMBER,
+            allowNull: false,
+            references: {
+                model: Employee,
+                key: "id",
+            },
+        },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "Task",
+        tableName: "Shift",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["name", "completeStatus", "taskListID"],
+                fields: ["startTime", "endTime", "taskListID", "employeeID"],
             },
         ],
     },
 );
 
-export default Task;
+export default Shift;

@@ -6,51 +6,56 @@ import {
     DataTypes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
-import { TaskStatus } from "../util/TaskStatus";
-import TaskList from "./TaskList.model";
+import { ApprovalStatus } from "../util/ApprovalStatus";
+import Shift from "./shift.model";
 
-class Task extends Model<InferAttributes<Task>, InferCreationAttributes<Task>> {
+class TimeSheet extends Model<InferAttributes<TimeSheet>, InferCreationAttributes<TimeSheet>> {
     declare id: CreationOptional<number>;
-    declare name: string;
-    declare completeStatus: TaskStatus;
-    declare taskListID: number;
+    declare startTime: Date;
+    declare endTime: Date;
+    declare status: ApprovalStatus;
+    declare shiftID: number;
 }
 
-Task.init(
+TimeSheet.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        name: {
-            type: DataTypes.STRING,
+        startTime: {
+            type: DataTypes.DATE,
             allowNull: false,
         },
-        completeStatus: {
-            type: DataTypes.ENUM(...Object.values(TaskStatus)),
+        endTime: {
+            type: DataTypes.DATE,
             allowNull: false,
         },
-        taskListID: {
+        status: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
+            allowNull: false,
+        },
+        shiftID: {
             type: DataTypes.NUMBER,
             allowNull: false,
             references: {
-                model: TaskList,
+                model: Shift,
                 key: "id",
             },
         },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "Task",
+        tableName: "TimeSheet",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["name", "completeStatus", "taskListID"],
+                fields: ["startTime", "endTime", "status", "shiftID"],
             },
         ],
     },
 );
 
-export default Task;
+export default TimeSheet;

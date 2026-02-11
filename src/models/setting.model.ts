@@ -8,23 +8,12 @@ import {
 import sequelizeInstance from "../database/sequelizeInstance";
 import Business from "./business.model";
 
-class TaskList extends Model<InferAttributes<TaskList>, InferCreationAttributes<TaskList>> {
-    declare id: CreationOptional<number>;
-    declare name: string;
+class Setting extends Model<InferAttributes<Setting>, InferCreationAttributes<Setting>> {
     declare businessID: number;
 }
 
-TaskList.init(
+Setting.init(
     {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
         businessID: {
             type: DataTypes.NUMBER,
             allowNull: false,
@@ -36,15 +25,15 @@ TaskList.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "TaskList",
+        tableName: "setting",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["name", "businessID"],
+                fields: ["businessID"],
             },
         ],
     },
 );
 
-export default TaskList;
+export default Setting;

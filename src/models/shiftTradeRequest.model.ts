@@ -7,22 +7,27 @@ import {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance";
 import Shift from "./shift.model";
+import Employee from "./employee.model";
 
-class ScheduleTemplate extends Model<InferAttributes<ScheduleTemplate>, InferCreationAttributes<ScheduleTemplate>> {
+class ShiftTradeRequest extends Model<
+    InferAttributes<ShiftTradeRequest>,
+    InferCreationAttributes<ShiftTradeRequest>
+> {
     declare id: CreationOptional<number>;
-    declare offerMessage: string;
+    declare tradeMessage: string;
     declare timeSent: Date;
     declare shiftID: number;
+    declare targetEmployeeID: number;
 }
 
-ScheduleTemplate.init(
+ShiftTradeRequest.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        offerMessage: {
+        tradeMessage: {
             type: DataTypes.STRING,
             allowNull: true,
         },
@@ -38,18 +43,31 @@ ScheduleTemplate.init(
                 key: "id",
             },
         },
+        targetEmployeeID: {
+            type: DataTypes.NUMBER,
+            allowNull: false,
+            references: {
+                model: Employee,
+                key: "id",
+            },
+        },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "shiftOfferRequest",
+        tableName: "ShiftTradeRequest",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["offerMessage", "timeSent", "shiftID"],
+                fields: [
+                    "tradeMessage",
+                    "timeSent",
+                    "shiftID",
+                    "targetEmployeeID",
+                ],
             },
         ],
     },
 );
 
-export default ScheduleTemplate;
+export default ShiftTradeRequest;
