@@ -1,0 +1,13 @@
+[Unit]
+Description=NodeJS Software Engineering Project 3 Team 6 App
+After=network.target
+ 
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/nodeapps/sev2026/t6 
+ExecStart=npm run start
+Restart=on-failure
+ 
+[Install]
+WantedBy=multi-user.target
