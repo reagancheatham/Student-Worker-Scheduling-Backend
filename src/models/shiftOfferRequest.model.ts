@@ -1,14 +1,16 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import Shift from "./shift.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import Shift from "./shift.model.ts";
 
-class ShiftOfferRequest extends Model<InferAttributes<ShiftOfferRequest>, InferCreationAttributes<ShiftOfferRequest>> {
+class ShiftOfferRequest extends Model<
+    InferAttributes<ShiftOfferRequest>,
+    InferCreationAttributes<ShiftOfferRequest>
+> {
     declare id: CreationOptional<number>;
     declare offerMessage: string;
     declare timeSent: Date;
@@ -31,7 +33,7 @@ ShiftOfferRequest.init(
             allowNull: false,
         },
         shiftID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Shift,

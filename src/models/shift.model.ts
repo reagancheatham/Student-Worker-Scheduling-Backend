@@ -1,13 +1,12 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import TaskList from "./TaskList.model";
-import Employee from "./employee.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import TaskList from "./TaskList.model.ts";
+import Employee from "./employee.model.ts";
 
 class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
     declare id: CreationOptional<number>;
@@ -33,7 +32,7 @@ Shift.init(
             allowNull: false,
         },
         taskListID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: TaskList,
@@ -41,7 +40,7 @@ Shift.init(
             },
         },
         employeeID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Employee,

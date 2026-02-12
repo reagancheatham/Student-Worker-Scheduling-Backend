@@ -1,15 +1,17 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import { ApprovalStatus } from "../util/ApprovalStatus";
-import Employee from "./employee.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import { ApprovalStatus } from "../util/ApprovalStatus.ts";
+import Employee from "./employee.model.ts";
 
-class TimeOffRequest extends Model<InferAttributes<TimeOffRequest>, InferCreationAttributes<TimeOffRequest>> {
+class TimeOffRequest extends Model<
+    InferAttributes<TimeOffRequest>,
+    InferCreationAttributes<TimeOffRequest>
+> {
     declare id: CreationOptional<number>;
     declare startDate: Date;
     declare endDate: Date;
@@ -42,7 +44,7 @@ TimeOffRequest.init(
             allowNull: false,
         },
         employeeID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Employee,
@@ -57,7 +59,14 @@ TimeOffRequest.init(
         indexes: [
             {
                 unique: true,
-                fields: ["startDate", "endDate", "timeOffReason", "status", "employeeID"],
+                fields: [
+                    "startDate",
+                    "endDate",
+                    "timeOffReason",
+                    "status",
+                    "employeeID",
+                ],
+                name: "timeOffRequestIndex",
             },
         ],
     },

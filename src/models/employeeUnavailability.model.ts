@@ -1,12 +1,11 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import Employee from "./employee.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import Employee from "./employee.model.ts";
 
 class EmployeeUnavailability extends Model<
     InferAttributes<EmployeeUnavailability>,

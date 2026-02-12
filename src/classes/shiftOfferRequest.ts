@@ -1,5 +1,3 @@
-import { off } from "node:cluster";
-
 export default class ShiftOfferRequest {
     public id: number = -1; //PK
     public offerMessage: string;

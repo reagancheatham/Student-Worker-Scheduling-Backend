@@ -1,23 +1,21 @@
-import { ForeignKey } from "sequelize-typescript";
-import sequelizeInstance from "../database/sequelizeInstance";
-import Business from "./business.model";
-import Employee from "./employee.model";
-import EmployeeUnavailability from "./employeeUnavailability.model";
-import PermissionRole from "./permissionRole.model";
-import Role from "./role.model";
-import ScheduleTemplate from "./scheduleTemplate.model";
-import Setting from "./setting.model";
-import Shift from "./shift.model";
-import ShiftOfferRequest from "./shiftOfferRequest.model";
-import ShiftTemplate from "./shiftTemplate.model";
-import ShiftTradeRequest from "./shiftTradeRequest.model";
-import Task from "./Task.model";
-import TaskList from "./TaskList.model";
-import TimeOffRequest from "./timeOffRequest.model";
-import TimeSheet from "./timeSheet.model";
-import User from "./user.model";
+import Business from "./business.model.ts";
+import Employee from "./employee.model.ts";
+import EmployeeUnavailability from "./employeeUnavailability.model.ts";
+import PermissionRole from "./permissionRole.model.ts";
+import Role from "./role.model.ts";
+import ScheduleTemplate from "./scheduleTemplate.model.ts";
+import Setting from "./setting.model.ts";
+import Shift from "./shift.model.ts";
+import ShiftOfferRequest from "./shiftOfferRequest.model.ts";
+import ShiftTemplate from "./shiftTemplate.model.ts";
+import ShiftTradeRequest from "./shiftTradeRequest.model.ts";
+import Task from "./Task.model.ts";
+import TaskList from "./TaskList.model.ts";
+import TimeOffRequest from "./timeOffRequest.model.ts";
+import TimeSheet from "./timeSheet.model.ts";
+import User from "./user.model.ts";
 
-//EMployee <-> User
+//Employee <-> User
 Employee.belongsTo(User, {
     foreignKey: "userID",
     onDelete: "CASCADE",
@@ -202,5 +200,3 @@ Shift.hasOne(TimeSheet, {
     foreignKey: "shiftID",
     onDelete: "CASCADE",
 });
-
-export default sequelizeInstance;

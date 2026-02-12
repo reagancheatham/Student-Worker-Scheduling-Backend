@@ -1,13 +1,12 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import Shift from "./shift.model";
-import Employee from "./employee.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import Shift from "./shift.model.ts";
+import Employee from "./employee.model.ts";
 
 class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -36,7 +35,7 @@ ShiftTradeRequest.init(
             allowNull: false,
         },
         shiftID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Shift,
@@ -44,7 +43,7 @@ ShiftTradeRequest.init(
             },
         },
         targetEmployeeID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Employee,
@@ -65,6 +64,7 @@ ShiftTradeRequest.init(
                     "shiftID",
                     "targetEmployeeID",
                 ],
+                name: "shiftTradeRequestIndex"
             },
         ],
     },

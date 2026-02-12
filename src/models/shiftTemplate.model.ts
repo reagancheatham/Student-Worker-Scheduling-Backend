@@ -1,15 +1,14 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import { WeekDay } from "../util/WeekDay";
-import TaskList from "./TaskList.model";
-import Employee from "./employee.model";
-import ScheduleTemplate from "./scheduleTemplate.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import { WeekDay } from "../util/WeekDay.ts";
+import TaskList from "./TaskList.model.ts";
+import Employee from "./employee.model.ts";
+import ScheduleTemplate from "./scheduleTemplate.model.ts";
 
 class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
     declare id: CreationOptional<number>;
@@ -46,7 +45,7 @@ ShiftTemplate.init(
             allowNull: false,
         },
         taskListID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: TaskList,
@@ -54,7 +53,7 @@ ShiftTemplate.init(
             },
         },
         lastEmployeeID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Employee,
@@ -62,7 +61,7 @@ ShiftTemplate.init(
             },
         },
         scheduleTemplateID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: ScheduleTemplate,
@@ -78,6 +77,7 @@ ShiftTemplate.init(
             {
                 unique: true,
                 fields: ["startDay", "endDay", "startTime", "endTime", "taskListID", "lastEmployeeID"],
+                name: "scheduleTemplateIndex",
             },
         ],
     },
