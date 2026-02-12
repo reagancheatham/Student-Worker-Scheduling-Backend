@@ -1,15 +1,14 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import Business from "./business.model";
-import PermissionRole from "./permissionRole.model";
-import Role from "./role.model";
-import User from "./user.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import Business from "./business.model.ts";
+import PermissionRole from "./permissionRole.model.ts";
+import Role from "./role.model.ts";
+import User from "./user.model.ts";
 
 class Employee extends Model<
     InferAttributes<Employee>,
@@ -24,63 +23,74 @@ class Employee extends Model<
     declare hourlyPayRate: number | null;
 }
 
-Employee.init({
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-    userID: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: User,
-            key: "id",
+Employee.init(
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
         },
-        onDelete: "CASCADE",
-    },
-    businessID: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: Business,
-            key: "id",
+        userID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: User,
+                key: "id",
+            },
+            onDelete: "CASCADE",
+        },
+        businessID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Business,
+                key: "id",
+            },
+        },
+        permissionRoleID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: PermissionRole,
+                key: "id",
+            },
+        },
+        roleID: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: Role,
+                key: "id",
+            },
+        },
+        studentID: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        hourlyPayRate: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         },
     },
-    permissionRoleID: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: PermissionRole,
-            key: "id",
-        },
+    {
+        sequelize: sequelizeInstance,
+        tableName: "employee",
+        timestamps: false,
+        indexes: [
+            {
+                unique: true,
+                fields: [
+                    "userID",
+                    "businessID",
+                    "permissionRoleID",
+                    "roleID",
+                    "studentID",
+                    "hourlyPayRate",
+                ],
+                name: "employeeIndex",
+            },
+        ],
     },
-    roleID: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: Role,
-            key: "id",
-        },
-    },
-    studentID: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-    hourlyPayRate: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
-},{
-    sequelize: sequelizeInstance,
-    tableName: "employee",
-    timestamps: false,
-    indexes: [
-      {
-        unique: true,
-        fields: ["userID", "businessID", "permissionRoleID", "roleID", "studentID", "hourlyPayRate"],
-      },
-    ],
-  })
+);
 
-export default Employee
+export default Employee;

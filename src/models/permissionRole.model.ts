@@ -1,11 +1,10 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
 
 class PermissionRole extends Model<
     InferAttributes<PermissionRole>,

@@ -1,24 +1,23 @@
-import 'dotenv/config';
+import "dotenv/config";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3306;
-const DATABASE_NAME = process.env.DATABASE_NAME as string;
-const USER = process.env.USER as string;
-const PASSWORD = process.env.PASSWORD as string;
-
+const DB_NAME = process.env.DB_NAME as string;
+const DB_USER = process.env.DB_USER as string;
+const DB_PASSWORD = process.env.DB_PASSWORD as string;
 
 export interface DatabaseConfig {
-  DATABASE_NAME: string;
-  PORT: number;
-  USER: string;
-  PASSWORD: string;
+    DB_NAME: string;
+    PORT: number;
+    DB_USER: string;
+    DB_PASSWORD: string;
 }
 
-
+console.log("User: " + DB_USER);
 const databaseConfig: DatabaseConfig = {
-  DATABASE_NAME,
-  PORT,
-  USER,
-  PASSWORD,
+    DB_NAME,
+    PORT,
+    DB_USER,
+    DB_PASSWORD,
 };
 
 export default databaseConfig;

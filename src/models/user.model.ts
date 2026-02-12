@@ -1,13 +1,10 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import { ApprovalStatus } from "../util/ApprovalStatus";
-import Shift from "./shift.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id: CreationOptional<number>;

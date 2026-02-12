@@ -1,12 +1,11 @@
-import {
-    Model,
+import { Model, DataTypes } from "sequelize";
+import type {
+    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    CreationOptional,
-    DataTypes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance";
-import Business from "./business.model";
+import sequelizeInstance from "../database/sequelizeInstance.ts";
+import Business from "./business.model.ts";
 
 class ScheduleTemplate extends Model<InferAttributes<ScheduleTemplate>, InferCreationAttributes<ScheduleTemplate>> {
     declare id: CreationOptional<number>;
@@ -26,7 +25,7 @@ ScheduleTemplate.init(
             allowNull: false,
         },
         businessID: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
                 model: Business,

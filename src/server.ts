@@ -4,7 +4,8 @@ import cors from "cors";
 import { defaultCorsConfig } from "./config/corsConfig.ts";
 import { databaseConfig } from "./config/databaseConfig.ts";
 import { globalRouter } from "./routes/router.ts";
-import Database from "./models/database.model.js";
+import "./models/database.model.ts"
+import sequelizeInstance from "./database/sequelizeInstance.ts";
 
 const result = dotenv.config()
 console.log("DOTENV RESULT:", result);
