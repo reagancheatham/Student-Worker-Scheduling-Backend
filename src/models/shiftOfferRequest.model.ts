@@ -8,14 +8,14 @@ import {
 import sequelizeInstance from "../database/sequelizeInstance";
 import Shift from "./shift.model";
 
-class ScheduleTemplate extends Model<InferAttributes<ScheduleTemplate>, InferCreationAttributes<ScheduleTemplate>> {
+class ShiftOfferRequest extends Model<InferAttributes<ShiftOfferRequest>, InferCreationAttributes<ShiftOfferRequest>> {
     declare id: CreationOptional<number>;
     declare offerMessage: string;
     declare timeSent: Date;
     declare shiftID: number;
 }
 
-ScheduleTemplate.init(
+ShiftOfferRequest.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -52,4 +52,4 @@ ScheduleTemplate.init(
     },
 );
 
-export default ScheduleTemplate;
+export default ShiftOfferRequest;
