@@ -5,10 +5,10 @@ import databaseConfig from "./databaseConfig.ts";
 export const sequelizeInstance = new Sequelize({
     dialect: 'mysql',
     host: 'localhost',
-    port: databaseConfig.PORT,
-    username: databaseConfig.USER,
-    password: databaseConfig.PASSWORD,
-    database: databaseConfig.DATABASE_NAME,
+    port: databaseConfig.PORT.valueOf(),
+    username: databaseConfig.USER.valueOf(),
+    password: databaseConfig.PASSWORD.valueOf(),
+    database: databaseConfig.DATABASE_NAME.valueOf(),
 });
 
 export default sequelizeInstance;

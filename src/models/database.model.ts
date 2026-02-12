@@ -1,4 +1,3 @@
-import { ForeignKey } from "sequelize-typescript";
 import sequelizeInstance from "../database/sequelizeInstance";
 import Business from "./business.model";
 import Employee from "./employee.model";
