@@ -8,6 +8,7 @@ export default class ShiftTemplate {
     public endTime: Date;
     public taskListID: number;
     public lastEmployeeID: number;
+    public scheduleTemplateID: number;
 
     constructor(
         id: number,
@@ -17,6 +18,7 @@ export default class ShiftTemplate {
         endTime: Date,
         taskListID: number,
         lastEmployeeID: number,
+        scheduleTemplateID: number
     ) {
         this.id = id;
         this.startDay = startDay;
@@ -25,6 +27,7 @@ export default class ShiftTemplate {
         this.endTime = endTime;
         this.taskListID = taskListID;
         this.lastEmployeeID = lastEmployeeID;
+        this.scheduleTemplateID = scheduleTemplateID
     }
 
     createData(
@@ -34,6 +37,7 @@ export default class ShiftTemplate {
         endTime: Date,
         taskListID: number,
         lastEmployeeID: number,
+        scheduleTemplate: number
     ) {
         this.id = -1;
         this.startDay = startDay;
@@ -42,6 +46,7 @@ export default class ShiftTemplate {
         this.endTime = endTime;
         this.taskListID = taskListID;
         this.lastEmployeeID = lastEmployeeID;
+        this.scheduleTemplateID = scheduleTemplate;
     }
 }
 
