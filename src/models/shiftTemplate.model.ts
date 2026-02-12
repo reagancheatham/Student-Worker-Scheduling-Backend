@@ -9,6 +9,7 @@ import sequelizeInstance from "../database/sequelizeInstance";
 import { WeekDay } from "../util/WeekDay";
 import TaskList from "./TaskList.model";
 import Employee from "./employee.model";
+import ScheduleTemplate from "./scheduleTemplate.model";
 
 class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
     declare id: CreationOptional<number>;
@@ -18,6 +19,7 @@ class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationA
     declare endTime: Date;
     declare taskListID: number;
     declare lastEmployeeID: number;
+    declare scheduleTemplateID: number;
 }
 
 ShiftTemplate.init(
@@ -56,6 +58,14 @@ ShiftTemplate.init(
             allowNull: false,
             references: {
                 model: Employee,
+                key: "id",
+            },
+        },
+        scheduleTemplateID: {
+            type: DataTypes.NUMBER,
+            allowNull: false,
+            references: {
+                model: ScheduleTemplate,
                 key: "id",
             },
         },
