@@ -6,6 +6,8 @@ import { databaseConfig } from "./config/databaseConfig.ts";
 import { globalRouter } from "./routes/router.ts";
 import "./models/database.model.ts"
 import sequelizeInstance from "./database/sequelizeInstance.ts";
+import businessController from "./controllers/business.controller.ts";
+import Business from "./classes/business.ts";
 
 const result = dotenv.config()
 console.log("DOTENV RESULT:", result);
@@ -20,7 +22,7 @@ app.use(cors(defaultCorsConfig))
 
 const port = databaseConfig.port;
 
-sequelizeInstance.sync()
+sequelizeInstance.sync({alter: true})
   .then(() => {
     console.log('Database tables created successfully!');
   })

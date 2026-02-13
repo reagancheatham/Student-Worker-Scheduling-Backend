@@ -19,11 +19,7 @@ export default class Business {
         this.state = state;
     }
 
-    createData(name: string, address: string, city: string, state: string) {
-        this.id = -1;
-        this.name = name;
-        this.address = address;
-        this.city = city;
-        this.state = state;
+    static createData(name: string, address: string, city: string, state: string) {
+        return new Business(-1, name, address, city, state);
     }
 }

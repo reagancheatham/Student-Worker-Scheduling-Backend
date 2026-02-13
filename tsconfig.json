@@ -1,20 +1,12 @@
 {
-    "compilerOptions": {
-        "moduleResolution": "nodenext",
-        "allowImportingTsExtensions": true,
-        "noEmit": true,
-        "target": "esnext",
-        "module": "nodenext",
-        "types": ["node"],
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "paths": {
-            "@components/": ["./src/components/"],
-            "@classes/": ["./src/classes/"]
-        }
-    },
-    "include": [
-        "src//*.ts",
-        "src//.tsx",
-    ]
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "target": "esnext",
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
 }
