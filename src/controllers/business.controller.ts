@@ -1,8 +1,8 @@
 import Business from "../models/business.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 
-export default {
-    async create(req, res) {
+export class BusinessController {
+    static async create(req, res) {
         const businessInfo = req.body;
 
         console.log(
@@ -16,8 +16,9 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error creating business: ${err}`);
             });
-    },
-    async update(req, res) {
+    }
+    
+    static async update(req, res) {
         const businessInfo = req.body;
 
         console.log(
@@ -35,8 +36,9 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error updating business: ${err}`);
             });
-    },
-    async delete(req, res) {
+    }
+
+    static async delete(req, res) {
         const id = req.params.id;
 
         console.log(`Deleting business: ${id}.`);
@@ -52,8 +54,9 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error deleting business: ${err}`);
             });
-    },
-    async find(req, res) {
+    }
+    
+    static async find(req, res) {
         const id = req.params.id;
 
         console.log(`Finding business: ${id}.`);
@@ -69,5 +72,5 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error finding business: ${err}`);
             });
-    },
+    }
 };
