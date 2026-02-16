@@ -1,8 +1,9 @@
 import Business from "../models/business.model.ts";
 import routesUtil from "../util/routesUtil.ts";
+import express, { type Request, type Response } from 'express';
 
 export default {
-    async create(req, res) {
+    async create(req: Request, res: Response) {
         const businessInfo = req.body;
 
         console.log(
@@ -17,26 +18,26 @@ export default {
                 routesUtil.error(res, `Error creating business: ${err}`);
             });
     },
-    async update(req, res) {
+    async update(req: Request, res: Response) {
         const businessInfo = req.body;
 
         console.log(
             `Updating ability with info: ${JSON.stringify(businessInfo)}.`,
         );
 
-        await Business.upsert(businessInfo, { returning: true })
-            .then((result) => {
-                routesUtil.success(
-                    res,
-                    "Successfully updated business.",
-                    result[0],
-                );
-            })
-            .catch((err) => {
-                routesUtil.error(res, `Error updating business: ${err}`);
-            });
+        const business = await Business.findByPk(businessInfo.id);
+        if (business) {
+            const updatedBusiness = await business.update(businessInfo);
+            routesUtil.success(
+                res,
+                "Successfully updated business.",
+                updatedBusiness,
+            );
+        } else {
+            routesUtil.error(res, "Business not found.");
+        }
     },
-    async delete(req, res) {
+    async delete(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Deleting business: ${id}.`);
@@ -53,12 +54,12 @@ export default {
                 routesUtil.error(res, `Error deleting business: ${err}`);
             });
     },
-    async find(req, res) {
+    async find(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Finding business: ${id}.`);
 
-        await Business.findByPk(id)
+        const business = await Business.findByPk(Number(id))
             .then((business) => {
                 routesUtil.success(
                     res,
