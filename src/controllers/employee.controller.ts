@@ -55,7 +55,7 @@ export class EmployeeController {
             });
     }
 
-    static async find(req, res) {
+    static async findOne(req, res) {
         const id = req.params.id;
 
         console.log(`Finding Employee: ${id}.`);
@@ -73,5 +73,21 @@ export class EmployeeController {
             });
     }
 
-    //TODO: find all by business
+    static async findAllByBusiness(req, res) {
+        const id = req.params.id;
+
+        console.log(`Finding employees for business: ${id}`);
+
+        await Employee.findAll( { where: {businessID: id}})
+            .then((employees) => {
+                routesUtil.success(
+                    res,
+                    `Successfully found employees: ${JSON.stringify(employees)}.`,
+                    employees, 
+                );
+            })
+            .catch((err) => {
+                routesUtil.error(res, `Error finding employees: ${err}`);
+            });
+    }
 }
