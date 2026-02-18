@@ -1,6 +1,6 @@
 import Business from "../models/business.model.ts";
 import routesUtil from "../util/routesUtil.ts";
-import express, { type Request, type Response } from 'express';
+import { Request, Response } from "express";
 
 export default {
     async create(req: Request, res: Response) {
@@ -22,7 +22,7 @@ export default {
         const businessInfo = req.body;
 
         console.log(
-            `Updating ability with info: ${JSON.stringify(businessInfo)}.`,
+            `Updating business with info: ${JSON.stringify(businessInfo)}.`,
         );
 
         const business = await Business.findByPk(businessInfo.id);
@@ -54,7 +54,7 @@ export default {
                 routesUtil.error(res, `Error deleting business: ${err}`);
             });
     },
-    async find(req: Request, res: Response) {
+    async get(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Finding business: ${id}.`);
@@ -63,7 +63,7 @@ export default {
             .then((business) => {
                 routesUtil.success(
                     res,
-                    `Successfully found ability: ${JSON.stringify(business)}.`,
+                    `Successfully found business: ${JSON.stringify(business)}.`,
                     business,
                 );
             })
@@ -71,4 +71,19 @@ export default {
                 routesUtil.error(res, `Error finding business: ${err}`);
             });
     },
+    async getAll(req: Request, res: Response) {
+        console.log(`Retrieving all businesses`);
+
+        const businesses = await Business.findAll()
+            .then((businesses) => {
+                routesUtil.success(
+                    res,
+                    `Successfully found all businesses: ${JSON.stringify(businesses)}.`,
+                    businesses,
+                );
+            })
+            .catch((err) => {
+                routesUtil.error(res, `Error finding all businesses: ${err}`);
+            });
+    }
 };
