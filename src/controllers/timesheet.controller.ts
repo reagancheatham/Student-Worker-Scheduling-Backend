@@ -1,4 +1,4 @@
-import Business from "../models/business.model.ts";
+import TimeSheet from "../models/timeSheet.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import { Request, Response } from "express";
 
@@ -7,60 +7,60 @@ export default {
         const info = req.body;
 
         console.log(
-            `Creating business with info: ${JSON.stringify(info)}.`,
+            `Creating time sheet with info: ${JSON.stringify(info)}.`,
         );
 
-        await Business.create(info)
+        await TimeSheet.create(info)
             .then((data) => {
-                routesUtil.success(res, "Successfully created business.", data);
+                routesUtil.success(res, "Successfully created time sheet.", data);
             })
             .catch((err) => {
-                routesUtil.error(res, `Error creating business: ${err}`);
+                routesUtil.error(res, `Error creating time sheet: ${err}`);
             });
     },
     async update(req: Request, res: Response) {
         const info = req.body;
 
         console.log(
-            `Updating business with info: ${JSON.stringify(info)}.`,
+            `Updating time sheet with info: ${JSON.stringify(info)}.`,
         );
 
-        const business = await Business.findByPk(info.id);
-        if (business) {
-            const updatedBusiness = await business.update(info);
+        const timeSheet = await TimeSheet.findByPk(info.id);
+        if (timeSheet) {
+            const updatedInfo = await timeSheet.update(info);
             routesUtil.success(
                 res,
-                "Successfully updated business.",
-                updatedBusiness,
+                "Successfully updated time sheet.",
+                updatedInfo,
             );
         } else {
-            routesUtil.error(res, "Business not found.");
+            routesUtil.error(res, "Time sheet not found.");
         }
     },
     async delete(req: Request, res: Response) {
         const id = req.params.id;
 
-        console.log(`Deleting business: ${id}.`);
+        console.log(`Deleting time sheet: ${id}.`);
 
-        await Business.destroy({
+        await TimeSheet.destroy({
             where: {
                 id,
             },
         })
             .then(() => {
-                routesUtil.success(res, "Successfully deleted business.", {});
+                routesUtil.success(res, "Successfully deleted time sheet.", {});
             })
             .catch((err) => {
-                routesUtil.error(res, `Error deleting business: ${err}`);
+                routesUtil.error(res, `Error deleting time sheet: ${err}`);
             });
     },
     async get(req: Request, res: Response) {
         const id = req.params.id;
 
-        console.log(`Finding business: ${id}.`);
+        console.log(`Finding time sheet: ${id}.`);
 
-        const business = await Business.findByPk(Number(id))
-            .then((business) => {
+        const timeSheet = await TimeSheet.findByPk(Number(id))
+            .then((timeSheet) => {
                 routesUtil.success(
                     res,
                     `Successfully found business: ${JSON.stringify(business)}.`,
