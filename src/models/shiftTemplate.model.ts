@@ -8,7 +8,7 @@ import sequelizeInstance from "../database/sequelizeInstance.ts";
 import { WeekDay } from "../util/WeekDay.ts";
 import TaskList from "./taskList.model.ts";
 import Employee from "./employee.model.ts";
-import ScheduleTemplate from "./scheduleTemplate.model.ts";
+import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
 
 class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
     declare id: CreationOptional<number>;

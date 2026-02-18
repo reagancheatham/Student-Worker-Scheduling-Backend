@@ -3,7 +3,7 @@ import Employee from "./employee.model.ts";
 import EmployeeUnavailability from "./employeeUnavailability.model.ts";
 import PermissionRole from "./permissionRole.model.ts";
 import Role from "./role.model.ts";
-import ScheduleTemplate from "./scheduleTemplate.model.ts";
+import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
 import Setting from "./setting.model.ts";
 import Shift from "./shift.model.ts";
 import ShiftOfferRequest from "./shiftOfferRequest.model.ts";
