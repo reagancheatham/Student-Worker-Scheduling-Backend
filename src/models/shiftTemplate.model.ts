@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
 import { WeekDay } from "../util/WeekDay.ts";
-import TaskList from "./taskList.model.ts";
+import { TaskList } from "./taskList.model.ts";
 import Employee from "./employee.model.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
 
