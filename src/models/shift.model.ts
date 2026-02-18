@@ -5,7 +5,7 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import TaskList from "./taskList.model.ts";
+import { TaskList } from "./taskList.model.ts";
 import Employee from "./employee.model.ts";
 
 class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
