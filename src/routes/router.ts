@@ -1,5 +1,6 @@
 import { Router } from "express";
-import businessRouters from "./business.routes.ts"
+import businessRouters from "./business.routes.ts";
+import scheduleTemplateRouters from "./scheduleTemplate.routes.ts"
 import userRouters from "./user.routes.ts";
 const router = Router();
 
@@ -9,7 +10,8 @@ router.use((req, res, next) => {
     next();
 });
 
-router.use("/businesses", businessRouters);
+router.use("/business", businessRouters);
 router.use("/user", userRouters);
+router.use("/scheduleTemplate", scheduleTemplateRouters);
 
 export default router;
