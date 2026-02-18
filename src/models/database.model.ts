@@ -13,7 +13,7 @@ import Task from "./task.model.ts";
 import TaskList from "./taskList.model.ts";
 import TimeOffRequest from "./timeOffRequest.model.ts";
 import TimeSheet from "./timeSheet.model.ts";
-import User from "./user.model.ts";
+import { User } from "./user.model.ts";
 
 //Employee <-> User
 Employee.belongsTo(User, {

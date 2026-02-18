@@ -1,6 +1,6 @@
 import Business from "../models/business.model.ts";
 import routesUtil from "../util/routesUtil.ts";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 export default {
     async create(req: Request, res: Response) {
@@ -74,12 +74,12 @@ export default {
     async getAll(req: Request, res: Response) {
         console.log(`Retrieving all businesses`);
 
-        const businesses = await Business.findAll()
-            .then((businesses) => {
+        const business = await Business.findAll()
+            .then((business) => {
                 routesUtil.success(
                     res,
-                    `Successfully found all businesses: ${JSON.stringify(businesses)}.`,
-                    businesses,
+                    `Successfully found all businesses: ${JSON.stringify(business)}.`,
+                    business,
                 );
             })
             .catch((err) => {
