@@ -8,7 +8,7 @@ import sequelizeInstance from "../database/sequelizeInstance.ts";
 import Business from "./business.model.ts";
 import PermissionRole from "./permissionRole.model.ts";
 import Role from "./role.model.ts";
-import User from "./user.model.ts";
+import { User } from "./user.model.ts";
 
 class Employee extends Model<
     InferAttributes<Employee>,

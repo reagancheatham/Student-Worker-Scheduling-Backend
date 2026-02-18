@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
 
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id: CreationOptional<number>;
     declare firstName: string;
     declare lastName: string;
@@ -66,4 +66,3 @@ User.init(
     },
 );
 
-export default User;
