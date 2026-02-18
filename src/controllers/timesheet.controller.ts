@@ -1,3 +1,4 @@
+import { time } from "node:console";
 import TimeSheet from "../models/timeSheet.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import { Request, Response } from "express";
@@ -63,27 +64,27 @@ export default {
             .then((timeSheet) => {
                 routesUtil.success(
                     res,
-                    `Successfully found business: ${JSON.stringify(business)}.`,
-                    business,
+                    `Successfully found time sheet: ${JSON.stringify(timeSheet)}.`,
+                    timeSheet,
                 );
             })
             .catch((err) => {
-                routesUtil.error(res, `Error finding business: ${err}`);
+                routesUtil.error(res, `Error finding time sheet: ${err}`);
             });
     },
     async getAll(req: Request, res: Response) {
-        console.log(`Retrieving all businesses`);
+        console.log(`Retrieving all time sheets`);
 
-        const businesses = await Business.findAll()
-            .then((businesses) => {
+        const timeSheets = await TimeSheet.findAll()
+            .then((timeSheets) => {
                 routesUtil.success(
                     res,
-                    `Successfully found all businesses: ${JSON.stringify(businesses)}.`,
-                    businesses,
+                    `Successfully found all time sheets: ${JSON.stringify(timeSheets)}.`,
+                    timeSheets,
                 );
             })
             .catch((err) => {
-                routesUtil.error(res, `Error finding all businesses: ${err}`);
+                routesUtil.error(res, `Error finding all time sheets: ${err}`);
             });
     }
 };

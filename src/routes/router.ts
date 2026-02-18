@@ -8,6 +8,7 @@ router.use((req, res, next) => {
     next();
 });
 
-router.use("/businesses", businessRouters);
+router.use("/business", businessRouters);
+router.use("/timeSheet", businessRouters);
 
 export default router;

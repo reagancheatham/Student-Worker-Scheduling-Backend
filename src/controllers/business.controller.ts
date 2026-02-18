@@ -1,6 +1,6 @@
 import Business from "../models/business.model.ts";
 import routesUtil from "../util/routesUtil.ts";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 export default {
     async create(req: Request, res: Response) {
