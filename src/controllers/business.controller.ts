@@ -4,13 +4,13 @@ import { Request, Response } from "express";
 
 export default {
     async create(req: Request, res: Response) {
-        const businessInfo = req.body;
+        const info = req.body;
 
         console.log(
-            `Creating business with info: ${JSON.stringify(businessInfo)}.`,
+            `Creating business with info: ${JSON.stringify(info)}.`,
         );
 
-        await Business.create(businessInfo)
+        await Business.create(info)
             .then((data) => {
                 routesUtil.success(res, "Successfully created business.", data);
             })
@@ -19,15 +19,15 @@ export default {
             });
     },
     async update(req: Request, res: Response) {
-        const businessInfo = req.body;
+        const info = req.body;
 
         console.log(
-            `Updating business with info: ${JSON.stringify(businessInfo)}.`,
+            `Updating business with info: ${JSON.stringify(info)}.`,
         );
 
-        const business = await Business.findByPk(businessInfo.id);
+        const business = await Business.findByPk(info.id);
         if (business) {
-            const updatedBusiness = await business.update(businessInfo);
+            const updatedBusiness = await business.update(info);
             routesUtil.success(
                 res,
                 "Successfully updated business.",
