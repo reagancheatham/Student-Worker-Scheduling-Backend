@@ -1,7 +1,6 @@
-import { time } from "node:console";
 import TimeSheet from "../models/timeSheet.model.ts";
 import routesUtil from "../util/routesUtil.ts";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 export default {
     async create(req: Request, res: Response) {
