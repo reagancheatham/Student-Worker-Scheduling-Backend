@@ -1,11 +1,11 @@
 import { Router } from "express";
-import employeeController from "../controllers/employee.controller.ts";
+import { EmployeeController } from "../controllers/employee.controller.ts";
 
-const router = Router();
+const EmployeeRouter = Router();
 
-router.post("/", employeeController.create);
-router.put("/", employeeController.update);
-router.delete("/:id", employeeController.delete);
-router.get("/:id", employeeController.find);
+EmployeeRouter.post("/", EmployeeController.create);
+EmployeeRouter.put("/", EmployeeController.update);
+EmployeeRouter.delete("/:id", EmployeeController.delete);
+EmployeeRouter.get("/:id", EmployeeController.get);
 
-export default router;
+export { EmployeeRouter };

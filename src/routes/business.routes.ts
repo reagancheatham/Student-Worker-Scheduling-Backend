@@ -1,12 +1,12 @@
 import { Router } from "express";
-import businessController from "../controllers/business.controller.ts";
+import { BusinessController } from "../controllers/business.controller.ts";
 
-const router = Router();
+const BusinessRouter = Router();
 
-router.post("/", businessController.create);
-router.put("/", businessController.update);
-router.delete("/:id", businessController.delete);
-router.get("/:id", businessController.get);
-router.get("/", businessController.getAll);
+BusinessRouter.post("/", BusinessController.create);
+BusinessRouter.put("/", BusinessController.update);
+BusinessRouter.delete("/:id", BusinessController.delete);
+BusinessRouter.get("/:id", BusinessController.get);
+BusinessRouter.get("/", BusinessController.getAll);
 
-export default router;
+export { BusinessRouter };

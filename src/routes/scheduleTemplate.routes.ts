@@ -1,12 +1,12 @@
 import { Router } from "express";
-import scheduleTemplateController from "../controllers/scheduleTemplate.controller.ts";
+import { ScheduleTemplateController } from "../controllers/scheduleTemplate.controller.ts";
 
-const router = Router();
+const ScheduleTemplateRouter = Router();
 
-router.post("/", scheduleTemplateController.create);
-router.put("/", scheduleTemplateController.update);
-router.delete("/:id", scheduleTemplateController.delete);
-router.get("/:id", scheduleTemplateController.get);
-router.get("/", scheduleTemplateController.getAll);
+ScheduleTemplateRouter.post("/", ScheduleTemplateController.create);
+ScheduleTemplateRouter.put("/", ScheduleTemplateController.update);
+ScheduleTemplateRouter.delete("/:id", ScheduleTemplateController.delete);
+ScheduleTemplateRouter.get("/:id", ScheduleTemplateController.get);
+ScheduleTemplateRouter.get("/", ScheduleTemplateController.getAll);
 
-export default router;
+export {ScheduleTemplateRouter};
