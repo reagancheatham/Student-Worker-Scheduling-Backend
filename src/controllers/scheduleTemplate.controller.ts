@@ -2,8 +2,8 @@ import { ScheduleTemplate } from "../models/scheduleTemplate.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import type { Request, Response } from "express";
 
-export default {
-    async create(req: Request, res: Response) {
+export class ScheduleTemplateController {
+    static async create(req: Request, res: Response) {
         const info = req.body;
 
         console.log(
@@ -17,8 +17,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error creating scheduleTemplate: ${err}`);
             });
-    },
-    async update(req: Request, res: Response) {
+    }
+    static async update(req: Request, res: Response) {
         const info = req.body;
 
         console.log(
@@ -36,8 +36,8 @@ export default {
         } else {
             routesUtil.error(res, "ScheduleTemplate not found.");
         }
-    },
-    async delete(req: Request, res: Response) {
+    }
+    static async delete(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Deleting scheduleTemplate: ${id}.`);
@@ -53,8 +53,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error deleting scheduleTemplate: ${err}`);
             });
-    },
-    async get(req: Request, res: Response) {
+    }
+    static async get(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Finding scheduleTemplate: ${id}.`);
@@ -70,8 +70,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error finding scheduleTemplate: ${err}`);
             });
-    },
-    async getAll(req: Request, res: Response) {
+    }
+    static async getAll(req: Request, res: Response) {
         console.log(`Retrieving all businesses`);
 
         const scheduleTemplate = await ScheduleTemplate.findAll()

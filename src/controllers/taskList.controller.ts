@@ -1,7 +1,6 @@
 import { TaskList } from "../models/taskList.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import type { Request, Response } from "express";
-import Task from "../models/task.model.ts";
 
 export class TaskListController {
     static async create(req: Request, res: Response) {

@@ -1,11 +1,12 @@
 import { Router } from "express";
-import timeSheetController from "../controllers/timeSheet.controller.ts";
+import { TimeSheetController } from "../controllers/timesheet.controller.ts";
 
-const router = Router();
+const TimeSheetRouter = Router();
 
-router.post("/", timeSheetController.create);
-router.put("/", timeSheetController.update);
-router.delete("/:id", timeSheetController.delete);
-router.get("/:id", timeSheetController.find);
+TimeSheetRouter.post("/", TimeSheetController.create);
+TimeSheetRouter.put("/", TimeSheetController.update);
+TimeSheetRouter.delete("/:id", TimeSheetController.delete);
+TimeSheetRouter.get("/:id", TimeSheetController.get);
+TimeSheetRouter.get("/", TimeSheetController.getAll);
 
-export default router;
+export { TimeSheetRouter };

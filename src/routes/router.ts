@@ -1,8 +1,10 @@
 import { Router } from "express";
-import businessRouters from "./business.routes.ts";
-import scheduleTemplateRouters from "./scheduleTemplate.routes.ts"
-import userRouters from "./user.routes.ts";
-import taskListRouters from "./taskList.routes.ts"
+import { BusinessRouter } from "./business.routes.ts";
+import { EmployeeRouter } from "./employee.routes.ts";
+import { ScheduleTemplateRouter } from "./scheduleTemplate.routes.ts";
+import { TaskListRouter } from "./taskList.routes.ts";
+import { TimeSheetRouter } from "./timeSheet.routes.ts";
+import { UserRouter } from "./user.routes.ts";
 const router = Router();
 
 router.use((req, res, next) => {
@@ -11,9 +13,11 @@ router.use((req, res, next) => {
     next();
 });
 
-router.use("/business", businessRouters);
-router.use("/user", userRouters);
-router.use("/scheduleTemplate", scheduleTemplateRouters);
-router.use("/taskList", taskListRouters);
+router.use("/business", BusinessRouter);
+router.use("/user", UserRouter);
+router.use("/scheduleTemplate", ScheduleTemplateRouter);
+router.use("/taskList", TaskListRouter);
+router.use("/employee", EmployeeRouter);
+router.use("/timeSheet", TimeSheetRouter);
 
-export default router;
+export { router };
