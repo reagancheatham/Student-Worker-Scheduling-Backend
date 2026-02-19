@@ -1,24 +1,26 @@
 {
-    "scripts": {
-        "start": "cd src && nodemon server.ts",
-        "bundle": "mkdir deploy && cp -r src src/server.ts package.json package-lock.json workerScheduling-t6-backend.service .env deploy"
-    },
-    "type": "module",
-    "dependencies": {
-        "cors": "^2.8.5",
-        "dotenv": "^17.2.4",
-        "express": "^5.2.1",
-        "lts": "^2.0.0",
-        "mysql2": "^3.16.0",
-        "reflect-metadata": "^0.2.2",
-        "sequelize": "^6.37.7"
-    },
-    "devDependencies": {
-        "@types/cors": "^2.8.19",
-        "@types/express": "^5.0.6",
-        "@types/node": "^25.0.9",
-        "nodemon": "^3.1.11",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.9.3"
-    }
+  "scripts": {
+    "start": "tsx watch src/server.ts",
+    "bundle": "mkdir deploy && cp -r src src/server.ts package.json package-lock.json workerScheduling-t6-backend.service .env deploy"
+  },
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "lts": "^2.0.0",
+    "mysql2": "^3.16.0",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.2.3",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
 }
