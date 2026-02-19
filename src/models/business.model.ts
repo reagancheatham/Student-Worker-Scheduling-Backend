@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
 
-class Business extends Model<
+export class Business extends Model<
     InferAttributes<Business>,
     InferCreationAttributes<Business>
 > {
@@ -53,5 +53,3 @@ Business.init(
         ],
     },
 );
-
-export default Business;
