@@ -1,4 +1,4 @@
-import Business from "./business.model.ts";
+import { Business } from "./business.model.ts";
 import Employee from "./employee.model.ts";
 import EmployeeUnavailability from "./employeeUnavailability.model.ts";
 import PermissionRole from "./permissionRole.model.ts";

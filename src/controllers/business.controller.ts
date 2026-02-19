@@ -1,4 +1,4 @@
-import Business from "../models/business.model.ts";
+import { Business } from "../models/business.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import type { Request, Response } from "express";
 

@@ -1,12 +1,13 @@
 import { Router } from "express";
-import taskListController from "../controllers/taskList.controller.ts"
+import { TaskListController } from "../controllers/taskList.controller.ts"
 
 const router = Router();
 
-router.post("/", taskListController.create);
-router.put("/", taskListController.update);
-router.delete("/:id", taskListController.delete);
-router.get("/:id", taskListController.get);
-router.get("/", taskListController.getAll);
+router.post("/", TaskListController.create);
+router.put("/", TaskListController.update);
+router.delete("/:id", TaskListController.delete);
+router.get("/:id", TaskListController.get);
+router.get("/", TaskListController.getAll);
+router.get("/business/:businessID/", TaskListController.getAllForBusiness);
 
 export default router;
