@@ -1,11 +1,11 @@
 import { Router } from "express";
-import taskController from "../controllers/task.controller.ts";
+import { TaskController } from "../controllers/task.controller.ts";
 
-const router = Router();
+const TaskRouter = Router();
 
-router.post("/", taskController.create);
-router.put("/", taskController.update);
-router.delete("/:id", taskController.delete);
-router.get("/:id", taskController.find);
+TaskRouter.post("/", TaskController.create);
+TaskRouter.put("/", TaskController.update);
+TaskRouter.delete("/:id", TaskController.delete);
+TaskRouter.get("/:id", TaskController.get);
 
-export default router;
+export { TaskRouter };

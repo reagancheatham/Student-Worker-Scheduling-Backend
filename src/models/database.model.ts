@@ -9,7 +9,7 @@ import Shift from "./shift.model.ts";
 import ShiftOfferRequest from "./shiftOfferRequest.model.ts";
 import ShiftTemplate from "./shiftTemplate.model.ts";
 import ShiftTradeRequest from "./shiftTradeRequest.model.ts";
-import Task from "./task.model.ts";
+import { Task } from "./task.model.ts";
 import { TaskList } from "./taskList.model.ts";
 import TimeOffRequest from "./timeOffRequest.model.ts";
 import TimeSheet from "./timeSheet.model.ts";

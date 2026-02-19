@@ -8,7 +8,7 @@ import sequelizeInstance from "../database/sequelizeInstance.ts";
 import { TaskStatus } from "../util/TaskStatus.ts";
 import { TaskList } from "./taskList.model.ts";
 
-class Task extends Model<InferAttributes<Task>, InferCreationAttributes<Task>> {
+export class Task extends Model<InferAttributes<Task>, InferCreationAttributes<Task>> {
     declare id: CreationOptional<number>;
     declare name: string;
     declare completeStatus: TaskStatus;
@@ -52,4 +52,3 @@ Task.init(
     },
 );
 
-export default Task;
