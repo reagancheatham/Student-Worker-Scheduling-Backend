@@ -1,14 +1,13 @@
 import { TaskList } from "../models/taskList.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import type { Request, Response } from "express";
+import Task from "../models/task.model.ts";
 
-export default {
-    async create(req: Request, res: Response) {
+export class TaskListController {
+    static async create(req: Request, res: Response) {
         const info = req.body;
 
-        console.log(
-            `Creating taskList with info: ${JSON.stringify(info)}.`,
-        );
+        console.log(`Creating taskList with info: ${JSON.stringify(info)}.`);
 
         await TaskList.create(info)
             .then((data) => {
@@ -17,13 +16,11 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error creating taskList: ${err}`);
             });
-    },
-    async update(req: Request, res: Response) {
+    }
+    static async update(req: Request, res: Response) {
         const info = req.body;
 
-        console.log(
-            `Updating taskList with info: ${JSON.stringify(info)}.`,
-        );
+        console.log(`Updating taskList with info: ${JSON.stringify(info)}.`);
 
         const taskList = await TaskList.findByPk(info.id);
         if (taskList) {
@@ -36,8 +33,8 @@ export default {
         } else {
             routesUtil.error(res, "TaskList not found.");
         }
-    },
-    async delete(req: Request, res: Response) {
+    }
+    static async delete(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Deleting taskList: ${id}.`);
@@ -53,8 +50,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error deleting taskList: ${err}`);
             });
-    },
-    async get(req: Request, res: Response) {
+    }
+    static async get(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Finding taskList: ${id}.`);
@@ -70,20 +67,43 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error finding taskList: ${err}`);
             });
-    },
-    async getAll(req: Request, res: Response) {
-        console.log(`Retrieving all taskListes`);
+    }
+    static async getAll(req: Request, res: Response) {
+        console.log(`Retrieving all taskLists`);
 
         const taskList = await TaskList.findAll()
             .then((taskList) => {
                 routesUtil.success(
                     res,
-                    `Successfully found all taskListes: ${JSON.stringify(taskList)}.`,
+                    `Successfully found taskListes: ${JSON.stringify(taskList)}.`,
                     taskList,
                 );
             })
             .catch((err) => {
-                routesUtil.error(res, `Error finding all taskListes: ${err}`);
+                routesUtil.error(res, `Error finding taskListes: ${err}`);
+            });
+    }
+    static async getAllForBusiness(req: Request, res: Response) {
+        const businessID = req.params.businessID;
+
+        console.log(`Retrieving all taskLists for business`);
+
+        console.log(`Finding taskLists for business`);
+        const taskList = await TaskList.findAll({
+            where: { businessID },
+        })
+            .then((taskList) => {
+                routesUtil.success(
+                    res,
+                    `Successfully found taskLists for business: ${JSON.stringify(taskList)}.`,
+                    taskList,
+                );
+            })
+            .catch((err) => {
+                routesUtil.error(
+                    res,
+                    `Error finding taskListes for business: ${err}`,
+                );
             });
     }
 };

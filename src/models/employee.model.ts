@@ -5,7 +5,7 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import Business from "./business.model.ts";
+import { Business } from "./business.model.ts";
 import PermissionRole from "./permissionRole.model.ts";
 import Role from "./role.model.ts";
 import { User } from "./user.model.ts";
