@@ -1,11 +1,11 @@
 import { Router } from "express";
 import permissionRoleController from "../controllers/permissionRole.controller.ts";
 
-const router = Router();
+const PermissionRoleRouter = Router();
 
-router.post("/", permissionRoleController.create);
-router.put("/", permissionRoleController.update);
-router.delete("/:id", permissionRoleController.delete);
-router.get("/:id", permissionRoleController.find);
+PermissionRoleRouter.post("/", permissionRoleController.create);
+PermissionRoleRouter.put("/", permissionRoleController.update);
+PermissionRoleRouter.delete("/:id", permissionRoleController.delete);
+PermissionRoleRouter.get("/:id", permissionRoleController.find);
 
-export default router;
+export { PermissionRoleRouter };
