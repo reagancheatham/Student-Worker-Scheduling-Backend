@@ -1,14 +1,14 @@
 import { Router } from "express";
-import employeeUnavailabilityController from "../controllers/employeeUnavailability.controller.ts";
+import {EmployeeUnavailabilityController} from "../controllers/employeeUnavailability.controller.ts";
 
 const EmployeeUnavailabilityRouter = Router();
 
-EmployeeUnavailabilityRouter.post("/", employeeUnavailabilityController.create);
-EmployeeUnavailabilityRouter.put("/", employeeUnavailabilityController.update);
+EmployeeUnavailabilityRouter.post("/", EmployeeUnavailabilityController.create);
+EmployeeUnavailabilityRouter.put("/", EmployeeUnavailabilityController.update);
 EmployeeUnavailabilityRouter.delete(
     "/:id",
-    employeeUnavailabilityController.delete,
+    EmployeeUnavailabilityController.delete,
 );
-EmployeeUnavailabilityRouter.get("/:id", employeeUnavailabilityController.find);
+EmployeeUnavailabilityRouter.get("/:id", EmployeeUnavailabilityController.get);
 
 export { EmployeeUnavailabilityRouter };

@@ -1,11 +1,11 @@
 import { Router } from "express";
-import roleController from "../controllers/role.controller.ts";
+import { RoleController } from "../controllers/role.controller.ts";
 
 const RoleRouter = Router();
 
-RoleRouter.post("/", roleController.create);
-RoleRouter.put("/", roleController.update);
-RoleRouter.delete("/:id", roleController.delete);
-RoleRouter.get("/:id", roleController.find);
+RoleRouter.post("/", RoleController.create);
+RoleRouter.put("/", RoleController.update);
+RoleRouter.delete("/:id", RoleController.delete);
+RoleRouter.get("/:id", RoleController.get);
 
 export { RoleRouter };

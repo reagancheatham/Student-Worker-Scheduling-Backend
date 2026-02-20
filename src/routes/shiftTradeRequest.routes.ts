@@ -1,11 +1,11 @@
 import { Router } from "express";
-import shiftTradeRequestController from "../controllers/shiftTradeRequest.controller.ts";
+import { ShiftTradeRequestController } from "../controllers/shiftTradeRequest.controller.ts";
 
 const ShiftTradeRequestRouter = Router();
 
-ShiftTradeRequestRouter.post("/", shiftTradeRequestController.create);
-ShiftTradeRequestRouter.put("/", shiftTradeRequestController.update);
-ShiftTradeRequestRouter.delete("/:id", shiftTradeRequestController.delete);
-ShiftTradeRequestRouter.get("/:id", shiftTradeRequestController.find);
+ShiftTradeRequestRouter.post("/", ShiftTradeRequestController.create);
+ShiftTradeRequestRouter.put("/", ShiftTradeRequestController.update);
+ShiftTradeRequestRouter.delete("/:id", ShiftTradeRequestController.delete);
+ShiftTradeRequestRouter.get("/:id", ShiftTradeRequestController.get);
 
 export { ShiftTradeRequestRouter };

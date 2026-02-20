@@ -1,11 +1,11 @@
 import { Router } from "express";
-import shiftController from "../controllers/shift.controller.ts";
+import { ShiftController } from "../controllers/shift.controller.ts";
 
 const ShiftRouter = Router();
 
-ShiftRouter.post("/", shiftController.create);
-ShiftRouter.put("/", shiftController.update);
-ShiftRouter.delete("/:id", shiftController.delete);
-ShiftRouter.get("/:id", shiftController.find);
+ShiftRouter.post("/", ShiftController.create);
+ShiftRouter.put("/", ShiftController.update);
+ShiftRouter.delete("/:id", ShiftController.delete);
+ShiftRouter.get("/:id", ShiftController.get);
 
 export { ShiftRouter };

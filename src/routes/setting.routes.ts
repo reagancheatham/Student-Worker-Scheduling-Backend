@@ -1,11 +1,11 @@
 import { Router } from "express";
-import settingController from "../controllers/setting.controller.ts";
+import { SettingController } from "../controllers/setting.controllet.ts";
 
 const SettingRouter = Router();
 
-SettingRouter.post("/", settingController.create);
-SettingRouter.put("/", settingController.update);
-SettingRouter.delete("/:id", settingController.delete);
-SettingRouter.get("/:id", settingController.find);
+SettingRouter.post("/", SettingController.create);
+SettingRouter.put("/", SettingController.update);
+SettingRouter.delete("/:id", SettingController.delete);
+SettingRouter.get("/:id", SettingController.get);
 
 export { SettingRouter };

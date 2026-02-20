@@ -5,7 +5,7 @@ import { EmployeeUnavailabilityRouter } from "./employeeUnavailability.routes.ts
 import { PermissionRoleRouter } from "./permissionRole.routes.ts";
 import { RoleRouter } from "./role.routes.ts";
 import { ScheduleTemplateRouter } from "./scheduleTemplate.routes.ts";
-import { SettingRouter } from "./setting.routes.ts"
+import { SettingRouter } from "./setting.routes.ts";
 import { ShiftRouter } from "./shift.routes.ts";
 import { ShiftOfferRequestRouter } from "./shiftOfferRequest.routes.ts";
 import { ShiftTemplateRouter } from "./shiftTemplate.routes.ts";
@@ -25,11 +25,21 @@ router.use((req, res, next) => {
 });
 
 router.use("/business", BusinessRouter);
-router.use("/user", UserRouter);
-router.use("/scheduleTemplate", ScheduleTemplateRouter);
-router.use("/taskList", TaskListRouter);
 router.use("/employee", EmployeeRouter);
-router.use("/timeSheet", TimeSheetRouter);
+router.use("/employeeUnavailability", EmployeeUnavailabilityRouter);
+router.use("/permissionRole", PermissionRoleRouter);
+router.use("/role", RoleRouter);
+router.use("/scheduleTemplate", ScheduleTemplateRouter);
+router.use("/setting", SettingRouter);
+router.use("/shift", ShiftRouter);
+router.use("/shiftOfferRequest", ShiftOfferRequestRouter);
+router.use("/shiftTemplate", ShiftTemplateRouter);
+router.use("/shiftTradeRequest", ShiftTradeRequestRouter);
+router.use("/employee", EmployeeRouter);
 router.use("/task", TaskRouter);
+router.use("/taskList", TaskListRouter);
+router.use("/timeOffRequest", TimeOffRequestRouter);
+router.use("/timeSheet", TimeSheetRouter);
+router.use("/user", UserRouter);
 
 export { router };
