@@ -5,9 +5,12 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import {Business} from "./business.model.ts";
+import { Business } from "./business.model.ts";
 
-class Setting extends Model<InferAttributes<Setting>, InferCreationAttributes<Setting>> {
+export class Setting extends Model<
+    InferAttributes<Setting>,
+    InferCreationAttributes<Setting>
+> {
     declare businessID: number;
 }
 
@@ -34,5 +37,3 @@ Setting.init(
         ],
     },
 );
-
-export default Setting;

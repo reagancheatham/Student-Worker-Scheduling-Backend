@@ -1,4 +1,4 @@
-import { WeekDay } from "../util/WeekDay";
+import { WeekDay } from "./WeekDay";
 
 export default class ShiftTemplate {
     public id: number = -1; //PK

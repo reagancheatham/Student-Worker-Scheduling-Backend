@@ -5,9 +5,9 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import Shift from "./shift.model.ts";
+import { Shift } from "./shift.model.ts";
 
-class ShiftOfferRequest extends Model<
+export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
     InferCreationAttributes<ShiftOfferRequest>
 > {
@@ -53,5 +53,3 @@ ShiftOfferRequest.init(
         ],
     },
 );
-
-export default ShiftOfferRequest;

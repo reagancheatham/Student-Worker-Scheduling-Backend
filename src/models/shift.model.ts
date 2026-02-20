@@ -6,9 +6,12 @@ import type {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
 import { TaskList } from "./taskList.model.ts";
-import Employee from "./employee.model.ts";
+import { Employee } from "./employee.model.ts";
 
-class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
+export class Shift extends Model<
+    InferAttributes<Shift>,
+    InferCreationAttributes<Shift>
+> {
     declare id: CreationOptional<number>;
     declare startTime: Date;
     declare endTime: Date;
@@ -60,5 +63,3 @@ Shift.init(
         ],
     },
 );
-
-export default Shift;

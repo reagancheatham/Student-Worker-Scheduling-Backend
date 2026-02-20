@@ -1,4 +1,4 @@
-import { ApprovalStatus } from "../util/ApprovalStatus.ts";
+import { ApprovalStatus } from "./ApprovalStatus.ts";
 
 export default class TimeSheet {
     public id: number = -1;
