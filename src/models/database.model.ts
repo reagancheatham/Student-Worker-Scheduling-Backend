@@ -1,18 +1,18 @@
 import { Business } from "./business.model.ts";
-import Employee from "./employee.model.ts";
-import EmployeeUnavailability from "./employeeUnavailability.model.ts";
-import PermissionRole from "./permissionRole.model.ts";
-import Role from "./role.model.ts";
+import { Employee } from "./employee.model.ts";
+import { EmployeeUnavailability } from "./employeeUnavailability.model.ts";
+import { PermissionRole } from "./permissionRole.model.ts";
+import { Role } from "./role.model.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
-import Setting from "./setting.model.ts";
-import Shift from "./shift.model.ts";
-import ShiftOfferRequest from "./shiftOfferRequest.model.ts";
-import ShiftTemplate from "./shiftTemplate.model.ts";
-import ShiftTradeRequest from "./shiftTradeRequest.model.ts";
+import { Setting } from "./setting.model.ts";
+import { Shift } from "./shift.model.ts";
+import { ShiftOfferRequest } from "./shiftOfferRequest.model.ts";
+import { ShiftTemplate } from "./shiftTemplate.model.ts";
+import { ShiftTradeRequest } from "./shiftTradeRequest.model.ts";
 import { Task } from "./task.model.ts";
 import { TaskList } from "./taskList.model.ts";
-import TimeOffRequest from "./timeOffRequest.model.ts";
-import TimeSheet from "./timeSheet.model.ts";
+import { TimeOffRequest } from "./timeOffRequest.model.ts";
+import { TimeSheet } from "./timeSheet.model.ts";
 import { User } from "./user.model.ts";
 
 //Employee <-> User

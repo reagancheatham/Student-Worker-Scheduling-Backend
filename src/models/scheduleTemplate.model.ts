@@ -5,9 +5,12 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import {Business} from "./business.model.ts";
+import { Business } from "./business.model.ts";
 
-export class ScheduleTemplate extends Model<InferAttributes<ScheduleTemplate>, InferCreationAttributes<ScheduleTemplate>> {
+export class ScheduleTemplate extends Model<
+    InferAttributes<ScheduleTemplate>,
+    InferCreationAttributes<ScheduleTemplate>
+> {
     declare id: CreationOptional<number>;
     declare name: string;
     declare businessID: number;

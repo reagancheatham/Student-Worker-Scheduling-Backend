@@ -7,7 +7,10 @@ import type {
 import sequelizeInstance from "../database/sequelizeInstance.ts";
 import { Business } from "./business.model.ts";
 
-class Role extends Model<InferAttributes<Role>, InferCreationAttributes<Role>> {
+export class Role extends Model<
+    InferAttributes<Role>,
+    InferCreationAttributes<Role>
+> {
     declare id: CreationOptional<number>;
     declare role: string;
     declare businessID: number;
@@ -45,5 +48,3 @@ Role.init(
         ],
     },
 );
-
-export default Role;

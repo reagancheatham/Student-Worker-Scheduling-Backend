@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
 
-class PermissionRole extends Model<
+export class PermissionRole extends Model<
     InferAttributes<PermissionRole>,
     InferCreationAttributes<PermissionRole>
 > {
@@ -33,12 +33,8 @@ PermissionRole.init(
         indexes: [
             {
                 unique: true,
-                fields: [
-                    "role",
-                ],
+                fields: ["role"],
             },
         ],
     },
 );
-
-export default PermissionRole;

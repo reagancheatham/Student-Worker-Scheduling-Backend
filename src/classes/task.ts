@@ -1,4 +1,4 @@
-import { TaskStatus } from "../util/TaskStatus.ts";
+import { TaskStatus } from "./TaskStatus.ts";
 
 export default class Task {
     public id: number = -1; //PK

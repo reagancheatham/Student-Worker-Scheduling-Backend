@@ -5,10 +5,13 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import { ApprovalStatus } from "../util/ApprovalStatus.ts";
-import Shift from "./shift.model.ts";
+import { ApprovalStatus } from "../classes/ApprovalStatus.ts";
+import { Shift } from "./shift.model.ts";
 
-class TimeSheet extends Model<InferAttributes<TimeSheet>, InferCreationAttributes<TimeSheet>> {
+export class TimeSheet extends Model<
+    InferAttributes<TimeSheet>,
+    InferCreationAttributes<TimeSheet>
+> {
     declare id: CreationOptional<number>;
     declare startTime: Date;
     declare endTime: Date;
@@ -56,5 +59,3 @@ TimeSheet.init(
         ],
     },
 );
-
-export default TimeSheet;

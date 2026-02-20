@@ -5,12 +5,15 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import { WeekDay } from "../util/WeekDay.ts";
+import { WeekDay } from "../classes/WeekDay.ts";
 import { TaskList } from "./taskList.model.ts";
-import Employee from "./employee.model.ts";
+import { Employee } from "./employee.model.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
 
-class ShiftTemplate extends Model<InferAttributes<ShiftTemplate>, InferCreationAttributes<ShiftTemplate>> {
+export class ShiftTemplate extends Model<
+    InferAttributes<ShiftTemplate>,
+    InferCreationAttributes<ShiftTemplate>
+> {
     declare id: CreationOptional<number>;
     declare startDay: WeekDay;
     declare endDay: WeekDay;
@@ -76,11 +79,16 @@ ShiftTemplate.init(
         indexes: [
             {
                 unique: true,
-                fields: ["startDay", "endDay", "startTime", "endTime", "taskListID", "lastEmployeeID"],
+                fields: [
+                    "startDay",
+                    "endDay",
+                    "startTime",
+                    "endTime",
+                    "taskListID",
+                    "lastEmployeeID",
+                ],
                 name: "scheduleTemplateIndex",
             },
         ],
     },
 );
-
-export default ShiftTemplate;

@@ -5,10 +5,10 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import { ApprovalStatus } from "../util/ApprovalStatus.ts";
-import Employee from "./employee.model.ts";
+import { ApprovalStatus } from "../classes/ApprovalStatus.ts";
+import { Employee } from "./employee.model.ts";
 
-class TimeOffRequest extends Model<
+export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
     InferCreationAttributes<TimeOffRequest>
 > {
@@ -71,5 +71,3 @@ TimeOffRequest.init(
         ],
     },
 );
-
-export default TimeOffRequest;
