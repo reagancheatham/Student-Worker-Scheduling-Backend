@@ -1,10 +1,9 @@
 import Shift from "../models/shift.model.ts";
 import routesUtil from "../util/routesUtil.ts";
 import type { Request, Response } from "express";
-import { Op } from "sequelize";
 
-export default {
-    async create(req: Request, res: Response) {
+export class ShiftController {
+    static async create(req: Request, res: Response) {
         const info = req.body;
 
         console.log(
@@ -18,8 +17,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error creating shift: ${err}`);
             });
-    },
-    async update(req: Request, res: Response) {
+    }
+    static async update(req: Request, res: Response) {
         const info = req.body;
 
         console.log(
@@ -37,8 +36,8 @@ export default {
         } else {
             routesUtil.error(res, "Shift not found.");
         }
-    },
-    async delete(req: Request, res: Response) {
+    }
+    static async delete(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Deleting shift: ${id}.`);
@@ -54,8 +53,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error deleting shift: ${err}`);
             });
-    },
-    async get(req: Request, res: Response) {
+    }
+    static async get(req: Request, res: Response) {
         const id = req.params.id;
 
         console.log(`Finding shift: ${id}.`);
@@ -71,8 +70,8 @@ export default {
             .catch((err) => {
                 routesUtil.error(res, `Error finding shift: ${err}`);
             });
-    },
-    async getAll(req: Request, res: Response) {
+    }
+    static async getAll(req: Request, res: Response) {
         console.log(`Retrieving all shiftes`);
 
         const shift = await Shift.findAll()
