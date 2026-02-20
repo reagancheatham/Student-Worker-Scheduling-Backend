@@ -55,7 +55,7 @@ export class EmployeeController {
             });
     }
 
-    static async get(req, res) {
+    static async findOne(req, res) {
         const id = req.params.id;
 
         console.log(`Finding Employee: ${id}.`);
