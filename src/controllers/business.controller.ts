@@ -1,58 +1,16 @@
 import { Business } from "../models/business.model.ts";
-import routesUtil from "../util/routesUtil.ts";
+import { RoutesUtil } from "../util/routesUtil.ts";
 import type { Request, Response } from "express";
 
 export class BusinessController {
     static async create(req: Request, res: Response) {
-        const info = req.body;
-
-        console.log(
-            `Creating business with info: ${JSON.stringify(info)}.`,
-        );
-
-        await Business.create(info)
-            .then((data) => {
-                routesUtil.success(res, "Successfully created business.", data);
-            })
-            .catch((err) => {
-                routesUtil.error(res, `Error creating business: ${err}`);
-            });
+        RoutesUtil.create<Business>(Business, req, res);
     }
     static async update(req: Request, res: Response) {
-        const info = req.body;
-
-        console.log(
-            `Updating business with info: ${JSON.stringify(info)}.`,
-        );
-
-        const business = await Business.findByPk(info.id);
-        if (business) {
-            const updatedBusiness = await business.update(info);
-            routesUtil.success(
-                res,
-                "Successfully updated business.",
-                updatedBusiness,
-            );
-        } else {
-            routesUtil.error(res, "Business not found.");
-        }
+        RoutesUtil.update<Business, "id">(Business, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        const id = req.params.id;
-
-        console.log(`Deleting business: ${id}.`);
-
-        await Business.destroy({
-            where: {
-                id,
-            },
-        })
-            .then(() => {
-                routesUtil.success(res, "Successfully deleted business.", {});
-            })
-            .catch((err) => {
-                routesUtil.error(res, `Error deleting business: ${err}`);
-            });
+        RoutesUtil.delete<Business, "id">(Business, req, res, "id");
     }
     static async get(req: Request, res: Response) {
         const id = req.params.id;
