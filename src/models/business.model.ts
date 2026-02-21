@@ -45,11 +45,5 @@ Business.init(
         sequelize: sequelizeInstance,
         tableName: "businesses",
         timestamps: false,
-        indexes: [
-            {
-                unique: true,
-                fields: ["name", "address", "city", "state"],
-            },
-        ],
     },
 );

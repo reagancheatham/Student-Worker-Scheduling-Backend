@@ -13,35 +13,9 @@ export class BusinessController {
         RoutesUtil.delete<Business, "id">(Business, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        const id = req.params.id;
-
-        console.log(`Finding business: ${id}.`);
-
-        const business = await Business.findByPk(Number(id))
-            .then((business) => {
-                routesUtil.success(
-                    res,
-                    `Successfully found business: ${JSON.stringify(business)}.`,
-                    business,
-                );
-            })
-            .catch((err) => {
-                routesUtil.error(res, `Error finding business: ${err}`);
-            });
+        RoutesUtil.get<Business, "id">(Business, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
-        console.log(`Retrieving all businesses`);
-
-        const business = await Business.findAll()
-            .then((business) => {
-                routesUtil.success(
-                    res,
-                    `Successfully found all businesses: ${JSON.stringify(business)}.`,
-                    business,
-                );
-            })
-            .catch((err) => {
-                routesUtil.error(res, `Error finding all businesses: ${err}`);
-            });
+        RoutesUtil.getAll<Business>(Business, req, res);
     }
-};
+}

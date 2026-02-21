@@ -1,10 +1,4 @@
-import {
-    Attributes,
-    Model,
-    ModelStatic,
-    UpdateOptions,
-    WhereOptions,
-} from "sequelize";
+import { Attributes, Model, ModelStatic, WhereOptions } from "sequelize";
 import type { Request, Response } from "express";
 
 export class RoutesUtil {
@@ -93,6 +87,86 @@ export class RoutesUtil {
             })
             .catch((error) => {
                 console.error(`Error deleting ${model.name}: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    public static async get<M extends Model, K extends keyof Attributes<M>>(
+        model: ModelStatic<M>,
+        req: Request<{}, {}, Attributes<M>>,
+        res: Response,
+        key: K,
+    ) {
+        const info = req.body;
+
+        if (!info) {
+            console.error(`Error getting ${model.name}: info is null`);
+            return Promise.resolve();
+        }
+
+        console.log(`Getting ${model.name} with info: ${JSON.stringify(info)}`);
+
+        const where: WhereOptions<Attributes<M>> = {};
+        where[key] = info[key];
+
+        await model
+            .findOne(where)
+            .then((result) => {
+                console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error getting ${model.name}: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    public static async getAll<M extends Model>(
+        model: ModelStatic<M>,
+        req: Request,
+        res: Response,
+    ) {
+        await model
+            .findAll()
+            .then((result) => {
+                console.log(`Found ${result.length} ${model.name}s`);
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error getting ${model.name}s: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    public static async getAllWhere<
+        M extends Model,
+        K extends keyof Attributes<M>,
+    >(
+        model: ModelStatic<M>,
+        req: Request<{}, {}, Attributes<M>>,
+        res: Response,
+        key: K,
+    ) {
+        const info = req.body;
+
+        if (!info) {
+            console.error(`Error getting ${model.name}: info is null`);
+            return Promise.resolve();
+        }
+
+        console.log(`Getting ${model.name} with info: ${JSON.stringify(info)}`);
+
+        const where: WhereOptions<Attributes<M>> = {};
+        where[key] = info[key];
+
+        await model
+            .findAll(where)
+            .then((result) => {
+                console.log(`Found ${result.length} ${model.name}s`);
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error getting all ${model.name}s: ${error}`);
                 res.status(500).send({ error });
             });
     }

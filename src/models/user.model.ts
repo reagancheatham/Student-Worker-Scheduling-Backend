@@ -57,12 +57,12 @@ User.init(
         sequelize: sequelizeInstance,
         tableName: "User",
         timestamps: false,
-        indexes: [
-            {
-                unique: true,
-                fields: ["firstName", "lastName", "email", "phoneNumber", "address", "city", "state"],
-            },
-        ],
+        // indexes: [
+        //     {
+        //         unique: true,
+        //         fields: ["firstName", "lastName", "email", "phoneNumber", "address", "city", "state"],
+        //     },
+        // ],
     },
 );
 
