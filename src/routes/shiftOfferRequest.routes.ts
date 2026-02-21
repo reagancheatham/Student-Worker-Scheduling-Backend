@@ -1,11 +1,11 @@
 import { Router } from "express";
-import shiftOfferRequestController from "../controllers/shiftOfferRequest.controller.ts";
+import { ShiftOfferRequestController } from "../controllers/shiftOfferRequest.controller.ts";
 
-const router = Router();
+const ShiftOfferRequestRouter = Router();
 
-router.post("/", shiftOfferRequestController.create);
-router.put("/", shiftOfferRequestController.update);
-router.delete("/:id", shiftOfferRequestController.delete);
-router.get("/:id", shiftOfferRequestController.find);
+ShiftOfferRequestRouter.post("/", ShiftOfferRequestController.create);
+ShiftOfferRequestRouter.put("/", ShiftOfferRequestController.update);
+ShiftOfferRequestRouter.delete("/:id", ShiftOfferRequestController.delete);
+ShiftOfferRequestRouter.get("/:id", ShiftOfferRequestController.get);
 
-export default router;
+export { ShiftOfferRequestRouter };

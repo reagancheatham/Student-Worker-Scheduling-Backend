@@ -1,11 +1,11 @@
 import { Router } from "express";
-import timeOffRequestController from "../controllers/timeOffRequest.controller.ts";
+import { TimeOffRequestController } from "../controllers/timeOffRequest.controller.ts";
 
-const router = Router();
+const TimeOffRequestRouter = Router();
 
-router.post("/", timeOffRequestController.create);
-router.put("/", timeOffRequestController.update);
-router.delete("/:id", timeOffRequestController.delete);
-router.get("/:id", timeOffRequestController.find);
+TimeOffRequestRouter.post("/", TimeOffRequestController.create);
+TimeOffRequestRouter.put("/", TimeOffRequestController.update);
+TimeOffRequestRouter.delete("/:id", TimeOffRequestController.delete);
+TimeOffRequestRouter.get("/:id", TimeOffRequestController.get);
 
-export default router;
+export { TimeOffRequestRouter };

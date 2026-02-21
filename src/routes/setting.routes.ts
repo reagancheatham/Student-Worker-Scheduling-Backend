@@ -1,11 +1,11 @@
 import { Router } from "express";
-import settingController from "../controllers/setting.controller.ts";
+import { SettingController } from "../controllers/setting.controllet.ts";
 
-const router = Router();
+const SettingRouter = Router();
 
-router.post("/", settingController.create);
-router.put("/", settingController.update);
-router.delete("/:id", settingController.delete);
-router.get("/:id", settingController.find);
+SettingRouter.post("/", SettingController.create);
+SettingRouter.put("/", SettingController.update);
+SettingRouter.delete("/:id", SettingController.delete);
+SettingRouter.get("/:id", SettingController.get);
 
-export default router;
+export { SettingRouter };

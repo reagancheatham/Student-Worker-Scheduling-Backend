@@ -5,10 +5,10 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import sequelizeInstance from "../database/sequelizeInstance.ts";
-import Shift from "./shift.model.ts";
-import Employee from "./employee.model.ts";
+import { Shift } from "./shift.model.ts";
+import { Employee } from "./employee.model.ts";
 
-class ShiftTradeRequest extends Model<
+export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
     InferCreationAttributes<ShiftTradeRequest>
 > {
@@ -64,10 +64,8 @@ ShiftTradeRequest.init(
                     "shiftID",
                     "targetEmployeeID",
                 ],
-                name: "shiftTradeRequestIndex"
+                name: "shiftTradeRequestIndex",
             },
         ],
     },
 );
-
-export default ShiftTradeRequest;

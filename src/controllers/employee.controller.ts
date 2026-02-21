@@ -1,4 +1,4 @@
-import Employee from "../models/employee.model";
+import { Employee } from "../models/employee.model";
 import routesUtil from "../util/routesUtil.ts";
 
 export class EmployeeController {
@@ -78,12 +78,12 @@ export class EmployeeController {
 
         console.log(`Finding employees for business: ${id}`);
 
-        await Employee.findAll( { where: {businessID: id}})
+        await Employee.findAll({ where: { businessID: id } })
             .then((employees) => {
                 routesUtil.success(
                     res,
                     `Successfully found employees: ${JSON.stringify(employees)}.`,
-                    employees, 
+                    employees,
                 );
             })
             .catch((err) => {

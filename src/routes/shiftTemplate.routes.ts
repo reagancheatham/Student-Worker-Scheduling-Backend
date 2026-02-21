@@ -1,11 +1,11 @@
 import { Router } from "express";
-import shiftTemplateController from "../controllers/shiftTemplate.controller.ts";
+import { ShiftTemplateController } from "../controllers/shiftTemplate.controller.ts";
 
-const router = Router();
+const ShiftTemplateRouter = Router();
 
-router.post("/", shiftTemplateController.create);
-router.put("/", shiftTemplateController.update);
-router.delete("/:id", shiftTemplateController.delete);
-router.get("/:id", shiftTemplateController.find);
+ShiftTemplateRouter.post("/", ShiftTemplateController.create);
+ShiftTemplateRouter.put("/", ShiftTemplateController.update);
+ShiftTemplateRouter.delete("/:id", ShiftTemplateController.delete);
+ShiftTemplateRouter.get("/:id", ShiftTemplateController.get);
 
-export default router;
+export { ShiftTemplateRouter };
