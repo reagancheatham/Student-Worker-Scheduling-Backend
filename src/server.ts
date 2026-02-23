@@ -2,22 +2,22 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import { defaultCorsConfig } from "./config/corsConfig.ts";
-import { databaseConfig } from "./config/databaseConfig.ts";
-import "./models/database.model.ts"
-import sequelizeInstance from "./database/sequelizeInstance.ts";
-import { router } from "./routes/router.ts"
+import "./models/database.model.ts";
+import { sequelizeInstance } from "./config/sequelizeInstance.ts";
+import { router } from "./routes/router.ts";
 
 const app = express();
 
-sequelizeInstance.sync({alter: true})
-  .then(() => {
-    console.log('Database tables created successfully!');
-  })
-  .catch(err => {
-    console.error('Unable to create database tables:', err);
-  });
+sequelizeInstance
+    .sync({ alter: true })
+    .then(() => {
+        console.log("Database tables created successfully!");
+    })
+    .catch((err) => {
+        console.error("Unable to create database tables:", err);
+    });
 
-const result = dotenv.config()
+const result = dotenv.config();
 console.log("DOTENV RESULT:", result);
 console.log("CWD:", process.cwd());
 console.log("PORT FROM ENV:", process.env.PORT);
@@ -31,4 +31,3 @@ const port = process.env.PORT;
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}.`);
 });
-

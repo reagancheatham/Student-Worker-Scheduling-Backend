@@ -4,7 +4,7 @@ import type {
     InferAttributes,
     InferCreationAttributes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance.ts";
+import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 
 export class Business extends Model<
     InferAttributes<Business>,
@@ -12,9 +12,6 @@ export class Business extends Model<
 > {
     declare id: CreationOptional<number>;
     declare name: string;
-    declare address: string;
-    declare city: string;
-    declare state: string;
 }
 
 Business.init(
@@ -28,28 +25,10 @@ Business.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        address: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        city: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        state: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
     },
     {
         sequelize: sequelizeInstance,
         tableName: "businesses",
         timestamps: false,
-        indexes: [
-            {
-                unique: true,
-                fields: ["name", "address", "city", "state"],
-            },
-        ],
     },
 );

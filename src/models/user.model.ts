@@ -4,17 +4,17 @@ import type {
     InferAttributes,
     InferCreationAttributes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance.ts";
+import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+export class User extends Model<
+    InferAttributes<User>,
+    InferCreationAttributes<User>
+> {
     declare id: CreationOptional<number>;
     declare firstName: string;
     declare lastName: string;
     declare email: string;
     declare phoneNumber: string;
-    declare address: string;
-    declare city: string;
-    declare state: string;
 }
 
 User.init(
@@ -40,18 +40,6 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        address: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        city: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        state: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
     },
     {
         sequelize: sequelizeInstance,
@@ -60,9 +48,8 @@ User.init(
         indexes: [
             {
                 unique: true,
-                fields: ["firstName", "lastName", "email", "phoneNumber", "address", "city", "state"],
+                fields: ["firstName", "lastName"],
             },
         ],
     },
 );
-

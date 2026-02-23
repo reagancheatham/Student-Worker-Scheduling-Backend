@@ -4,7 +4,7 @@ import type {
     InferAttributes,
     InferCreationAttributes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance.ts";
+import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { TaskList } from "./taskList.model.ts";
 import { Employee } from "./employee.model.ts";
 
