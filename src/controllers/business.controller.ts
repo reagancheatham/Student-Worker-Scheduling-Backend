@@ -1,21 +1,21 @@
 import { Business } from "../models/business.model.ts";
-import { RoutesUtil } from "../util/routesUtil.ts";
+import { ControllerUtil } from "../util/controllerUtil.ts";
 import type { Request, Response } from "express";
 
 export class BusinessController {
     static async create(req: Request, res: Response) {
-        RoutesUtil.create<Business>(Business, req, res);
+        ControllerUtil.create<Business>(Business, req, res);
     }
     static async update(req: Request, res: Response) {
-        RoutesUtil.update<Business, "id">(Business, req, res, "id");
+        ControllerUtil.update<Business, "id">(Business, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        RoutesUtil.delete<Business, "id">(Business, req, res, "id");
+        ControllerUtil.delete<Business, "id">(Business, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        RoutesUtil.get<Business, "id">(Business, req, res, "id");
+        ControllerUtil.get<Business>(Business, req, res);
     }
     static async getAll(req: Request, res: Response) {
-        RoutesUtil.getAll<Business>(Business, req, res);
+        ControllerUtil.getAll<Business>(Business, req, res);
     }
 }

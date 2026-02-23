@@ -4,8 +4,8 @@ import type {
     InferAttributes,
     InferCreationAttributes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance.ts";
-import { ApprovalStatus } from "../classes/ApprovalStatus.ts";
+import { sequelizeInstance } from "../config/sequelizeInstance.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 import { Employee } from "./employee.model.ts";
 
 export class TimeOffRequest extends Model<

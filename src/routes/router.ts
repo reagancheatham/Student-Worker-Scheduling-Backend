@@ -5,7 +5,7 @@ import { EmployeeUnavailabilityRouter } from "./employeeUnavailability.routes.ts
 import { PermissionRoleRouter } from "./permissionRole.routes.ts";
 import { RoleRouter } from "./role.routes.ts";
 import { ScheduleTemplateRouter } from "./scheduleTemplate.routes.ts";
-import { SettingRouter } from "./setting.routes.ts";
+import { SettingsRouter } from "./settings.routes.ts";
 import { ShiftRouter } from "./shift.routes.ts";
 import { ShiftOfferRequestRouter } from "./shiftOfferRequest.routes.ts";
 import { ShiftTemplateRouter } from "./shiftTemplate.routes.ts";
@@ -18,28 +18,22 @@ import { UserRouter } from "./user.routes.ts";
 
 const router = Router();
 
-router.use((req, res, next) => {
-    console.log("router received request " + req.url);
-
-    next();
-});
-
-router.use("/business", BusinessRouter);
-router.use("/employee", EmployeeRouter);
-router.use("/employeeUnavailability", EmployeeUnavailabilityRouter);
-router.use("/permissionRole", PermissionRoleRouter);
-router.use("/role", RoleRouter);
-router.use("/scheduleTemplate", ScheduleTemplateRouter);
-router.use("/setting", SettingRouter);
-router.use("/shift", ShiftRouter);
-router.use("/shiftOfferRequest", ShiftOfferRequestRouter);
-router.use("/shiftTemplate", ShiftTemplateRouter);
-router.use("/shiftTradeRequest", ShiftTradeRequestRouter);
-router.use("/employee", EmployeeRouter);
-router.use("/task", TaskRouter);
-router.use("/taskList", TaskListRouter);
-router.use("/timeOffRequest", TimeOffRequestRouter);
-router.use("/timeSheet", TimeSheetRouter);
-router.use("/user", UserRouter);
+router.use("/businesses", BusinessRouter);
+router.use("/employees", EmployeeRouter);
+router.use("/employeeUnavailabilities", EmployeeUnavailabilityRouter);
+router.use("/permissionRoles", PermissionRoleRouter);
+router.use("/roles", RoleRouter);
+router.use("/scheduleTemplates", ScheduleTemplateRouter);
+router.use("/settings", SettingsRouter);
+router.use("/shifts", ShiftRouter);
+router.use("/shiftOfferRequests", ShiftOfferRequestRouter);
+router.use("/shiftTemplates", ShiftTemplateRouter);
+router.use("/shiftTradeRequests", ShiftTradeRequestRouter);
+router.use("/employees", EmployeeRouter);
+router.use("/tasks", TaskRouter);
+router.use("/taskLists", TaskListRouter);
+router.use("/timeOffRequests", TimeOffRequestRouter);
+router.use("/timeSheets", TimeSheetRouter);
+router.use("/users", UserRouter);
 
 export { router };

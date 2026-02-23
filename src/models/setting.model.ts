@@ -1,20 +1,19 @@
 import { Model, DataTypes } from "sequelize";
 import type {
-    CreationOptional,
     InferAttributes,
     InferCreationAttributes,
 } from "sequelize";
-import sequelizeInstance from "../database/sequelizeInstance.ts";
+import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.model.ts";
 
-export class Setting extends Model<
-    InferAttributes<Setting>,
-    InferCreationAttributes<Setting>
+export class Settings extends Model<
+    InferAttributes<Settings>,
+    InferCreationAttributes<Settings>
 > {
     declare businessID: number;
 }
 
-Setting.init(
+Settings.init(
     {
         businessID: {
             type: DataTypes.INTEGER,
@@ -27,7 +26,7 @@ Setting.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "setting",
+        tableName: "settings",
         timestamps: false,
         indexes: [
             {
