@@ -22,7 +22,6 @@ EmployeeUnavailability.init(
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
         },
         startTime: {
             type: DataTypes.DATE,
@@ -40,6 +39,7 @@ EmployeeUnavailability.init(
                 key: "id",
             },
             onDelete: "CASCADE",
+            primaryKey: true,
         },
     },
     {

@@ -21,7 +21,6 @@ Role.init(
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
         },
         role: {
             type: DataTypes.STRING,
@@ -34,6 +33,7 @@ Role.init(
                 model: Business,
                 key: "id",
             },
+            primaryKey: true,
         },
     },
     {

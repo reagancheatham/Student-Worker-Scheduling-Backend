@@ -28,7 +28,6 @@ Employee.init(
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
         },
         userID: {
             type: DataTypes.INTEGER,
@@ -46,6 +45,7 @@ Employee.init(
                 model: Business,
                 key: "id",
             },
+            primaryKey: true,
         },
         permissionRoleID: {
             type: DataTypes.INTEGER,
