@@ -23,10 +23,11 @@ export class TimeOffRequestController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<TimeOffRequest>(
+        ControllerUtil.get<TimeOffRequest, "id">(
             TimeOffRequest,
             req,
             res,
+            "id",
         );
     }
 }

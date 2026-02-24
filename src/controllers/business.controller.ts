@@ -7,13 +7,13 @@ export class BusinessController {
         ControllerUtil.create<Business>(Business, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<Business, "id">(Business, req, res, "id");
+        ControllerUtil.update<Business>(Business, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<Business, "id">(Business, req, res, "id");
+        ControllerUtil.delete<Business>(Business, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Business>(Business, req, res);
+        ControllerUtil.get<Business>(Business, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
         ControllerUtil.getAll<Business>(Business, req, res);

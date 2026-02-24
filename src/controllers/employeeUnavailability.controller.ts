@@ -27,10 +27,11 @@ export class EmployeeUnavailabilityController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<EmployeeUnavailability>(
+        ControllerUtil.get<EmployeeUnavailability, "id">(
             EmployeeUnavailability,
             req,
             res,
+            "id",
         );
     }
 }

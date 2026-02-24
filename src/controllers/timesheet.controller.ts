@@ -13,7 +13,7 @@ export class TimeSheetController {
         ControllerUtil.delete<TimeSheet, "id">(TimeSheet, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<TimeSheet>(TimeSheet, req, res);
+        ControllerUtil.get<TimeSheet, "id">(TimeSheet, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
         ControllerUtil.getAll<TimeSheet>(TimeSheet, req, res);

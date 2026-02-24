@@ -23,10 +23,11 @@ export class PermissionRoleController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<PermissionRole>(
+        ControllerUtil.get<PermissionRole, "id">(
             PermissionRole,
             req,
             res,
+            "id",
         );
     }
 }

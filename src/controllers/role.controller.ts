@@ -13,9 +13,9 @@ export class RoleController {
         ControllerUtil.delete<Role, "id">(Role, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Role>(Role, req, res);
+        ControllerUtil.get<Role, "id">(Role, req, res, "id");
     }
     static async getForBusiness(req: Request, res: Response) {
-        ControllerUtil.get<Role>(Role, req, res);
+        ControllerUtil.get<Role, "businessID">(Role, req, res, "businessID");
     }
 }

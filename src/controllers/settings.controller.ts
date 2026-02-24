@@ -23,10 +23,11 @@ export class SettingsController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Settings>(
+        ControllerUtil.get<Settings, "businessID">(
             Settings,
             req,
             res,
+            "businessID",
         );
     }
 }

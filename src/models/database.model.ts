@@ -14,6 +14,11 @@ import { Shift } from "./shift.model.ts";
 import { ShiftOfferRequest } from "./shiftOfferRequest.model.ts";
 import { ShiftTradeRequest } from "./shiftTradeRequest.model.ts";
 import { TimeSheet } from "./timeSheet.model.ts";
+import { Model, ModelStatic } from "sequelize";
+
+export const staticModels = new Map<string, ModelStatic<Model>>([
+    [Business.toString(), Business],
+]);
 
 //Employee <-> User
 Employee.belongsTo(User, {

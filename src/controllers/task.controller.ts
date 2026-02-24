@@ -13,7 +13,7 @@ export class TaskController {
         ControllerUtil.delete<Task, "id">(Task, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Task>(Task, req, res);
+        ControllerUtil.get<Task, "id">(Task, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
         ControllerUtil.getAll<Task>(Task, req, res);

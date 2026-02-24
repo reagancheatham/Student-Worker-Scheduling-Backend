@@ -23,6 +23,6 @@ export class ShiftTemplateController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<ShiftTemplate>(ShiftTemplate, req, res);
+        ControllerUtil.get<ShiftTemplate, "id">(ShiftTemplate, req, res, "id");
     }
 }

@@ -7,19 +7,19 @@ export class EmployeeController {
         ControllerUtil.create<Employee>(Employee, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<Employee, "id">(Employee, req, res, "id");
+        ControllerUtil.update<Employee>(Employee, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<Employee, "id">(Employee, req, res, "id");
+        ControllerUtil.delete<Employee>(Employee, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Employee>(Employee, req, res);
+        ControllerUtil.get<Employee>(Employee, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
         ControllerUtil.getAll<Employee>(Employee, req, res);
     }
     static async getAllByBusiness(req: Request, res: Response) {
-        ControllerUtil.getAllWhere<Employee, "businessID">(
+        ControllerUtil.getAllWhere<Employee>(
             Employee,
             req,
             res,

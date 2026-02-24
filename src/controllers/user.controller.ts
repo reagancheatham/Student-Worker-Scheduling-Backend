@@ -13,7 +13,7 @@ export class UserController {
         ControllerUtil.delete<User, "id">(User, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<User>(User, req, res);
+        ControllerUtil.get<User, "id">(User, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
         ControllerUtil.getAll<User>(User, req, res);

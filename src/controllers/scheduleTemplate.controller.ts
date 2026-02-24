@@ -23,9 +23,19 @@ export class ScheduleTemplateController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<ScheduleTemplate>(ScheduleTemplate, req, res);
+        ControllerUtil.get<ScheduleTemplate, "id">(
+            ScheduleTemplate,
+            req,
+            res,
+            "id",
+        );
     }
-    static async getAll(req: Request, res: Response) {
-        ControllerUtil.getAll<ScheduleTemplate>(ScheduleTemplate, req, res);
+    static async getAllForBusiness(req: Request, res: Response) {
+        ControllerUtil.getAllWhere<ScheduleTemplate, "businessID">(
+            ScheduleTemplate,
+            req,
+            res,
+            "businessID",
+        );
     }
 }

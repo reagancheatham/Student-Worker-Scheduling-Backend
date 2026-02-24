@@ -13,6 +13,6 @@ export class ShiftController {
         ControllerUtil.delete<Shift, "id">(Shift, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Shift>(Shift, req, res);
+        ControllerUtil.get<Shift, "id">(Shift, req, res, "id");
     }
 }

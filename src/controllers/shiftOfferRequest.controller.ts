@@ -23,10 +23,11 @@ export class ShiftOfferRequestController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<ShiftOfferRequest>(
+        ControllerUtil.get<ShiftOfferRequest, "id">(
             ShiftOfferRequest,
             req,
             res,
+            "id",
         );
     }
 }

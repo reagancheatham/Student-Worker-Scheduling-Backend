@@ -13,7 +13,7 @@ export class TaskListController {
         ControllerUtil.delete<TaskList, "id">(TaskList, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<TaskList>(TaskList, req, res);
+        ControllerUtil.get<TaskList, "id">(TaskList, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
         ControllerUtil.getAll<TaskList>(TaskList, req, res);
