@@ -1,4 +1,4 @@
-import { Attributes, Model, ModelStatic, Sequelize, WhereOptions } from "sequelize";
+import { Attributes, Model, ModelStatic, WhereOptions } from "sequelize";
 import type { Request, Response } from "express";
 
 export class ControllerUtil {
@@ -17,7 +17,7 @@ export class ControllerUtil {
         console.log(
             `Creating ${model.name} with info: ${JSON.stringify(info)}`,
         );
-
+        
         await model
             .create(info)
             .then((data) => {

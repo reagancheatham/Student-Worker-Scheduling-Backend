@@ -4,10 +4,10 @@ import { TimeOffRequest } from "../models/timeOffRequest.model.ts";
 
 export class TimeOffRequestController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create<TimeOffRequest>(TimeOffRequest, req, res);
+        ControllerUtil.create(TimeOffRequest, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<TimeOffRequest, "id">(
+        ControllerUtil.update(
             TimeOffRequest,
             req,
             res,
@@ -15,7 +15,7 @@ export class TimeOffRequestController {
         );
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<TimeOffRequest, "id">(
+        ControllerUtil.delete(
             TimeOffRequest,
             req,
             res,
@@ -23,7 +23,7 @@ export class TimeOffRequestController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<TimeOffRequest, "id">(
+        ControllerUtil.get(
             TimeOffRequest,
             req,
             res,

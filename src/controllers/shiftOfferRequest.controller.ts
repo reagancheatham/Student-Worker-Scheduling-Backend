@@ -4,30 +4,15 @@ import { ControllerUtil } from "../util/controllerUtil.ts";
 
 export class ShiftOfferRequestController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create<ShiftOfferRequest>(ShiftOfferRequest, req, res);
+        ControllerUtil.create(ShiftOfferRequest, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<ShiftOfferRequest, "id">(
-            ShiftOfferRequest,
-            req,
-            res,
-            "id",
-        );
+        ControllerUtil.update(ShiftOfferRequest, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<ShiftOfferRequest, "id">(
-            ShiftOfferRequest,
-            req,
-            res,
-            "id",
-        );
+        ControllerUtil.delete(ShiftOfferRequest, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<ShiftOfferRequest, "id">(
-            ShiftOfferRequest,
-            req,
-            res,
-            "id",
-        );
+        ControllerUtil.get(ShiftOfferRequest, req, res, "id");
     }
 }

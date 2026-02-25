@@ -4,18 +4,18 @@ import { ControllerUtil } from "../util/controllerUtil.ts";
 
 export class TaskController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create<Task>(Task, req, res);
+        ControllerUtil.create(Task, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<Task, "id">(Task, req, res, "id");
+        ControllerUtil.update(Task, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<Task, "id">(Task, req, res, "id");
+        ControllerUtil.delete(Task, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Task, "id">(Task, req, res, "id");
+        ControllerUtil.get(Task, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
-        ControllerUtil.getAll<Task>(Task, req, res);
+        ControllerUtil.getAll(Task, req, res);
     }
 }

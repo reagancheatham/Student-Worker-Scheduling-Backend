@@ -4,26 +4,21 @@ import { ControllerUtil } from "../util/controllerUtil.ts";
 
 export class TaskListController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create<TaskList>(TaskList, req, res);
+        ControllerUtil.create(TaskList, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<TaskList, "id">(TaskList, req, res, "id");
+        ControllerUtil.update(TaskList, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<TaskList, "id">(TaskList, req, res, "id");
+        ControllerUtil.delete(TaskList, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<TaskList, "id">(TaskList, req, res, "id");
+        ControllerUtil.get(TaskList, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
-        ControllerUtil.getAll<TaskList>(TaskList, req, res);
+        ControllerUtil.getAll(TaskList, req, res);
     }
     static async getAllForBusiness(req: Request, res: Response) {
-        ControllerUtil.getAllWhere<TaskList, "businessID">(
-            TaskList,
-            req,
-            res,
-            "businessID",
-        );
+        ControllerUtil.getAllWhere(TaskList, req, res, "businessID");
     }
 }

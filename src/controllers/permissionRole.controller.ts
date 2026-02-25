@@ -4,10 +4,10 @@ import { PermissionRole } from "../models/permissionRole.model.ts";
 
 export class PermissionRoleController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create<PermissionRole>(PermissionRole, req, res);
+        ControllerUtil.create(PermissionRole, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<PermissionRole, "id">(
+        ControllerUtil.update(
             PermissionRole,
             req,
             res,
@@ -15,7 +15,7 @@ export class PermissionRoleController {
         );
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<PermissionRole, "id">(
+        ControllerUtil.delete(
             PermissionRole,
             req,
             res,
@@ -23,7 +23,7 @@ export class PermissionRoleController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<PermissionRole, "id">(
+        ControllerUtil.get(
             PermissionRole,
             req,
             res,

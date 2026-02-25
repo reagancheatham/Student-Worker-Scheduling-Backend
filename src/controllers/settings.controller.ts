@@ -4,30 +4,15 @@ import { Settings } from "../models/setting.model.ts";
 
 export class SettingsController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create<Settings>(Settings, req, res);
+        ControllerUtil.create(Settings, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update<Settings, "businessID">(
-            Settings,
-            req,
-            res,
-            "businessID",
-        );
+        ControllerUtil.update(Settings, req, res, "businessID");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete<Settings, "businessID">(
-            Settings,
-            req,
-            res,
-            "businessID",
-        );
+        ControllerUtil.delete(Settings, req, res, "businessID");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get<Settings, "businessID">(
-            Settings,
-            req,
-            res,
-            "businessID",
-        );
+        ControllerUtil.get(Settings, req, res, "businessID");
     }
 }
