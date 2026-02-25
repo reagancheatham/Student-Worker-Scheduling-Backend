@@ -11,7 +11,7 @@ export class PermissionRole extends Model<
     InferCreationAttributes<PermissionRole>
 > {
     declare id: CreationOptional<number>;
-    declare role: string;
+    declare name: string;
 }
 
 PermissionRole.init(
@@ -21,19 +21,19 @@ PermissionRole.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        role: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "permissionRole",
+        tableName: "permissionRoles",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["role"],
+                fields: ["id, name"],
             },
         ],
     },

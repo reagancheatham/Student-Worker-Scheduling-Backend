@@ -2,7 +2,7 @@ import { Business } from "./business.model.ts";
 import { User } from "./user.model.ts";
 import { Task } from "./task.model.ts";
 import { TaskList } from "./taskList.model.ts";
-import { Settings } from "./setting.model.ts";
+import { Settings } from "./settings.model.ts";
 import { Employee } from "./employee.model.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
 import { ShiftTemplate } from "./shiftTemplate.model.ts";
@@ -20,7 +20,7 @@ Employee.belongsTo(User, {
     foreignKey: "userID",
     onDelete: "CASCADE",
 });
-User.hasOne(Employee, {
+User.hasMany(Employee, {
     foreignKey: "userID",
     onDelete: "CASCADE",
 });

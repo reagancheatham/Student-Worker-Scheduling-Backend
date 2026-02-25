@@ -5,34 +5,33 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Employee } from "./employee.model.ts";
+import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
 
-export class EmployeeUnavailability extends Model<
-    InferAttributes<EmployeeUnavailability>,
-    InferCreationAttributes<EmployeeUnavailability>
+export class ScheduleShiftTemplate extends Model<
+    InferAttributes<ScheduleShiftTemplate>,
+    InferCreationAttributes<ScheduleShiftTemplate>
 > {
     declare id: CreationOptional<number>;
-    declare employeeID: number;
+    declare scheduleTemplateID: number;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
 }
 
-EmployeeUnavailability.init(
+ScheduleShiftTemplate.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        employeeID: {
+        scheduleTemplateID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             references: {
-                model: Employee,
+                model: ScheduleTemplate,
                 key: "id",
             },
-            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,
@@ -49,13 +48,20 @@ EmployeeUnavailability.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "employeeUnavailabilities",
+        tableName: "scheduleTemplate",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["id", "employeeID", "startTime", "endTime"],
+                fields: ["id", "scheduleTemplateID", "name"],
             },
         ],
+        validate: {
+            endAfterStart() {
+                if (this.endTime <= this.startTime) {
+                    throw new Error("End time must be after start time");
+                }
+            },
+        },
     },
 );

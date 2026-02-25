@@ -12,8 +12,8 @@ export class ScheduleTemplate extends Model<
     InferCreationAttributes<ScheduleTemplate>
 > {
     declare id: CreationOptional<number>;
-    declare name: string;
     declare businessID: number;
+    declare name: string;
 }
 
 ScheduleTemplate.init(
@@ -23,17 +23,17 @@ ScheduleTemplate.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
         businessID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            primaryKey: true,
             references: {
                 model: Business,
                 key: "id",
             },
+        },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
     },
     {
@@ -43,7 +43,7 @@ ScheduleTemplate.init(
         indexes: [
             {
                 unique: true,
-                fields: ["name", "businessID"],
+                fields: ["id", "businessID", "name"],
             },
         ],
     },

@@ -12,8 +12,8 @@ export class Role extends Model<
     InferCreationAttributes<Role>
 > {
     declare id: CreationOptional<number>;
-    declare role: string;
     declare businessID: number;
+    declare name: string;
 }
 
 Role.init(
@@ -23,27 +23,27 @@ Role.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        role: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
         businessID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            primaryKey: true,
             references: {
                 model: Business,
                 key: "id",
             },
         },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "role",
+        tableName: "roles",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["role", "businessID"],
+                fields: ["id, businessID, name"],
             },
         ],
     },

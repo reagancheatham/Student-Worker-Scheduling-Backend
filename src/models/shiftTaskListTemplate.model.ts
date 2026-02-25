@@ -5,52 +5,45 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Business } from "./business.model.ts";
-import { User } from "./user.model.ts";
+import { ScheduleShiftTemplate } from "./scheduleShiftTemplate.model.ts";
 
-export class Employee extends Model<
-    InferAttributes<Employee>,
-    InferCreationAttributes<Employee>
+export class ShiftTaskListTemplate extends Model<
+    InferAttributes<ShiftTaskListTemplate>,
+    InferCreationAttributes<ShiftTaskListTemplate>
 > {
     declare id: CreationOptional<number>;
-    declare businessID: number;
-    declare userID: number;
+    declare scheduleShiftID: number;
+    declare name: string;
 }
 
-Employee.init(
+ShiftTaskListTemplate.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        businessID: {
+        scheduleShiftID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             references: {
-                model: Business,
+                model: ScheduleShiftTemplate,
                 key: "id",
             },
         },
-        userID: {
-            type: DataTypes.INTEGER,
+        name: {
+            type: DataTypes.STRING,
             allowNull: false,
-            references: {
-                model: User,
-                key: "id",
-            },
-            onDelete: "CASCADE",
         },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "employees",
+        tableName: "scheduleTemplate",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["id", "businessID", "userID"],
-                name: "employeeIndex",
+                fields: ["id", "scheduleShiftID", "name"],
             },
         ],
     },

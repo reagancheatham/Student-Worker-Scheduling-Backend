@@ -1,8 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import type {
-    InferAttributes,
-    InferCreationAttributes,
-} from "sequelize";
+import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.model.ts";
 
@@ -17,7 +14,7 @@ Settings.init(
     {
         businessID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            primaryKey: true,
             references: {
                 model: Business,
                 key: "id",
