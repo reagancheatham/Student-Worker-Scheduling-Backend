@@ -14,189 +14,205 @@ import { Shift } from "./shift.model.ts";
 import { ShiftOfferRequest } from "./shiftOfferRequest.model.ts";
 import { ShiftTradeRequest } from "./shiftTradeRequest.model.ts";
 import { TimeSheet } from "./timeSheet.model.ts";
+import { Session } from "./session.model.ts";
+
+//User <-> Session
+User.hasMany(Session, {
+  foreignKey: {
+    name: "userID",
+    allowNull: false,
+  },
+  onDelete: "CASCADE",
+});
+Session.belongsTo(User, {
+  foreignKey: {
+    name: "userID",
+    allowNull: false,
+  },
+});
 
 //Employee <-> User
 Employee.belongsTo(User, {
-    foreignKey: "userID",
-    onDelete: "CASCADE",
+  foreignKey: "userID",
+  onDelete: "CASCADE",
 });
 User.hasOne(Employee, {
-    foreignKey: "userID",
-    onDelete: "CASCADE",
+  foreignKey: "userID",
+  onDelete: "CASCADE",
 });
 
 //Employee <-> Business
 Employee.belongsTo(Business, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 Business.hasMany(Employee, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 
 //Employee <-> PermissionRole
 Employee.belongsTo(PermissionRole, {
-    foreignKey: "permissionRoleID",
+  foreignKey: "permissionRoleID",
 });
 PermissionRole.hasMany(Employee, {
-    foreignKey: "permissionRoleID",
+  foreignKey: "permissionRoleID",
 });
 
 //Employee <-> RoleID
 Employee.hasMany(Role, {
-    foreignKey: "roleID",
+  foreignKey: "roleID",
 });
 Role.belongsTo(Employee, {
-    foreignKey: "roleID",
+  foreignKey: "roleID",
 });
 
 //EmployeeUnavailability <-> Employee
 EmployeeUnavailability.belongsTo(Employee, {
-    foreignKey: "employeeID",
-    onDelete: "CASCADE",
+  foreignKey: "employeeID",
+  onDelete: "CASCADE",
 });
 Employee.hasMany(EmployeeUnavailability, {
-    foreignKey: "employeeID",
-    onDelete: "CASCADE",
+  foreignKey: "employeeID",
+  onDelete: "CASCADE",
 });
 
 //Role <-> Business
 Role.belongsTo(Business, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 Business.hasMany(Role, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 
 //ScheduleTemplate <-> Business
 ScheduleTemplate.belongsTo(Business, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 Business.hasMany(ScheduleTemplate, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 
 //Setting <-> Business
 Settings.belongsTo(Business, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 Business.hasOne(Settings, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 
 //Shift <-> TaskList
 Shift.hasOne(TaskList, {
-    foreignKey: "taskListID",
+  foreignKey: "taskListID",
 });
 TaskList.belongsTo(TaskList, {
-    foreignKey: "taskListID",
+  foreignKey: "taskListID",
 });
 
 //Shift <-> Employee
 Shift.belongsTo(Employee, {
-    foreignKey: "employeeID",
-    onDelete: "CASCADE",
+  foreignKey: "employeeID",
+  onDelete: "CASCADE",
 });
 Employee.hasMany(Shift, {
-    foreignKey: "employeeID",
-    onDelete: "CASCADE",
+  foreignKey: "employeeID",
+  onDelete: "CASCADE",
 });
 
 //ShiftOfferRequest <-> Shift
 ShiftOfferRequest.hasOne(Shift, {
-    foreignKey: "shiftID",
-    onDelete: "CASCADE",
+  foreignKey: "shiftID",
+  onDelete: "CASCADE",
 });
 Shift.belongsTo(ShiftOfferRequest, {
-    foreignKey: "shiftID",
-    onDelete: "CASCADE",
+  foreignKey: "shiftID",
+  onDelete: "CASCADE",
 });
 
 //ShiftTemplate <-> TaskList
 ShiftTemplate.hasOne(TaskList, {
-    foreignKey: "taskListID",
+  foreignKey: "taskListID",
 });
 TaskList.belongsTo(ShiftTemplate, {
-    foreignKey: "taskListID",
+  foreignKey: "taskListID",
 });
 
 //ShiftTemplate <-> Employee
 ShiftTemplate.hasOne(Employee, {
-    foreignKey: "lastEmployeeID",
+  foreignKey: "lastEmployeeID",
 });
 Employee.belongsTo(ShiftTemplate, {
-    foreignKey: "lastEmployeeID",
+  foreignKey: "lastEmployeeID",
 });
 
 //ShiftTemplate <-> ScheduleTemplate
 ShiftTemplate.belongsTo(ScheduleTemplate, {
-    foreignKey: "scheduleTemplateID",
+  foreignKey: "scheduleTemplateID",
 });
 ScheduleTemplate.hasMany(ShiftTemplate, {
-    foreignKey: "scheduleTemplateID",
+  foreignKey: "scheduleTemplateID",
 });
 
 //ShiftTradeRequest <-> Shift
 ShiftTradeRequest.hasOne(Shift, {
-    foreignKey: "shiftID",
-    onDelete: "CASCADE",
+  foreignKey: "shiftID",
+  onDelete: "CASCADE",
 });
 Shift.belongsTo(ShiftTradeRequest, {
-    foreignKey: "shiftID",
-    onDelete: "CASCADE",
+  foreignKey: "shiftID",
+  onDelete: "CASCADE",
 });
 
 //ShiftTradeRequest <-> EMployee
 ShiftTradeRequest.hasOne(Employee, {
-    foreignKey: "targetEmployeeID",
+  foreignKey: "targetEmployeeID",
 });
 Employee.belongsTo(ShiftTradeRequest, {
-    foreignKey: "targetEmployeeID",
+  foreignKey: "targetEmployeeID",
 });
 
 //Task <-> TaskList
 Task.belongsTo(TaskList, {
-    foreignKey: "taskListID",
-    onDelete: "CASCADE",
+  foreignKey: "taskListID",
+  onDelete: "CASCADE",
 });
 TaskList.hasMany(Task, {
-    foreignKey: "taskListID",
-    onDelete: "CASCADE",
+  foreignKey: "taskListID",
+  onDelete: "CASCADE",
 });
 
 //TaskList <-> Business
 TaskList.belongsTo(Business, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 Business.hasMany(TaskList, {
-    foreignKey: "businessID",
-    onDelete: "CASCADE",
+  foreignKey: "businessID",
+  onDelete: "CASCADE",
 });
 
 //TimeOffRequest <-> Employee
 TimeOffRequest.belongsTo(Employee, {
-    foreignKey: "employeeID",
-    onDelete: "CASCADE",
+  foreignKey: "employeeID",
+  onDelete: "CASCADE",
 });
 Employee.hasMany(TimeOffRequest, {
-    foreignKey: "employeeID",
-    onDelete: "CASCADE",
+  foreignKey: "employeeID",
+  onDelete: "CASCADE",
 });
 
 //TimeSheet <-> Shift
 TimeSheet.belongsTo(Shift, {
-    foreignKey: "shiftID",
-    onDelete: "CASCADE",
+  foreignKey: "shiftID",
+  onDelete: "CASCADE",
 });
 Shift.hasOne(TimeSheet, {
-    foreignKey: "shiftID",
-    onDelete: "CASCADE",
+  foreignKey: "shiftID",
+  onDelete: "CASCADE",
 });
