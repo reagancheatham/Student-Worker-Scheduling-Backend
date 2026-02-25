@@ -48,7 +48,7 @@ Employee.init(
         indexes: [
             {
                 unique: true,
-                fields: ["id", "businessID", "userID"],
+                fields: ["businessID", "userID"],
                 name: "employeeIndex",
             },
         ],

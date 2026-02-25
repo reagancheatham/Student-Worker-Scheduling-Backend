@@ -14,7 +14,13 @@ import { ShiftOfferRequest } from "./shiftOfferRequest.model.ts";
 import { ShiftTradeRequest } from "./shiftTradeRequest.model.ts";
 import { TimeSheet } from "./timeSheet.model.ts";
 
-//Employee <-> User
+User.belongsTo(PermissionRole, {
+    foreignKey: "permissionRoleID",
+});
+PermissionRole.hasMany(User, {
+    foreignKey: "permissionRoleID",
+});
+
 Employee.belongsTo(User, {
     foreignKey: "userID",
     onDelete: "CASCADE",
@@ -24,7 +30,6 @@ User.hasMany(Employee, {
     onDelete: "CASCADE",
 });
 
-//Employee <-> Business
 Employee.belongsTo(Business, {
     foreignKey: "businessID",
     onDelete: "CASCADE",
@@ -34,15 +39,6 @@ Business.hasMany(Employee, {
     onDelete: "CASCADE",
 });
 
-//Employee <-> PermissionRole
-Employee.belongsTo(PermissionRole, {
-    foreignKey: "permissionRoleID",
-});
-PermissionRole.hasMany(Employee, {
-    foreignKey: "permissionRoleID",
-});
-
-//Employee <-> RoleID
 Employee.hasMany(Role, {
     foreignKey: "roleID",
 });
@@ -50,7 +46,6 @@ Role.belongsTo(Employee, {
     foreignKey: "roleID",
 });
 
-//EmployeeUnavailability <-> Employee
 EmployeeUnavailability.belongsTo(Employee, {
     foreignKey: "employeeID",
     onDelete: "CASCADE",
@@ -60,7 +55,6 @@ Employee.hasMany(EmployeeUnavailability, {
     onDelete: "CASCADE",
 });
 
-//Role <-> Business
 Role.belongsTo(Business, {
     foreignKey: "businessID",
     onDelete: "CASCADE",
@@ -70,7 +64,6 @@ Business.hasMany(Role, {
     onDelete: "CASCADE",
 });
 
-//ScheduleTemplate <-> Business
 ScheduleTemplate.belongsTo(Business, {
     foreignKey: "businessID",
     onDelete: "CASCADE",
@@ -80,7 +73,6 @@ Business.hasMany(ScheduleTemplate, {
     onDelete: "CASCADE",
 });
 
-//Setting <-> Business
 Settings.belongsTo(Business, {
     foreignKey: "businessID",
     onDelete: "CASCADE",
@@ -90,7 +82,6 @@ Business.hasOne(Settings, {
     onDelete: "CASCADE",
 });
 
-//Shift <-> TaskList
 Shift.hasOne(TaskList, {
     foreignKey: "taskListID",
 });
@@ -98,7 +89,6 @@ TaskList.belongsTo(TaskList, {
     foreignKey: "taskListID",
 });
 
-//Shift <-> Employee
 Shift.belongsTo(Employee, {
     foreignKey: "employeeID",
     onDelete: "CASCADE",
@@ -108,7 +98,6 @@ Employee.hasMany(Shift, {
     onDelete: "CASCADE",
 });
 
-//ShiftOfferRequest <-> Shift
 ShiftOfferRequest.hasOne(Shift, {
     foreignKey: "shiftID",
     onDelete: "CASCADE",
@@ -118,7 +107,6 @@ Shift.belongsTo(ShiftOfferRequest, {
     onDelete: "CASCADE",
 });
 
-//ShiftTradeRequest <-> Shift
 ShiftTradeRequest.hasOne(Shift, {
     foreignKey: "shiftID",
     onDelete: "CASCADE",
@@ -128,7 +116,6 @@ Shift.belongsTo(ShiftTradeRequest, {
     onDelete: "CASCADE",
 });
 
-//ShiftTradeRequest <-> EMployee
 ShiftTradeRequest.hasOne(Employee, {
     foreignKey: "targetEmployeeID",
 });
@@ -136,7 +123,6 @@ Employee.belongsTo(ShiftTradeRequest, {
     foreignKey: "targetEmployeeID",
 });
 
-//Task <-> TaskList
 Task.belongsTo(TaskList, {
     foreignKey: "taskListID",
     onDelete: "CASCADE",
@@ -146,7 +132,6 @@ TaskList.hasMany(Task, {
     onDelete: "CASCADE",
 });
 
-//TaskList <-> Business
 TaskList.belongsTo(Business, {
     foreignKey: "businessID",
     onDelete: "CASCADE",
@@ -156,7 +141,6 @@ Business.hasMany(TaskList, {
     onDelete: "CASCADE",
 });
 
-//TimeOffRequest <-> Employee
 TimeOffRequest.belongsTo(Employee, {
     foreignKey: "employeeID",
     onDelete: "CASCADE",
@@ -166,7 +150,6 @@ Employee.hasMany(TimeOffRequest, {
     onDelete: "CASCADE",
 });
 
-//TimeSheet <-> Shift
 TimeSheet.belongsTo(Shift, {
     foreignKey: "shiftID",
     onDelete: "CASCADE",

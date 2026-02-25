@@ -42,7 +42,7 @@ ShiftTaskListTemplate.init(
         indexes: [
             {
                 unique: true,
-                fields: ["id", "scheduleShiftID", "name"],
+                fields: ["scheduleShiftID", "name"],
             },
         ],
     },

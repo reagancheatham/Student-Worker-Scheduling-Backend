@@ -17,7 +17,7 @@ export class ControllerUtil {
         console.log(
             `Creating ${model.name} with info: ${JSON.stringify(info)}`,
         );
-        
+
         await model
             .create(info)
             .then((data) => {
@@ -100,7 +100,7 @@ export class ControllerUtil {
         const id = req.params[key as string];
 
         console.log(`Getting ${model.name} with id: ${JSON.stringify(id)}`);
-        
+
         await model
             .findOne({
                 where: {

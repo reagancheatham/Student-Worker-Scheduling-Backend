@@ -1,27 +1,26 @@
 import { Model, DataTypes } from "sequelize";
-import type {
-    CreationOptional,
-    InferAttributes,
-    InferCreationAttributes,
-} from "sequelize";
+import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
+import { User } from "./user.model.ts";
 import { Business } from "./business.model.ts";
 
-export class Role extends Model<
-    InferAttributes<Role>,
-    InferCreationAttributes<Role>
+export class Manager extends Model<
+    InferAttributes<Manager>,
+    InferCreationAttributes<Manager>
 > {
-    declare id: CreationOptional<number>;
+    declare userID: number;
     declare businessID: number;
-    declare name: string;
 }
 
-Role.init(
+Manager.init(
     {
-        id: {
+        userID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
+            references: {
+                model: User,
+                key: "id",
+            },
         },
         businessID: {
             type: DataTypes.INTEGER,
@@ -31,19 +30,9 @@ Role.init(
                 key: "id",
             },
         },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
-        indexes: [
-            {
-                unique: true,
-                fields: ["businessID", "name"],
-            },
-        ],
     },
 );

@@ -1,21 +1,21 @@
-import { TaskList } from "../models/taskList.model.ts";
 import type { Request, Response } from "express";
 import { ControllerUtil } from "../util/controllerUtil.ts";
+import { TaskTemplate } from "../models/taskTemplate.model.ts";
 
-export class TaskListController {
+export class TaskTemplateController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create(TaskList, req, res);
+        ControllerUtil.create(TaskTemplate, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update(TaskList, req, res, "id");
+        ControllerUtil.update(TaskTemplate, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete(TaskList, req, res, "id");
+        ControllerUtil.delete(TaskTemplate, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get(TaskList, req, res, "id");
+        ControllerUtil.get(TaskTemplate, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
-        ControllerUtil.getAll(TaskList, req, res);
+        ControllerUtil.getAll(TaskTemplate, req, res);
     }
 }

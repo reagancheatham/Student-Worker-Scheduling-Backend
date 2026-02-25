@@ -52,7 +52,7 @@ ScheduleShiftTemplate.init(
         indexes: [
             {
                 unique: true,
-                fields: ["id", "scheduleTemplateID", "name"],
+                fields: ["scheduleTemplateID", "name"],
             },
         ],
         validate: {

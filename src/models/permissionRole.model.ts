@@ -32,7 +32,7 @@ PermissionRole.init(
         indexes: [
             {
                 unique: true,
-                fields: ["id, name"],
+                fields: ["name"],
             },
         ],
     },
