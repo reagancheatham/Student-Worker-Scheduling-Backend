@@ -5,7 +5,6 @@ import { TaskList } from "./taskList.model.ts";
 import { Settings } from "./settings.model.ts";
 import { Employee } from "./employee.model.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.model.ts";
-import { ShiftTemplate } from "./shiftTemplate.model.ts";
 import { TimeOffRequest } from "./timeOffRequest.model.ts";
 import { PermissionRole } from "./permissionRole.model.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.model.ts";
@@ -117,30 +116,6 @@ ShiftOfferRequest.hasOne(Shift, {
 Shift.belongsTo(ShiftOfferRequest, {
     foreignKey: "shiftID",
     onDelete: "CASCADE",
-});
-
-//ShiftTemplate <-> TaskList
-ShiftTemplate.hasOne(TaskList, {
-    foreignKey: "taskListID",
-});
-TaskList.belongsTo(ShiftTemplate, {
-    foreignKey: "taskListID",
-});
-
-//ShiftTemplate <-> Employee
-ShiftTemplate.hasOne(Employee, {
-    foreignKey: "lastEmployeeID",
-});
-Employee.belongsTo(ShiftTemplate, {
-    foreignKey: "lastEmployeeID",
-});
-
-//ShiftTemplate <-> ScheduleTemplate
-ShiftTemplate.belongsTo(ScheduleTemplate, {
-    foreignKey: "scheduleTemplateID",
-});
-ScheduleTemplate.hasMany(ShiftTemplate, {
-    foreignKey: "scheduleTemplateID",
 });
 
 //ShiftTradeRequest <-> Shift

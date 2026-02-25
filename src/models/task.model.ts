@@ -44,7 +44,6 @@ Task.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "Task",
         timestamps: false,
         indexes: [
             {

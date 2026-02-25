@@ -48,7 +48,6 @@ ScheduleShiftTemplate.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "scheduleTemplate",
         timestamps: false,
         indexes: [
             {
@@ -57,7 +56,7 @@ ScheduleShiftTemplate.init(
             },
         ],
         validate: {
-            endAfterStart() {
+            endAfterStart(this: ScheduleShiftTemplate) {
                 if (this.endTime <= this.startTime) {
                     throw new Error("End time must be after start time");
                 }

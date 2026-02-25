@@ -28,7 +28,6 @@ PermissionRole.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "permissionRoles",
         timestamps: false,
         indexes: [
             {

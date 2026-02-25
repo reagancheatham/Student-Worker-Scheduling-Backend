@@ -5,12 +5,15 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
+import { PermissionRole } from "./permissionRole.model.ts";
 
 export class User extends Model<
     InferAttributes<User>,
     InferCreationAttributes<User>
 > {
     declare id: CreationOptional<number>;
+    declare studentID: number;
+    declare permissionRoleID: number;
     declare firstName: string;
     declare lastName: string;
     declare email: string;
@@ -23,6 +26,18 @@ User.init(
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
+        },
+        studentID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        permissionRoleID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: PermissionRole,
+                key: "id",
+            },
         },
         firstName: {
             type: DataTypes.STRING,
@@ -43,12 +58,11 @@ User.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "User",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["firstName", "lastName"],
+                fields: ["studentID", "permissionRoleID", "firstName", "lastName"],
             },
         ],
     },

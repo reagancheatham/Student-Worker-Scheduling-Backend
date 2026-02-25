@@ -13,11 +13,11 @@ export class TimeOffRequest extends Model<
     InferCreationAttributes<TimeOffRequest>
 > {
     declare id: CreationOptional<number>;
+    declare employeeID: number;
+    declare reason: string;
     declare startDate: Date;
     declare endDate: Date;
-    declare timeOffReason: string;
     declare status: ApprovalStatus;
-    declare employeeID: number;
 }
 
 TimeOffRequest.init(
@@ -27,6 +27,14 @@ TimeOffRequest.init(
             primaryKey: true,
             autoIncrement: true,
         },
+        employeeID: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            references: {
+                model: Employee,
+                key: "id",
+            },
+        },
         startDate: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -35,7 +43,7 @@ TimeOffRequest.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
-        timeOffReason: {
+        reason: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -43,28 +51,19 @@ TimeOffRequest.init(
             type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
             allowNull: false,
         },
-        employeeID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: Employee,
-                key: "id",
-            },
-        },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "TimeOffRequest",
         timestamps: false,
         indexes: [
             {
                 unique: true,
                 fields: [
+                    "employeeID",
+                    "reason",
                     "startDate",
                     "endDate",
-                    "timeOffReason",
                     "status",
-                    "employeeID",
                 ],
                 name: "timeOffRequestIndex",
             },

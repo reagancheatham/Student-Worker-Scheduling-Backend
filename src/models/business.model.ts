@@ -28,7 +28,6 @@ Business.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "businesses",
         timestamps: false,
     },
 );

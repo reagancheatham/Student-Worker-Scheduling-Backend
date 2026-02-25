@@ -44,7 +44,6 @@ Employee.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "employees",
         timestamps: false,
         indexes: [
             {

@@ -13,10 +13,10 @@ export class TimeSheet extends Model<
     InferCreationAttributes<TimeSheet>
 > {
     declare id: CreationOptional<number>;
-    declare startTime: Date;
-    declare endTime: Date;
-    declare status: ApprovalStatus;
     declare shiftID: number;
+    declare clockIn: Date;
+    declare clockOut: Date;
+    declare status: ApprovalStatus;
 }
 
 TimeSheet.init(
@@ -26,11 +26,19 @@ TimeSheet.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        startTime: {
+        shiftID: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            references: {
+                model: Shift,
+                key: "id",
+            },
+        },
+        clockIn: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        endTime: {
+        clockOut: {
             type: DataTypes.DATE,
             allowNull: false,
         },
@@ -38,23 +46,14 @@ TimeSheet.init(
             type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
             allowNull: false,
         },
-        shiftID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: Shift,
-                key: "id",
-            },
-        },
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "TimeSheet",
         timestamps: false,
         indexes: [
             {
                 unique: true,
-                fields: ["startTime", "endTime", "status", "shiftID"],
+                fields: ["shiftID", "clockIn", "clockOut", "status"],
             },
         ],
     },

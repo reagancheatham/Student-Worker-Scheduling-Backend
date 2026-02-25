@@ -49,7 +49,6 @@ EmployeeUnavailability.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "employeeUnavailabilities",
         timestamps: false,
         indexes: [
             {

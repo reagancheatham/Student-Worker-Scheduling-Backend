@@ -38,7 +38,6 @@ Role.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "roles",
         timestamps: false,
         indexes: [
             {

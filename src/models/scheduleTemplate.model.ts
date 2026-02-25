@@ -38,7 +38,6 @@ ScheduleTemplate.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "scheduleTemplate",
         timestamps: false,
         indexes: [
             {

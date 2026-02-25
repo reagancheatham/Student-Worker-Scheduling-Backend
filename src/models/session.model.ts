@@ -5,50 +5,44 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Shift } from "./shift.model.ts";
+import { User } from "./user.model.ts";
 
-export class ShiftOfferRequest extends Model<
-    InferAttributes<ShiftOfferRequest>,
-    InferCreationAttributes<ShiftOfferRequest>
+export class Session extends Model<
+    InferAttributes<Session>,
+    InferCreationAttributes<Session>
 > {
     declare id: CreationOptional<number>;
-    declare shiftID: number;
-    declare employeeMessage: string;
-    declare timeSent: Date;
+    declare userID: number;
+    declare expirationTime: Date;
+    declare token: string;
 }
 
-ShiftOfferRequest.init(
+Session.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        shiftID: {
+        userID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
-                model: Shift,
+                model: User,
                 key: "id",
             },
         },
-        employeeMessage: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        timeSent: {
+        expirationTime: {
             type: DataTypes.DATE,
+            allowNull: false,
+        },
+        token: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
-        indexes: [
-            {
-                unique: true,
-                fields: ["employeeMessage", "timeSent", "shiftID"],
-            },
-        ],
     },
 );

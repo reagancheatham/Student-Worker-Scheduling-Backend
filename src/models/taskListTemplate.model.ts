@@ -5,39 +5,34 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Shift } from "./shift.model.ts";
+import { Business } from "./business.model.ts";
 
-export class ShiftOfferRequest extends Model<
-    InferAttributes<ShiftOfferRequest>,
-    InferCreationAttributes<ShiftOfferRequest>
+export class TaskListTemplate extends Model<
+    InferAttributes<TaskListTemplate>,
+    InferCreationAttributes<TaskListTemplate>
 > {
     declare id: CreationOptional<number>;
-    declare shiftID: number;
-    declare employeeMessage: string;
-    declare timeSent: Date;
+    declare businessID: number;
+    declare name: string;
 }
 
-ShiftOfferRequest.init(
+TaskListTemplate.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        shiftID: {
+        businessID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             references: {
-                model: Shift,
+                model: Business,
                 key: "id",
             },
         },
-        employeeMessage: {
+        name: {
             type: DataTypes.STRING,
-            allowNull: true,
-        },
-        timeSent: {
-            type: DataTypes.DATE,
             allowNull: false,
         },
     },
@@ -47,7 +42,7 @@ ShiftOfferRequest.init(
         indexes: [
             {
                 unique: true,
-                fields: ["employeeMessage", "timeSent", "shiftID"],
+                fields: ["businessID", "name"],
             },
         ],
     },

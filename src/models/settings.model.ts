@@ -23,7 +23,6 @@ Settings.init(
     },
     {
         sequelize: sequelizeInstance,
-        tableName: "settings",
         timestamps: false,
         indexes: [
             {
