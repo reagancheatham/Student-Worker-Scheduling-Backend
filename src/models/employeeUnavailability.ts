@@ -5,14 +5,17 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Employee } from "./employee.model.ts";
+import { Employee } from "./employee.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class EmployeeUnavailability extends Model<
     InferAttributes<EmployeeUnavailability>,
     InferCreationAttributes<EmployeeUnavailability>
 > {
-    declare id: CreationOptional<number>;
     declare employeeID: number;
+    declare id: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
@@ -20,11 +23,6 @@ export class EmployeeUnavailability extends Model<
 
 EmployeeUnavailability.init(
     {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         employeeID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -33,6 +31,11 @@ EmployeeUnavailability.init(
                 key: "id",
             },
             onDelete: "CASCADE",
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,
@@ -58,3 +61,19 @@ EmployeeUnavailability.init(
         ],
     },
 );
+
+class EmployeeUnavailabilityRouter extends ModelRouter {
+    public path(): string {
+        return "/employeeUnavailabilities";
+    }
+
+    protected buildRouter(router: Router): void {
+        router.post("/", (req, res) => ScheduleDatabase.create(EmployeeUnavailability, req, res));
+        router.put("/", (req, res) => ScheduleDatabase.update(EmployeeUnavailability, req, res, "employeeID", "id"));
+        router.delete("/:employeeID/:id", (req, res) => ScheduleDatabase.delete(EmployeeUnavailability, req, res, "employeeID", "id"));
+        router.get("/:employeeID/:id", (req, res) => ScheduleDatabase.get(EmployeeUnavailability, req, res, "employeeID", "id"));
+        router.get("/:employeeID", (req, res) => ScheduleDatabase.getAllWhere(EmployeeUnavailability, req, res, "employeeID"));
+    }
+}
+
+export const employeeUnavailabilityRouter = new EmployeeUnavailabilityRouter();

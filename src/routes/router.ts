@@ -1,36 +1,46 @@
 import { Router } from "express";
-import { BusinessRouter } from "./business.routes.ts";
-import { EmployeeRouter } from "./employee.routes.ts";
-import { EmployeeUnavailabilityRouter } from "./employeeUnavailability.routes.ts";
-import { PermissionRoleRouter } from "./permissionRole.routes.ts";
-import { RoleRouter } from "./role.routes.ts";
-import { ScheduleTemplateRouter } from "./scheduleTemplate.routes.ts";
-import { SettingsRouter } from "./settings.routes.ts";
-import { ShiftRouter } from "./shift.routes.ts";
 import { ShiftOfferRequestRouter } from "./shiftOfferRequest.routes.ts";
 import { ShiftTradeRequestRouter } from "./shiftTradeRequest.routes.ts";
 import { TaskRouter } from "./task.routes.ts";
 import { TaskListRouter } from "./taskList.routes.ts";
 import { TimeOffRequestRouter } from "./timeOffRequest.routes.ts";
 import { TimeSheetRouter } from "./timeSheet.routes.ts";
-import { UserRouter } from "./user.routes.ts";
-import { ScheduleShiftTemplateRouter } from "./scheduleShiftTemplate.routes.ts";
-import { SessionRouter } from "./session.routes.ts";
 import { TaskListTemplateRouter } from "./taskListTemplate.routes.ts";
 import { TaskTemplateRouter } from "./taskTemplate.routes.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { businessRouter } from "../models/business.ts";
+import { employeeRouter } from "../models/employee.ts";
+import { userRouter } from "../models/user.model.ts";
+import { managerRouter } from "../models/manager.ts";
+import { employeeUnavailabilityRouter } from "../models/employeeUnavailability.ts";
+import { permissionRoleRouter } from "../models/permissionRole.ts";
+import { roleRouter } from "../models/role.ts";
+import { scheduleShiftTemplateRouter } from "../models/scheduleShiftTemplate.ts";
+import { scheduleTemplateRouter } from "../models/scheduleTemplate.ts";
+import { sessionRouter } from "../models/session.ts";
+import { settingsRouter } from "../models/settings.ts";
+import { shiftRouter } from "../models/shift.model.ts";
 
 const router = Router();
+const modelRouters: ModelRouter[] = [
+    userRouter,
+    businessRouter,
+    managerRouter,
+    employeeRouter,
+    employeeUnavailabilityRouter,
+    permissionRoleRouter,
+    roleRouter,
+    scheduleShiftTemplateRouter,
+    scheduleTemplateRouter,
+    sessionRouter,
+    settingsRouter,
+    shiftRouter,
+];
 
-router.use("/businesses", BusinessRouter);
-router.use("/employees", EmployeeRouter);
-router.use("/employeeUnavailabilities", EmployeeUnavailabilityRouter);
-router.use("/permissionRoles", PermissionRoleRouter);
-router.use("/roles", RoleRouter);
-router.use("/scheduleShiftTemplates", ScheduleShiftTemplateRouter);
-router.use("/scheduleTemplates", ScheduleTemplateRouter);
-router.use("/sessions", SessionRouter);
-router.use("/settings", SettingsRouter);
-router.use("/shifts", ShiftRouter);
+modelRouters.forEach((modelRouter) => {
+    router.use(modelRouter.path(), modelRouter.router());
+});
+
 router.use("/shiftOfferRequests", ShiftOfferRequestRouter);
 router.use("/shiftTradeRequests", ShiftTradeRequestRouter);
 router.use("/tasks", TaskRouter);
@@ -39,6 +49,5 @@ router.use("/taskListTemplates", TaskListTemplateRouter);
 router.use("/taskTemplates", TaskTemplateRouter);
 router.use("/timeOffRequests", TimeOffRequestRouter);
 router.use("/timeSheets", TimeSheetRouter);
-router.use("/users", UserRouter);
 
 export { router };

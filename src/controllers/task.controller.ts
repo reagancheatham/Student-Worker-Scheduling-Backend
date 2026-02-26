@@ -1,21 +1,21 @@
 import { Task } from "../models/task.model.ts";
 import type { Request, Response } from "express";
-import { ControllerUtil } from "../util/controllerUtil.ts";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class TaskController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create(Task, req, res);
+        ScheduleDatabase.create(Task, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update(Task, req, res, "id");
+        ScheduleDatabase.update(Task, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete(Task, req, res, "id");
+        ScheduleDatabase.delete(Task, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get(Task, req, res, "id");
+        ScheduleDatabase.get(Task, req, res, "id");
     }
     static async getAll(req: Request, res: Response) {
-        ControllerUtil.getAll(Task, req, res);
+        ScheduleDatabase.getAll(Task, req, res);
     }
 }

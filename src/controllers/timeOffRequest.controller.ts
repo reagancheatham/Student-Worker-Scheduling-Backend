@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
-import { ControllerUtil } from "../util/controllerUtil.ts";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { TimeOffRequest } from "../models/timeOffRequest.model.ts";
 
 export class TimeOffRequestController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create(TimeOffRequest, req, res);
+        ScheduleDatabase.create(TimeOffRequest, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update(
+        ScheduleDatabase.update(
             TimeOffRequest,
             req,
             res,
@@ -15,7 +15,7 @@ export class TimeOffRequestController {
         );
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete(
+        ScheduleDatabase.delete(
             TimeOffRequest,
             req,
             res,
@@ -23,7 +23,7 @@ export class TimeOffRequestController {
         );
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get(
+        ScheduleDatabase.get(
             TimeOffRequest,
             req,
             res,

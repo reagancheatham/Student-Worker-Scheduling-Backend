@@ -5,24 +5,19 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Business } from "./business.model.ts";
+import { Business } from "./business.ts";
 
 export class TaskListTemplate extends Model<
     InferAttributes<TaskListTemplate>,
     InferCreationAttributes<TaskListTemplate>
 > {
-    declare id: CreationOptional<number>;
     declare businessID: number;
+    declare id: CreationOptional<number>;
     declare name: string;
 }
 
 TaskListTemplate.init(
     {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         businessID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -30,6 +25,11 @@ TaskListTemplate.init(
                 model: Business,
                 key: "id",
             },
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

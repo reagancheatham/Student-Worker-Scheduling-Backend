@@ -12,8 +12,8 @@ export class TimeSheet extends Model<
     InferAttributes<TimeSheet>,
     InferCreationAttributes<TimeSheet>
 > {
-    declare id: CreationOptional<number>;
     declare shiftID: number;
+    declare id: CreationOptional<number>;
     declare clockIn: Date;
     declare clockOut: Date;
     declare status: ApprovalStatus;
@@ -21,11 +21,6 @@ export class TimeSheet extends Model<
 
 TimeSheet.init(
     {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         shiftID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -33,6 +28,11 @@ TimeSheet.init(
                 model: Shift,
                 key: "id",
             },
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
         },
         clockIn: {
             type: DataTypes.DATE,

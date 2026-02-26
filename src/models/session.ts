@@ -6,6 +6,9 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { User } from "./user.model.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class Session extends Model<
     InferAttributes<Session>,
@@ -46,3 +49,29 @@ Session.init(
         timestamps: false,
     },
 );
+
+class SessionRouter extends ModelRouter {
+    public path(): string {
+        return "/sessions";
+    }
+
+    protected buildRouter(router: Router): void {
+        router.post("/", (req, res) =>
+            ScheduleDatabase.create(Session, req, res),
+        );
+        router.put("/", (req, res) =>
+            ScheduleDatabase.update(Session, req, res, "id"),
+        );
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(Session, req, res, "id"),
+        );
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.get(Session, req, res, "id"),
+        );
+        router.get("/user/:userID", (req, res) =>
+            ScheduleDatabase.getAllWhere(Session, req, res, "userID"),
+        );
+    }
+}
+
+export const sessionRouter = new SessionRouter();

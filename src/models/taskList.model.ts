@@ -11,18 +11,13 @@ export class TaskList extends Model<
     InferAttributes<TaskList>,
     InferCreationAttributes<TaskList>
 > {
-    declare id: CreationOptional<number>;
     declare shiftID: number;
+    declare id: CreationOptional<number>;
     declare name: string;
 }
 
 TaskList.init(
     {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         shiftID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -30,6 +25,11 @@ TaskList.init(
                 model: Shift,
                 key: "id",
             },
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

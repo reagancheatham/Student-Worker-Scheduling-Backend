@@ -1,7 +1,7 @@
-import { Attributes, Model, ModelStatic, WhereOptions } from "sequelize";
+import { Attributes, Model, ModelStatic } from "sequelize";
 import type { Request, Response } from "express";
 
-export class ControllerUtil {
+export class ScheduleDatabase {
     public static async create<M extends Model>(
         model: ModelStatic<M>,
         req: Request,
@@ -34,7 +34,7 @@ export class ControllerUtil {
         model: ModelStatic<M>,
         req: Request<{}, {}, Attributes<M>>,
         res: Response,
-        key: keyof Attributes<M>,
+        ...keys: (keyof Attributes<M>)[]
     ) {
         const info = req.body;
 
@@ -47,8 +47,10 @@ export class ControllerUtil {
             `Updating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
-        const where: WhereOptions<Attributes<M>> = {};
-        where[key] = info[key];
+        const where = {};
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
 
         await model
             .update(info, { where })
@@ -69,17 +71,19 @@ export class ControllerUtil {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        key: keyof Attributes<M>,
+        ...keys: (keyof Attributes<M>)[]
     ) {
-        const id = req.params[key as string];
+        const where = {};
 
-        console.log(`Deleting ${model.name}: ${id}`);
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
+
+        console.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
 
         await model
             .destroy({
-                where: {
-                    [key]: id,
-                } as any,
+                where,
             })
             .then(() => {
                 console.log(`Successfully deleted ${model.name}`);
@@ -95,42 +99,13 @@ export class ControllerUtil {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        key: keyof Attributes<M>,
+        ...keys: (keyof Attributes<M>)[]
     ) {
-        const id = req.params[key as string];
+        const where = {};
 
-        console.log(`Getting ${model.name} with id: ${JSON.stringify(id)}`);
-
-        await model
-            .findOne({
-                where: {
-                    [key]: id,
-                } as any,
-            })
-            .then((result) => {
-                console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error getting ${model.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-
-    public static async getTwoKeys<M extends Model>(
-        model: ModelStatic<M>,
-        req: Request,
-        res: Response,
-        key1: keyof Attributes<M>,
-        key2: keyof Attributes<M>,
-    ) {
-        const id1 = req.params[key1 as string];
-        const id2 = req.params[key2 as string];
-
-        const where = {
-            [key1]: id1,
-            [key2]: id2,
-        } as any;
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
 
         console.log(
             `Getting ${model.name} with info: ${JSON.stringify(where)}`,
@@ -169,17 +144,21 @@ export class ControllerUtil {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        key: keyof Attributes<M>,
+        ...keys: (keyof Attributes<M>)[]
     ) {
-        const id = req.params[key as string];
+        const where = {};
 
-        console.log(`Getting ${model.name} with info: ${JSON.stringify(id)}`);
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
+
+        console.log(
+            `Getting ${model.name} with info: ${JSON.stringify(where)}`,
+        );
 
         await model
             .findAll({
-                where: {
-                    [key]: id,
-                } as any,
+                where,
             })
             .then((result) => {
                 console.log(`Found ${result.length} ${model.name}s`);

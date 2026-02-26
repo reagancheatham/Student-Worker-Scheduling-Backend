@@ -11,19 +11,14 @@ export class TaskTemplate extends Model<
     InferAttributes<TaskTemplate>,
     InferCreationAttributes<TaskTemplate>
 > {
-    declare id: CreationOptional<number>;
     declare taskListTemplateID: number;
+    declare id: CreationOptional<number>;
     declare name: string;
     declare description: string;
 }
 
 TaskTemplate.init(
     {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         taskListTemplateID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -31,6 +26,11 @@ TaskTemplate.init(
                 model: TaskListTemplate,
                 key: "id",
             },
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

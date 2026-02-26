@@ -5,8 +5,8 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { TaskStatus } from "../classes/taskStatus.ts";
 import { TaskList } from "./taskList.model.ts";
+import { TaskStatus } from "../classes/taskStatus.ts";
 
 export class Task extends Model<
     InferAttributes<Task>,

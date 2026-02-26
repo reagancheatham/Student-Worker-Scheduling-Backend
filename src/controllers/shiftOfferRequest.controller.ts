@@ -1,18 +1,18 @@
 import type { Request, Response } from "express";
 import { ShiftOfferRequest } from "../models/shiftOfferRequest.model.ts";
-import { ControllerUtil } from "../util/controllerUtil.ts";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class ShiftOfferRequestController {
     static async create(req: Request, res: Response) {
-        ControllerUtil.create(ShiftOfferRequest, req, res);
+        ScheduleDatabase.create(ShiftOfferRequest, req, res);
     }
     static async update(req: Request, res: Response) {
-        ControllerUtil.update(ShiftOfferRequest, req, res, "id");
+        ScheduleDatabase.update(ShiftOfferRequest, req, res, "id");
     }
     static async delete(req: Request, res: Response) {
-        ControllerUtil.delete(ShiftOfferRequest, req, res, "id");
+        ScheduleDatabase.delete(ShiftOfferRequest, req, res, "id");
     }
     static async get(req: Request, res: Response) {
-        ControllerUtil.get(ShiftOfferRequest, req, res, "id");
+        ScheduleDatabase.get(ShiftOfferRequest, req, res, "id");
     }
 }

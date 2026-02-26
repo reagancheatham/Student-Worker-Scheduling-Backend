@@ -2,7 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import { defaultCorsConfig } from "./config/corsConfig.ts";
-import "./models/database.model.ts";
+import "./models/database.ts";
 import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./routes/router.ts";
 
