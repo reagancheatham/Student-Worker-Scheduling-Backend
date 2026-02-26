@@ -28,7 +28,7 @@ TaskListTemplate.init(
         },
         businessID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Business,
                 key: "id",
@@ -65,29 +65,26 @@ class TaskListTemplateRouter extends ModelRouter {
                 TaskListTemplate,
                 req,
                 res,
-                "businessID",
                 "id",
             ),
         );
-        router.delete("/:businessID/:id", (req, res) =>
+        router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(
                 TaskListTemplate,
                 req,
                 res,
-                "businessID",
                 "id",
             ),
         );
-        router.get("/:businessID/:id", (req, res) =>
+        router.get("/:id", (req, res) =>
             ScheduleDatabase.get(
                 TaskListTemplate,
                 req,
                 res,
-                "businessID",
                 "id",
             ),
         );
-        router.get("/:businessID", (req, res) =>
+        router.get("/business/:businessID", (req, res) =>
             ScheduleDatabase.getAllWhere(
                 TaskListTemplate,
                 req,

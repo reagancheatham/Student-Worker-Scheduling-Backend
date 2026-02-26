@@ -11,7 +11,7 @@ import { scheduleShiftTemplateRouter } from "./models/scheduleShiftTemplate.ts";
 import { scheduleTemplateRouter } from "./models/scheduleTemplate.ts";
 import { sessionRouter } from "./models/session.ts";
 import { settingsRouter } from "./models/settings.ts";
-import { shiftRouter } from "./models/shift.model.ts";
+import { shiftRouter } from "./models/shift.ts";
 import { shiftOfferRequestRouter } from "./models/shiftOfferRequest.ts";
 import { shiftTaskListTemplateRouter } from "./models/shiftTaskListTemplate.ts";
 import { shiftTaskTemplateRouter } from "./models/shiftTaskTemplate.ts";

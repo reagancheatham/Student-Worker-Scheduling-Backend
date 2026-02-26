@@ -8,7 +8,7 @@ import { ScheduleShiftTemplate } from "./scheduleShiftTemplate.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.ts";
 import { Session } from "./session.ts";
 import { Settings } from "./settings.ts";
-import { Shift } from "./shift.model.ts";
+import { Shift } from "./shift.ts";
 import { ShiftOfferRequest } from "./shiftOfferRequest.ts";
 import { ShiftTaskListTemplate } from "./shiftTaskListTemplate.ts";
 import { ShiftTaskTemplate } from "./shiftTaskTemplate.ts";

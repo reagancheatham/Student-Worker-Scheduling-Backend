@@ -6,10 +6,10 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
-import { Business } from "./business.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { Business } from "./business.ts";
 
 export class Shift extends Model<
     InferAttributes<Shift>,
@@ -32,7 +32,7 @@ Shift.init(
         },
         businessID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Business,
                 key: "id",

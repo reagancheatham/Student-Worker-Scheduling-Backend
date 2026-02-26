@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ApprovalStatus } from "../classes/approvalStatus.ts";
-import { Shift } from "./shift.model.ts";
+import { Shift } from "./shift.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
@@ -31,7 +31,7 @@ Timesheet.init(
         },
         shiftID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Shift,
                 key: "id",
@@ -72,13 +72,13 @@ class TimesheetRouter extends ModelRouter {
             ScheduleDatabase.create(Timesheet, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Timesheet, req, res, "shiftID", "id"),
+            ScheduleDatabase.update(Timesheet, req, res, "id"),
         );
-        router.delete("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.delete(Timesheet, req, res, "shiftID", "id"),
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(Timesheet, req, res, "id"),
         );
-        router.get("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.get(Timesheet, req, res, "shiftID", "id"),
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.get(Timesheet, req, res, "id"),
         );
     }
 }
