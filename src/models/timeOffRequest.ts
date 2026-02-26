@@ -15,8 +15,8 @@ export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
     InferCreationAttributes<TimeOffRequest>
 > {
-    declare employeeID: number;
     declare id: CreationOptional<number>;
+    declare employeeID: number;
     declare reason: string;
     declare startDate: Date;
     declare endDate: Date;
@@ -25,6 +25,11 @@ export class TimeOffRequest extends Model<
 
 TimeOffRequest.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         employeeID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -32,11 +37,6 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         startDate: {
             type: DataTypes.DATE,

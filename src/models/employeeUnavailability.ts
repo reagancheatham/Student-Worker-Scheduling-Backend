@@ -14,8 +14,8 @@ export class EmployeeUnavailability extends Model<
     InferAttributes<EmployeeUnavailability>,
     InferCreationAttributes<EmployeeUnavailability>
 > {
-    declare employeeID: number;
     declare id: CreationOptional<number>;
+    declare employeeID: number;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
@@ -23,6 +23,11 @@ export class EmployeeUnavailability extends Model<
 
 EmployeeUnavailability.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         employeeID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -31,11 +36,6 @@ EmployeeUnavailability.init(
                 key: "id",
             },
             onDelete: "CASCADE",
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

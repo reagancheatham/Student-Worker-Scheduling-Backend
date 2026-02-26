@@ -14,14 +14,19 @@ export class ShiftTaskTemplate extends Model<
     InferAttributes<ShiftTaskTemplate>,
     InferCreationAttributes<ShiftTaskTemplate>
 > {
-    declare shiftTaskListID: number;
     declare id: CreationOptional<number>;
+    declare shiftTaskListID: number;
     declare name: string;
     declare description: string;
 }
 
 ShiftTaskTemplate.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         shiftTaskListID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -29,11 +34,6 @@ ShiftTaskTemplate.init(
                 model: ShiftTaskListTemplate,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

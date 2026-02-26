@@ -14,13 +14,18 @@ export class TaskListTemplate extends Model<
     InferAttributes<TaskListTemplate>,
     InferCreationAttributes<TaskListTemplate>
 > {
-    declare businessID: number;
     declare id: CreationOptional<number>;
+    declare businessID: number;
     declare name: string;
 }
 
 TaskListTemplate.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         businessID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -28,11 +33,6 @@ TaskListTemplate.init(
                 model: Business,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

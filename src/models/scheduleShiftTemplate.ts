@@ -14,8 +14,8 @@ export class ScheduleShiftTemplate extends Model<
     InferAttributes<ScheduleShiftTemplate>,
     InferCreationAttributes<ScheduleShiftTemplate>
 > {
-    declare scheduleTemplateID: number;
     declare id: CreationOptional<number>;
+    declare scheduleTemplateID: number;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
@@ -23,6 +23,11 @@ export class ScheduleShiftTemplate extends Model<
 
 ScheduleShiftTemplate.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         scheduleTemplateID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -30,11 +35,6 @@ ScheduleShiftTemplate.init(
                 model: ScheduleTemplate,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

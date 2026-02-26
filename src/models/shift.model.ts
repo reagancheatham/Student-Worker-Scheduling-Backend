@@ -15,16 +15,21 @@ export class Shift extends Model<
     InferAttributes<Shift>,
     InferCreationAttributes<Shift>
 > {
-    declare businessID: number;
     declare id: CreationOptional<number>;
+    declare businessID: number;
+    declare employeeID: number;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
-    declare employeeID: number;
 }
 
 Shift.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         businessID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -33,10 +38,13 @@ Shift.init(
                 key: "id",
             },
         },
-        id: {
+        employeeID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
+            allowNull: false,
+            references: {
+                model: Employee,
+                key: "id",
+            },
         },
         name: {
             type: DataTypes.STRING,
@@ -50,14 +58,6 @@ Shift.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
-        employeeID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: Employee,
-                key: "id",
-            },
-        },
     },
     {
         sequelize: sequelizeInstance,
@@ -65,7 +65,7 @@ Shift.init(
         indexes: [
             {
                 unique: true,
-                fields: ["startTime", "endTime", "taskListID", "employeeID"],
+                fields: ["startTime", "endTime", "businessID", "employeeID"],
             },
         ],
     },

@@ -15,13 +15,18 @@ export class Employee extends Model<
     InferAttributes<Employee>,
     InferCreationAttributes<Employee>
 > {
-    declare businessID: number;
     declare id: CreationOptional<number>;
+    declare businessID: number;
     declare userID: number;
 }
 
 Employee.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         businessID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -29,11 +34,6 @@ Employee.init(
                 model: Business,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         userID: {
             type: DataTypes.INTEGER,

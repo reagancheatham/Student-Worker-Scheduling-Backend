@@ -16,9 +16,9 @@ export class Task extends Model<
     InferCreationAttributes<Task>
 > {
     declare id: CreationOptional<number>;
+    declare taskListID: number;
     declare name: string;
     declare completeStatus: TaskStatus;
-    declare taskListID: number;
 }
 
 Task.init(
@@ -28,6 +28,14 @@ Task.init(
             primaryKey: true,
             autoIncrement: true,
         },
+        taskListID: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            references: {
+                model: TaskList,
+                key: "id",
+            },
+        },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -35,14 +43,6 @@ Task.init(
         completeStatus: {
             type: DataTypes.ENUM(...Object.values(TaskStatus)),
             allowNull: false,
-        },
-        taskListID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: TaskList,
-                key: "id",
-            },
         },
     },
     {

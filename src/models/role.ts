@@ -14,13 +14,18 @@ export class Role extends Model<
     InferAttributes<Role>,
     InferCreationAttributes<Role>
 > {
-    declare businessID: number;
     declare id: CreationOptional<number>;
+    declare businessID: number;
     declare name: string;
 }
 
 Role.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         businessID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -28,11 +33,6 @@ Role.init(
                 model: Business,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         name: {
             type: DataTypes.STRING,

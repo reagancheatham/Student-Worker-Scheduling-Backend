@@ -49,9 +49,9 @@ export class ScheduleDatabase {
 
         const where: any = {};
         keys.forEach((key) => {
-            where[key as string] = req.params[key as string];
+            where[key as string] = info[key as string];
         });
-
+        
         await model
             .update(info, { where })
             .then((result) => {

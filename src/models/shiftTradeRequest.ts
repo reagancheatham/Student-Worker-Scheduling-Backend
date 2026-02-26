@@ -15,8 +15,8 @@ export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
     InferCreationAttributes<ShiftTradeRequest>
 > {
-    declare shiftID: number;
     declare id: CreationOptional<number>;
+    declare shiftID: number;
     declare targetEmployeeID: number;
     declare employeeMessage: string;
     declare timeSent: Date;
@@ -24,6 +24,11 @@ export class ShiftTradeRequest extends Model<
 
 ShiftTradeRequest.init(
     {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         shiftID: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -31,11 +36,6 @@ ShiftTradeRequest.init(
                 model: Shift,
                 key: "id",
             },
-        },
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
         },
         targetEmployeeID: {
             type: DataTypes.INTEGER,

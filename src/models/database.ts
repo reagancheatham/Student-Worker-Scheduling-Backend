@@ -53,6 +53,13 @@ Business.hasMany(Employee, {
     foreignKey: "businessID",
 });
 
+Settings.belongsTo(Business, {
+    foreignKey: "businessID",
+});
+Business.hasOne(Settings, {
+    foreignKey: "businessID",
+});
+
 EmployeeUnavailability.belongsTo(Employee, {
     foreignKey: "employeeID",
 });
@@ -88,4 +95,83 @@ ScheduleTemplate.hasMany(ScheduleShiftTemplate, {
     foreignKey: "scheduleTemplateID",
 });
 
+ShiftTaskListTemplate.belongsTo(ScheduleShiftTemplate, {
+    foreignKey: "scheduleShiftID",
+});
+ScheduleShiftTemplate.hasOne(ShiftTaskListTemplate, {
+    foreignKey: "scheduleShiftID",
+});
 
+ShiftTaskTemplate.belongsTo(ShiftTaskListTemplate, {
+    foreignKey: "shiftTaskListID",
+});
+ShiftTaskListTemplate.hasMany(ShiftTaskTemplate, {
+    foreignKey: "shiftTaskListID",
+});
+
+TaskListTemplate.belongsTo(Business, {
+    foreignKey: "businessID",
+});
+Business.hasMany(TaskListTemplate, {
+    foreignKey: "businessID",
+});
+
+TaskTemplate.belongsTo(TaskListTemplate, {
+    foreignKey: "taskListTemplateID",
+});
+TaskListTemplate.hasMany(TaskTemplate, {
+    foreignKey: "taskListTemplateID",
+});
+
+Shift.belongsTo(Business, {
+    foreignKey: "businessID",
+});
+Business.hasMany(Shift, {
+    foreignKey: "businessID",
+});
+
+Shift.belongsTo(Employee, {
+    foreignKey: "employeeID",
+});
+Employee.hasMany(Shift, {
+    foreignKey: "employeeID",
+});
+
+Timesheet.belongsTo(Shift, {
+    foreignKey: "shiftID",
+});
+Shift.hasOne(Timesheet, {
+    foreignKey: "shiftID",
+});
+
+ShiftTradeRequest.belongsTo(Shift, {
+    foreignKey: "shiftID",
+});
+Shift.hasMany(ShiftTradeRequest, {
+    foreignKey: "shiftID",
+});
+
+Employee.hasMany(ShiftTradeRequest, {
+    foreignKey: "targetEmployeeID",
+});
+
+ShiftOfferRequest.belongsTo(Shift, {
+    foreignKey: "shiftID",
+});
+Shift.hasMany(ShiftOfferRequest, {
+    foreignKey: "shiftID",
+});
+
+TaskList.belongsTo(Shift, {
+    foreignKey: "shiftID",
+});
+Shift.hasOne(TaskList, {
+    foreignKey: "shiftID",
+});
+
+Task.belongsTo(TaskList, {
+    foreignKey: "taskListID",
+});
+TaskList.hasMany(Task, {
+    foreignKey: "taskListID",
+});
