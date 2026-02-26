@@ -16,21 +16,33 @@ export class Authentication {
             audience: googleClientID,
         });
         const payload = ticket.getPayload();
-        
+
         if (payload == null) {
-            console.error(`Could not verify user token`)
-            res.status(500).send({ valid: false })
+            console.error(`Could not verify user token`);
+            res.status(500).send({ valid: false });
         } else {
-            const user = await User.findOne({where: {
-                email = payload.email
-            }})
+            const user = await User.findOne({
+                where: {
+                    email: payload.email,
+                },
+            });
+
+            const expirationDate = new Date();
+            expirationDate.setDate(Date.now() + 1);
+            const token = jwt.sign(
+                { id: user.email },
+                process.env.AUTH_SECRET,
+                {
+                    expiresIn: 86400,
+                },
+            );
             await Session.create({
                 userID: user.id,
-                token: jwt.sign({ id: user.email }, authconfig.secret, {
-                        expiresIn: 86400,
-                    }),
-                expirationTime: 
-            })
+                token: token,
+                expirationTime: expirationDate,
+            });
+            console.error(`Created New Session`);
+            res.status(200).send({ token: token, valid: true });
         }
     }
 
