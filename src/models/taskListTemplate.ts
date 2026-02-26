@@ -6,21 +6,20 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.ts";
-import { User } from "./user.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
-export class Employee extends Model<
-    InferAttributes<Employee>,
-    InferCreationAttributes<Employee>
+export class TaskListTemplate extends Model<
+    InferAttributes<TaskListTemplate>,
+    InferCreationAttributes<TaskListTemplate>
 > {
     declare businessID: number;
     declare id: CreationOptional<number>;
-    declare userID: number;
+    declare name: string;
 }
 
-Employee.init(
+TaskListTemplate.init(
     {
         businessID: {
             type: DataTypes.INTEGER,
@@ -35,14 +34,9 @@ Employee.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        userID: {
-            type: DataTypes.INTEGER,
+        name: {
+            type: DataTypes.STRING,
             allowNull: false,
-            references: {
-                model: User,
-                key: "id",
-            },
-            onDelete: "CASCADE",
         },
     },
     {
@@ -51,35 +45,57 @@ Employee.init(
         indexes: [
             {
                 unique: true,
-                fields: ["businessID", "userID"],
-                name: "employeeIndex",
+                fields: ["businessID", "name"],
             },
         ],
     },
 );
 
-class EmployeeRouter extends ModelRouter {
+class TaskListTemplateRouter extends ModelRouter {
     public path(): string {
-        return "/employees";
+        return "/taskListTemplates";
     }
 
     protected buildRouter(router: Router): void {
         router.post("/", (req, res) =>
-            ScheduleDatabase.create(Employee, req, res),
+            ScheduleDatabase.create(TaskListTemplate, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Employee, req, res, "businessID", "id"),
+            ScheduleDatabase.update(
+                TaskListTemplate,
+                req,
+                res,
+                "businessID",
+                "id",
+            ),
         );
         router.delete("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.delete(Employee, req, res, "businessID", "id"),
+            ScheduleDatabase.delete(
+                TaskListTemplate,
+                req,
+                res,
+                "businessID",
+                "id",
+            ),
         );
         router.get("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.get(Employee, req, res, "businessID", "id"),
+            ScheduleDatabase.get(
+                TaskListTemplate,
+                req,
+                res,
+                "businessID",
+                "id",
+            ),
         );
         router.get("/:businessID", (req, res) =>
-            ScheduleDatabase.get(Employee, req, res, "businessID"),
+            ScheduleDatabase.getAllWhere(
+                TaskListTemplate,
+                req,
+                res,
+                "businessID",
+            ),
         );
     }
 }
 
-export const employeeRouter = new EmployeeRouter();
+export const taskListTemplateRouter = new TaskListTemplateRouter();

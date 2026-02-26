@@ -32,7 +32,7 @@ export class ScheduleDatabase {
 
     public static async update<M extends Model>(
         model: ModelStatic<M>,
-        req: Request<{}, {}, Attributes<M>>,
+        req: Request,
         res: Response,
         ...keys: (keyof Attributes<M>)[]
     ) {
@@ -47,7 +47,7 @@ export class ScheduleDatabase {
             `Updating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
-        const where = {};
+        const where: any = {};
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
         });
@@ -73,7 +73,7 @@ export class ScheduleDatabase {
         res: Response,
         ...keys: (keyof Attributes<M>)[]
     ) {
-        const where = {};
+        const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
@@ -101,7 +101,7 @@ export class ScheduleDatabase {
         res: Response,
         ...keys: (keyof Attributes<M>)[]
     ) {
-        const where = {};
+        const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
@@ -146,7 +146,7 @@ export class ScheduleDatabase {
         res: Response,
         ...keys: (keyof Attributes<M>)[]
     ) {
-        const where = {};
+        const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];

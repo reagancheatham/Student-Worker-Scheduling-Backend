@@ -5,8 +5,11 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { TaskList } from "./taskList.model.ts";
+import { TaskList } from "./taskList.ts";
 import { TaskStatus } from "../classes/taskStatus.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class Task extends Model<
     InferAttributes<Task>,
@@ -53,3 +56,27 @@ Task.init(
         ],
     },
 );
+
+class TaskRouter extends ModelRouter {
+    public path(): string {
+        return "/tasks";
+    }
+
+    protected buildRouter(router: Router): void {
+        router.post("/", (req, res) => ScheduleDatabase.create(Task, req, res));
+        router.put("/", (req, res) =>
+            ScheduleDatabase.update(Task, req, res, "taskListID", "id"),
+        );
+        router.delete("/:taskListID/:id", (req, res) =>
+            ScheduleDatabase.delete(Task, req, res, "taskListID", "id"),
+        );
+        router.get("/:taskListID/:id", (req, res) =>
+            ScheduleDatabase.get(Task, req, res, "taskListID", "id"),
+        );
+        router.get("/:taskListID", (req, res) =>
+            ScheduleDatabase.getAllWhere(Task, req, res, "taskListID"),
+        );
+    }
+}
+
+export const taskRouter = new TaskRouter();

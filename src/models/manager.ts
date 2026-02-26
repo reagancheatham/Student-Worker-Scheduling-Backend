@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { User } from "./user.model.ts";
+import { User } from "./user.ts";
 import { Business } from "./business.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";

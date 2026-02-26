@@ -4,7 +4,7 @@ import cors from "cors";
 import { defaultCorsConfig } from "./config/corsConfig.ts";
 import "./models/database.ts";
 import { sequelizeInstance } from "./config/sequelizeInstance.ts";
-import { router } from "./routes/router.ts";
+import { router } from "./router.ts";
 
 const app = express();
 

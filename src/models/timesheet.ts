@@ -7,10 +7,13 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ApprovalStatus } from "../classes/approvalStatus.ts";
 import { Shift } from "./shift.model.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
-export class TimeSheet extends Model<
-    InferAttributes<TimeSheet>,
-    InferCreationAttributes<TimeSheet>
+export class Timesheet extends Model<
+    InferAttributes<Timesheet>,
+    InferCreationAttributes<Timesheet>
 > {
     declare shiftID: number;
     declare id: CreationOptional<number>;
@@ -19,7 +22,7 @@ export class TimeSheet extends Model<
     declare status: ApprovalStatus;
 }
 
-TimeSheet.init(
+Timesheet.init(
     {
         shiftID: {
             type: DataTypes.INTEGER,
@@ -58,3 +61,26 @@ TimeSheet.init(
         ],
     },
 );
+
+class TimesheetRouter extends ModelRouter {
+    public path(): string {
+        return "/timesheets";
+    }
+
+    protected buildRouter(router: Router): void {
+        router.post("/", (req, res) =>
+            ScheduleDatabase.create(Timesheet, req, res),
+        );
+        router.put("/", (req, res) =>
+            ScheduleDatabase.update(Timesheet, req, res, "shiftID", "id"),
+        );
+        router.delete("/:shiftID/:id", (req, res) =>
+            ScheduleDatabase.delete(Timesheet, req, res, "shiftID", "id"),
+        );
+        router.get("/:shiftID/:id", (req, res) =>
+            ScheduleDatabase.get(Timesheet, req, res, "shiftID", "id"),
+        );
+    }
+}
+
+export const timesheetRouter = new TimesheetRouter();

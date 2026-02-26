@@ -6,6 +6,9 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Shift } from "./shift.model.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class TaskList extends Model<
     InferAttributes<TaskList>,
@@ -47,3 +50,29 @@ TaskList.init(
         ],
     },
 );
+
+class TaskListRouter extends ModelRouter {
+    public path(): string {
+        return "/taskLists";
+    }
+
+    protected buildRouter(router: Router): void {
+        router.post("/", (req, res) =>
+            ScheduleDatabase.create(TaskList, req, res),
+        );
+        router.put("/", (req, res) =>
+            ScheduleDatabase.update(TaskList, req, res, "shiftID", "id"),
+        );
+        router.delete("/:shiftID/:id", (req, res) =>
+            ScheduleDatabase.delete(TaskList, req, res, "shiftID", "id"),
+        );
+        router.get("/:shiftID/:id", (req, res) =>
+            ScheduleDatabase.get(TaskList, req, res, "shiftID", "id"),
+        );
+        router.get("/:shiftID", (req, res) =>
+            ScheduleDatabase.getAllWhere(TaskList, req, res, "shiftID"),
+        );
+    }
+}
+
+export const taskListRouter = new TaskListRouter();

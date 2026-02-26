@@ -7,6 +7,9 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
 import { ApprovalStatus } from "../classes/approvalStatus.ts";
+import { ModelRouter } from "../classes/databaseModel.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
@@ -70,3 +73,41 @@ TimeOffRequest.init(
         ],
     },
 );
+
+class TimeOffRequestRouter extends ModelRouter {
+    public path(): string {
+        return "/timeOffRequests";
+    }
+
+    protected buildRouter(router: Router): void {
+        router.post("/", (req, res) =>
+            ScheduleDatabase.create(TimeOffRequest, req, res),
+        );
+        router.put("/", (req, res) =>
+            ScheduleDatabase.update(
+                TimeOffRequest,
+                req,
+                res,
+                "employeeID",
+                "id",
+            ),
+        );
+        router.delete("/:employeeID/:id", (req, res) =>
+            ScheduleDatabase.delete(
+                TimeOffRequest,
+                req,
+                res,
+                "employeeID",
+                "id",
+            ),
+        );
+        router.get("/:employeeID/:id", (req, res) =>
+            ScheduleDatabase.get(TimeOffRequest, req, res, "employeeID", "id"),
+        );
+        router.get("/:employeeID", (req, res) =>
+            ScheduleDatabase.get(TimeOffRequest, req, res, "employeeID"),
+        );
+    }
+}
+
+export const timeOffRequestRouter = new TimeOffRequestRouter();
