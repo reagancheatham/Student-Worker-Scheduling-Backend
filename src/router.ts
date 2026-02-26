@@ -1,0 +1,56 @@
+import { Router } from "express";
+import { ModelRouter } from "./classes/databaseModel.ts";
+import { businessRouter } from "./models/business.ts";
+import { employeeRouter } from "./models/employee.ts";
+import { userRouter } from "./models/user.ts";
+import { managerRouter } from "./models/manager.ts";
+import { employeeUnavailabilityRouter } from "./models/employeeUnavailability.ts";
+import { permissionRoleRouter } from "./models/permissionRole.ts";
+import { roleRouter } from "./models/role.ts";
+import { scheduleShiftTemplateRouter } from "./models/scheduleShiftTemplate.ts";
+import { scheduleTemplateRouter } from "./models/scheduleTemplate.ts";
+import { sessionRouter } from "./models/session.ts";
+import { settingsRouter } from "./models/settings.ts";
+import { shiftRouter } from "./models/shift.model.ts";
+import { shiftOfferRequestRouter } from "./models/shiftOfferRequest.ts";
+import { shiftTaskListTemplateRouter } from "./models/shiftTaskListTemplate.ts";
+import { shiftTaskTemplateRouter } from "./models/shiftTaskTemplate.ts";
+import { shiftTradeRequestRouter } from "./models/shiftTradeRequest.ts";
+import { taskRouter } from "./models/task.ts";
+import { taskListRouter } from "./models/taskList.ts";
+import { taskListTemplateRouter } from "./models/taskListTemplate.ts";
+import { taskTemplateRouter } from "./models/taskTemplate.ts";
+import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
+import { timesheetRouter } from "./models/timesheet.ts";
+
+const router = Router();
+const modelRouters: ModelRouter[] = [
+    userRouter,
+    businessRouter,
+    managerRouter,
+    employeeRouter,
+    employeeUnavailabilityRouter,
+    permissionRoleRouter,
+    roleRouter,
+    scheduleShiftTemplateRouter,
+    scheduleTemplateRouter,
+    sessionRouter,
+    settingsRouter,
+    shiftRouter,
+    shiftOfferRequestRouter,
+    shiftTaskListTemplateRouter,
+    shiftTaskTemplateRouter,
+    shiftTradeRequestRouter,
+    taskRouter,
+    taskListRouter,
+    taskListTemplateRouter,
+    taskTemplateRouter,
+    timeOffRequestRouter,
+    timesheetRouter,
+];
+
+modelRouters.forEach((modelRouter) => {
+    router.use(modelRouter.path(), modelRouter.router());
+});
+
+export { router };
