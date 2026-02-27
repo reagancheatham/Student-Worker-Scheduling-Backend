@@ -68,15 +68,15 @@ class EmployeeRouter extends ModelRouter {
             ScheduleDatabase.create(Employee, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Employee, req, res, "businessID", "id"),
+            ScheduleDatabase.update(Employee, req, res, "id"),
         );
-        router.delete("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.delete(Employee, req, res, "businessID", "id"),
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(Employee, req, res, "id"),
         );
-        router.get("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.get(Employee, req, res, "businessID", "id"),
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.get(Employee, req, res, "id"),
         );
-        router.get("/:businessID", (req, res) =>
+        router.get("/business/:businessID", (req, res) =>
             ScheduleDatabase.get(Employee, req, res, "businessID"),
         );
     }
