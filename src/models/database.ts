@@ -28,7 +28,7 @@ User.hasMany(Session, {
     foreignKey: "userID",
 });
 
-User.hasOne(PermissionRole, {
+PermissionRole.hasOne(User, {
     foreignKey: "permissionRoleID",
 });
 
@@ -39,7 +39,7 @@ Manager.belongsTo(Business, {
     foreignKey: "businessID",
 });
 
-Employee.hasOne(User, {
+Employee.belongsTo(User, {
     foreignKey: "userID",
 });
 User.hasMany(Employee, {
