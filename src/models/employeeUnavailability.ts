@@ -30,7 +30,7 @@ EmployeeUnavailability.init(
         },
         employeeID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Employee,
                 key: "id",
@@ -69,9 +69,9 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
 
     protected buildRouter(router: Router): void {
         router.post("/", (req, res) => ScheduleDatabase.create(EmployeeUnavailability, req, res));
-        router.put("/", (req, res) => ScheduleDatabase.update(EmployeeUnavailability, req, res, "employeeID", "id"));
-        router.delete("/:employeeID/:id", (req, res) => ScheduleDatabase.delete(EmployeeUnavailability, req, res, "employeeID", "id"));
-        router.get("/:employeeID/:id", (req, res) => ScheduleDatabase.get(EmployeeUnavailability, req, res, "employeeID", "id"));
+        router.put("/", (req, res) => ScheduleDatabase.update(EmployeeUnavailability, req, res, "id"));
+        router.delete("/:id", (req, res) => ScheduleDatabase.delete(EmployeeUnavailability, req, res, "id"));
+        router.get("/:id", (req, res) => ScheduleDatabase.get(EmployeeUnavailability, req, res, "id"));
         router.get("/:employeeID", (req, res) => ScheduleDatabase.getAllWhere(EmployeeUnavailability, req, res, "employeeID"));
     }
 }

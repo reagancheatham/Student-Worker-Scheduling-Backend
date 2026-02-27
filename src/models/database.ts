@@ -32,8 +32,8 @@ User.hasOne(PermissionRole, {
     foreignKey: "permissionRoleID",
 });
 
-Manager.belongsTo(User, {
-    foreignKey: "userID",
+Manager.belongsTo(Employee, {
+    foreignKey: "employeeID",
 });
 Manager.belongsTo(Business, {
     foreignKey: "businessID",

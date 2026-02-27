@@ -102,7 +102,7 @@ class TimeOffRequestRouter extends ModelRouter {
         router.get("/:id", (req, res) =>
             ScheduleDatabase.get(TimeOffRequest, req, res, "id"),
         );
-        router.get("/:employeeID", (req, res) =>
+        router.get("/employee/:employeeID", (req, res) =>
             ScheduleDatabase.getAllWhere(TimeOffRequest, req, res, "employeeID"),
         );
     }

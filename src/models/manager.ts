@@ -1,35 +1,41 @@
 import { Model, DataTypes } from "sequelize";
-import type { InferAttributes, InferCreationAttributes } from "sequelize";
+import type { CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { User } from "./user.ts";
 import { Business } from "./business.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { Employee } from "./employee.ts";
 
 export class Manager extends Model<
     InferAttributes<Manager>,
     InferCreationAttributes<Manager>
 > {
+    declare id: CreationOptional<number>;
     declare businessID: number;
-    declare userID: number;
+    declare employeeID: number;
 }
 
 Manager.init(
     {
-        businessID: {
+        id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+        },
+        businessID: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
             references: {
                 model: Business,
                 key: "id",
             },
         },
-        userID: {
+        employeeID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
-                model: User,
+                model: Employee,
                 key: "id",
             },
         },
@@ -50,13 +56,13 @@ class ManagerRouter extends ModelRouter {
             ScheduleDatabase.create(Manager, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Manager, req, res, "businessID", "userID"),
+            ScheduleDatabase.update(Manager, req, res, "businessID", "employeeID"),
         );
         router.delete("/:businessID/:userID", (req, res) =>
-            ScheduleDatabase.delete(Manager, req, res, "businessID", "userID"),
+            ScheduleDatabase.delete(Manager, req, res, "businessID", "employeeID"),
         );
         router.get("/:businessID/:userID", (req, res) =>
-            ScheduleDatabase.get(Manager, req, res, "businessID", "userID"),
+            ScheduleDatabase.get(Manager, req, res, "businessID", "employeeID"),
         );
         router.get("/:businessID", (req, res) =>
             ScheduleDatabase.getAllWhere(Manager, req, res, "businessID"),
