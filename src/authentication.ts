@@ -1,10 +1,12 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { ScheduleDatabase } from "./classes/scheduleDatabase.ts";
 import { Session } from "./models/session.ts";
 import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 
+const DAY_IN_SECONDS = 86400;
+const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
 export class Authentication {
     static async loginUser(req: Request, res: Response) {
         const googleClientID = process.env.GOOGLE_CLIENT_ID;
@@ -27,19 +29,19 @@ export class Authentication {
                 },
             });
 
-            const expirationDate = new Date();
-            expirationDate.setDate(Date.now() + 1);
+            const expirationTime = new Date();
+            expirationTime.setDate(Date.now() + EXPIRATION_WINDOW * 1000);
             const token = jwt.sign(
                 { id: user.email },
                 process.env.AUTH_SECRET,
                 {
-                    expiresIn: 86400,
+                    expiresIn: EXPIRATION_WINDOW,
                 },
             );
             await Session.create({
                 userID: user.id,
                 token: token,
-                expirationTime: expirationDate,
+                expirationTime: expirationTime,
             });
             console.error(`Created New Session`);
             res.status(200).send({ token: token, valid: true });
@@ -59,11 +61,19 @@ export class Authentication {
                 })
                 .catch((error) => {
                     console.error(`Unauthorized. No token ${token} exists`);
-                    res.status(500).send({ valid: false });
+                    res.status(401).send({ valid: false });
                 });
         } else {
             console.error(`Unauthorized. No authentication header`);
-            res.status(500).send({ valid: false });
+            res.status(401).send({ valid: false });
         }
+    }
+
+    static async validateRequest(req: Request, res: Response, next: NextFunction) {
+
+    }
+
+    static tryGetToken(req: Request): { valid: boolean; token: string | null } {
+        const authHeader = req.header("authentication");
     }
 }
