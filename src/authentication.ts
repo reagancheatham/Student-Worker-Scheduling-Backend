@@ -69,11 +69,29 @@ export class Authentication {
         }
     }
 
-    static async validateRequest(req: Request, res: Response, next: NextFunction) {
-
-    }
+    static async validateRequest(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) {}
 
     static tryGetToken(req: Request): { valid: boolean; token: string | null } {
         const authHeader = req.header("authentication");
+
+        if (authHeader.startsWith("Bearer ")) {
+            const token = authHeader.slice(7);
+
+            Session.findOne({ where: { token: token } })
+                .then((result) => {
+                    console.log(`Found ${token}: ${JSON.stringify(result)}`);
+                    return { valid: true, token: token };
+                })
+                .catch((error) => {
+                    console.error(`Unauthorized. No token ${token} exists`);
+                    return { valid: false, token: null };
+                });
+        }
+        console.error(`Unauthorized. No authentication header`);
+        return { valid: false, token: null};
     }
 }
