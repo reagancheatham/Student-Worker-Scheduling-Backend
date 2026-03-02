@@ -52,7 +52,7 @@ const modelRouters: ModelRouter[] = [
 ];
 
 modelRouters.forEach((modelRouter) => {
-    router.use(modelRouter.path(), modelRouter.router());
+    router.use(modelRouter.path(), Authentication.validateSession, modelRouter.router());
 });
 
 export { router };

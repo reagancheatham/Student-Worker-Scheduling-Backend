@@ -29,8 +29,9 @@ export class Authentication {
                 },
             });
 
-            const expirationTime = new Date();
-            expirationTime.setDate(Date.now() + EXPIRATION_WINDOW * 1000);
+            const expirationTime = new Date(
+                Date.now() + EXPIRATION_WINDOW * 1000,
+            );
             const token = jwt.sign(
                 { id: user.email },
                 process.env.AUTH_SECRET,
@@ -48,7 +49,11 @@ export class Authentication {
         }
     }
 
-    static async validateSession(req: Request, res: Response) {
+    static async validateSession(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) {
         const authHeader = req.header("authentication");
 
         if (authHeader.startsWith("Bearer ")) {
@@ -58,6 +63,7 @@ export class Authentication {
                 .then((result) => {
                     console.log(`Found ${token}: ${JSON.stringify(result)}`);
                     res.status(200).send({ valid: true });
+                    next();
                 })
                 .catch((error) => {
                     console.error(`Unauthorized. No token ${token} exists`);
@@ -69,13 +75,9 @@ export class Authentication {
         }
     }
 
-    static async validateRequest(
+    static async tryGetToken(
         req: Request,
-        res: Response,
-        next: NextFunction,
-    ) {}
-
-    static tryGetToken(req: Request): { valid: boolean; token: string | null } {
+    ): Promise<{ valid: boolean; token: string | null }> {
         const authHeader = req.header("authentication");
 
         if (authHeader.startsWith("Bearer ")) {
@@ -92,6 +94,6 @@ export class Authentication {
                 });
         }
         console.error(`Unauthorized. No authentication header`);
-        return { valid: false, token: null};
+        return { valid: false, token: null };
     }
 }
