@@ -99,7 +99,7 @@ class ShiftRouter extends ModelRouter {
             ScheduleDatabase.getAllWhere(Shift, req, res, "businessID"),
         );
         router.get(
-            "/:businessID/startTime>=:startTime/endTime<=:endTime",
+            "/:businessID/startTime=:startTime/endTime=:endTime",
             (req, res) => this.getShiftsWithinRange(req, res),
         );
     }
