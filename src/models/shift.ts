@@ -17,10 +17,11 @@ export class Shift extends Model<
 > {
     declare id: CreationOptional<number>;
     declare businessID: number;
-    declare employeeID: number;
+    declare employeeID: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
+    declare color: string;
 }
 
 Shift.init(
@@ -40,11 +41,12 @@ Shift.init(
         },
         employeeID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: Employee,
                 key: "id",
             },
+            onDelete: "SET NULL",
         },
         name: {
             type: DataTypes.STRING,
@@ -58,14 +60,17 @@ Shift.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        color: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
         indexes: [
             {
-                unique: true,
-                fields: ["startTime", "endTime", "businessID", "employeeID"],
+                fields: ["name", "startTime", "endTime", "businessID", "color"],
             },
         ],
     },
