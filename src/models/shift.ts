@@ -10,6 +10,7 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Business } from "./business.ts";
+import { EventColor } from "../classes/eventColor.ts";
 
 export class Shift extends Model<
     InferAttributes<Shift>,
@@ -21,7 +22,7 @@ export class Shift extends Model<
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
-    declare color: string;
+    declare color: EventColor;
 }
 
 Shift.init(
@@ -61,7 +62,7 @@ Shift.init(
             allowNull: false,
         },
         color: {
-            type: DataTypes.STRING,
+            type: DataTypes.ENUM(...Object.values(EventColor)),
             allowNull: false,
         },
     },
