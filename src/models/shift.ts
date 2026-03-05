@@ -10,6 +10,8 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Business } from "./business.ts";
+import { EventColor } from "../classes/eventColor.ts";
+import { User } from "./user.ts";
 
 export class Shift extends Model<
     InferAttributes<Shift>,
@@ -17,10 +19,11 @@ export class Shift extends Model<
 > {
     declare id: CreationOptional<number>;
     declare businessID: number;
-    declare employeeID: number;
+    declare employeeID: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
+    declare color: EventColor;
 }
 
 Shift.init(
@@ -40,11 +43,12 @@ Shift.init(
         },
         employeeID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: Employee,
                 key: "id",
             },
+            onDelete: "SET NULL",
         },
         name: {
             type: DataTypes.STRING,
@@ -58,18 +62,26 @@ Shift.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        color: {
+            type: DataTypes.ENUM(...Object.values(EventColor)),
+            allowNull: false,
+        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
         indexes: [
             {
-                unique: true,
-                fields: ["startTime", "endTime", "businessID", "employeeID"],
+                fields: ["name", "startTime", "endTime", "businessID", "color"],
             },
         ],
     },
 );
+
+type ShiftParams = {
+    businessID: string;
+    id: string;
+};
 
 type ShiftRangeParams = {
     businessID: string;
@@ -87,21 +99,76 @@ class ShiftRouter extends ModelRouter {
             ScheduleDatabase.create(Shift, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Shift, req, res, "businessID", "id"),
+            ScheduleDatabase.update(Shift, req, res, "id"),
         );
-        router.delete("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.delete(Shift, req, res, "businessID", "id"),
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(Shift, req, res, "id"),
         );
-        router.get("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.get(Shift, req, res, "businessID", "id"),
-        );
-        router.get("/:businessID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Shift, req, res, "businessID"),
-        );
+        router.get("/:id", this.getShift);
+        router.get("/:businessID", this.getShiftsForBusiness);
         router.get(
             "/:businessID/startTime=:startTime/endTime=:endTime",
             (req, res) => this.getShiftsWithinRange(req, res),
         );
+    }
+
+    private async getShift(req: Request<ShiftParams>, res: Response) {
+        const id = Number(req.params.id);
+
+        const where: any = {
+            id,
+        };
+
+        console.log(
+            `Getting ${Shift.name} with info: ${JSON.stringify(where)}`,
+        );
+
+        await Shift.findOne({
+            where,
+            include: {
+                model: Employee,
+                include: [User],
+            },
+        })
+            .then((result) => {
+                console.log(`Found ${Shift.name}: ${JSON.stringify(result)}`);
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error getting ${Shift.name}: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getShiftsForBusiness(
+        req: Request<{ businessID: string }>,
+        res: Response,
+    ) {
+        const businessID = Number(req.params.businessID);
+
+        const where: any = {
+            businessID,
+        };
+
+        console.log(
+            `Getting ${Shift.name}s with info: ${JSON.stringify(where)}`,
+        );
+
+        await Shift.findAll({
+            where,
+            include: {
+                model: Employee,
+                include: [User],
+            },
+        })
+            .then((results) => {
+                console.log(`Found ${results.length} ${Shift.name}s`);
+                res.status(200).send(results);
+            })
+            .catch((error) => {
+                console.error(`Error getting ${Shift.name}s: ${error}`);
+                res.status(500).send({ error });
+            });
     }
 
     private async getShiftsWithinRange(
@@ -124,6 +191,10 @@ class ShiftRouter extends ModelRouter {
 
         await Shift.findAll({
             where,
+            include: {
+                model: Employee,
+                include: [User],
+            },
         })
             .then((result) => {
                 console.log(`Found ${result.length} ${Shift.name}s`);

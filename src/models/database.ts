@@ -131,7 +131,11 @@ Business.hasMany(Shift, {
 });
 
 Shift.belongsTo(Employee, {
-    foreignKey: "employeeID",
+    foreignKey: {
+        name: "employeeID",
+        allowNull: true,
+    },
+    onDelete: "SET NULL",
 });
 Employee.hasMany(Shift, {
     foreignKey: "employeeID",
