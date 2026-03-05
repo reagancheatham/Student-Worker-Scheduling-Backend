@@ -99,12 +99,12 @@ class ShiftRouter extends ModelRouter {
             ScheduleDatabase.create(Shift, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Shift, req, res, "businessID", "id"),
+            ScheduleDatabase.update(Shift, req, res, "id"),
         );
-        router.delete("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.delete(Shift, req, res, "businessID", "id"),
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(Shift, req, res, "id"),
         );
-        router.get("/:businessID/:id", this.getShift);
+        router.get("/:id", this.getShift);
         router.get("/:businessID", this.getShiftsForBusiness);
         router.get(
             "/:businessID/startTime=:startTime/endTime=:endTime",
@@ -113,11 +113,9 @@ class ShiftRouter extends ModelRouter {
     }
 
     private async getShift(req: Request<ShiftParams>, res: Response) {
-        const businessID = Number(req.params.businessID);
         const id = Number(req.params.id);
 
         const where: any = {
-            businessID,
             id,
         };
 
