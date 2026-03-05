@@ -8,14 +8,14 @@ import { router } from "./router.ts";
 
 const app = express();
 
-sequelizeInstance
-    .sync({ alter: true })
-    .then(() => {
-        console.log("Database tables created successfully!");
-    })
-    .catch((err) => {
-        console.error("Unable to create database tables:", err);
-    });
+// sequelizeInstance
+//     .sync({ alter: true })
+//     .then(() => {
+//         console.log("Database tables created successfully!");
+//     })
+//     .catch((err) => {
+//         console.error("Unable to create database tables:", err);
+//     });
 
 const result = dotenv.config();
 console.log("DOTENV RESULT:", result);
