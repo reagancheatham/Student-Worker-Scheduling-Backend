@@ -23,7 +23,6 @@ import { taskTemplateRouter } from "./models/taskTemplate.ts";
 import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
 import { timesheetRouter } from "./models/timesheet.ts";
 import { authenticationRouter } from "./authentication.ts";
-import { Authentication } from "./authentication.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
