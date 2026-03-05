@@ -22,7 +22,7 @@ import { taskListTemplateRouter } from "./models/taskListTemplate.ts";
 import { taskTemplateRouter } from "./models/taskTemplate.ts";
 import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
 import { timesheetRouter } from "./models/timesheet.ts";
-
+import { authenticationRouter } from "./authentication.ts";
 import { Authentication } from "./authentication.ts";
 
 const router = Router();
@@ -49,10 +49,11 @@ const modelRouters: ModelRouter[] = [
     taskTemplateRouter,
     timeOffRequestRouter,
     timesheetRouter,
+    authenticationRouter,
 ];
 
 modelRouters.forEach((modelRouter) => {
-    router.use(modelRouter.path(), Authentication.validateSession, modelRouter.router());
+    router.use(modelRouter.path(), modelRouter.router());
 });
 
 export { router };

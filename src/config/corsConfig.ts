@@ -8,4 +8,4 @@ export class CorsConfig {
     }
 }
 
-export const defaultCorsConfig = new CorsConfig("http://localhost:5173", true);
+export const defaultCorsConfig = new CorsConfig("*", true);

@@ -1,9 +1,10 @@
-import type { NextFunction, Request, Response } from "express";
-import { OAuth2Client } from "google-auth-library";
-import { ScheduleDatabase } from "./classes/scheduleDatabase.ts";
+import type { NextFunction, Request, Response, Router } from "express";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
 import { Session } from "./models/session.ts";
 import { User } from "./models/user.ts";
-import * as jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import { ModelRouter } from "./classes/databaseModel.ts";
+import { ScheduleDatabase } from "./classes/scheduleDatabase.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
@@ -23,30 +24,62 @@ export class Authentication {
       console.error(`Could not verify user token`);
       res.status(500).send({ valid: false });
     } else {
-      const user = await User.findOne({
+      Authentication.handleLogin(req, res, payload)
+    }
+  }
+
+  static async handleLogin(req: Request, res: Response, payload: TokenPayload) {
+    const user = await User.findOne({
         where: {
           email: payload.email,
         },
       });
-
+      console.log(user);
       const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
       if (user && process.env.AUTH_SECRET) {
-        const token = jwt.sign({ id: user.email }, process.env.AUTH_SECRET, {
-          expiresIn: EXPIRATION_WINDOW,
+        const session = await Session.findOne({
+          where: {
+            userID: user.id,
+          },
         });
-        await Session.create({
-          userID: user.id,
-          token: token,
-          expirationTime: expirationTime,
-        });
-        console.error(`Created New Session`);
-        res.status(200).send({ token: token, valid: true });
+
+        if (session) {
+          console.log(`Found Existing Session`);
+          res.status(200).send({
+            token: session.token,
+            valid: true,
+            profilePicture: payload.picture,
+            user,
+          });
+        } else {
+          const token = jwt.sign({ id: user.email }, process.env.AUTH_SECRET, {
+            expiresIn: EXPIRATION_WINDOW,
+          });
+          await Session.create({
+            userID: user.id,
+            token: token,
+            expirationTime: expirationTime,
+          });
+          console.error(`Created New Session`);
+          res.status(200).send({
+            token: token,
+            valid: true,
+            profilePicture: payload.picture,
+            user,
+          });
+        }
       } else {
-        console.error(`Error Creating Session`);
-        res.status(500).send({ valid: false });
+        await User.create({
+            studentID: 111111,
+            permissionRoleID: 1,
+            firstName: payload.given_name || "",
+            lastName: payload.family_name || "",
+            email: payload.email || "",
+            phoneNumber: "000000"
+        })
+        this.handleLogin(req, res, payload);
       }
-    }
   }
 
   static async validateSession(
@@ -97,3 +130,17 @@ export class Authentication {
     return { valid: false, token: null };
   }
 }
+
+class AuthenticationRouter extends ModelRouter {
+  public path(): string {
+    return "/authentication";
+  }
+
+  protected buildRouter(router: Router): void {
+    router.post("/", (req: Request, res: Response, next: NextFunction) => {
+      Authentication.loginUser(req, res).catch(next);
+    });
+  }
+}
+
+export const authenticationRouter = new AuthenticationRouter();
