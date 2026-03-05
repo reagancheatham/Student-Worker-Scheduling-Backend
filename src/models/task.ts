@@ -30,7 +30,7 @@ Task.init(
         },
         taskListID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: TaskList,
                 key: "id",
@@ -67,13 +67,13 @@ class TaskRouter extends ModelRouter {
         router.put("/", (req, res) =>
             ScheduleDatabase.update(Task, req, res, "taskListID", "id"),
         );
-        router.delete("/:taskListID/:id", (req, res) =>
+        router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(Task, req, res, "taskListID", "id"),
         );
-        router.get("/:taskListID/:id", (req, res) =>
+        router.get("/:id", (req, res) =>
             ScheduleDatabase.get(Task, req, res, "taskListID", "id"),
         );
-        router.get("/:taskListID", (req, res) =>
+        router.get("/taskList/:taskListID", (req, res) =>
             ScheduleDatabase.getAllWhere(Task, req, res, "taskListID"),
         );
     }

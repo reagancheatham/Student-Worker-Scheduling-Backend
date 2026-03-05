@@ -28,7 +28,7 @@ ShiftTaskListTemplate.init(
         },
         scheduleShiftID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: ScheduleShiftTemplate,
                 key: "id",
@@ -65,29 +65,26 @@ class ShiftTaskListTemplateRouter extends ModelRouter {
                 ShiftTaskListTemplate,
                 req,
                 res,
-                "scheduleShiftID",
                 "id",
             ),
         );
-        router.delete("/:scheduleShiftID/:id", (req, res) =>
+        router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(
                 ShiftTaskListTemplate,
                 req,
                 res,
-                "scheduleShiftID",
                 "id",
             ),
         );
-        router.get("/:scheduleShiftID/:id", (req, res) =>
+        router.get("/:id", (req, res) =>
             ScheduleDatabase.get(
                 ShiftTaskListTemplate,
                 req,
                 res,
-                "scheduleShiftID",
                 "id",
             ),
         );
-        router.get("/:scheduleShiftID", (req, res) =>
+        router.get("/scheduleShiftTemplate/:scheduleShiftID", (req, res) =>
             ScheduleDatabase.getAllWhere(
                 ShiftTaskListTemplate,
                 req,

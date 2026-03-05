@@ -5,7 +5,7 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Shift } from "./shift.model.ts";
+import { Shift } from "./shift.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
@@ -17,6 +17,7 @@ export class ShiftOfferRequest extends Model<
     declare id: CreationOptional<number>;
     declare shiftID: number;
     declare employeeMessage: string;
+    declare claimingEmployeeID: number;
     declare timeSent: Date;
 }
 
@@ -29,7 +30,7 @@ ShiftOfferRequest.init(
         },
         shiftID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Shift,
                 key: "id",
@@ -37,6 +38,10 @@ ShiftOfferRequest.init(
         },
         employeeMessage: {
             type: DataTypes.STRING,
+            allowNull: true,
+        },
+        claimingEmployeeID: {
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
         timeSent: {

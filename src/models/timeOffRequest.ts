@@ -32,7 +32,7 @@ TimeOffRequest.init(
         },
         employeeID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Employee,
                 key: "id",
@@ -88,24 +88,22 @@ class TimeOffRequestRouter extends ModelRouter {
                 TimeOffRequest,
                 req,
                 res,
-                "employeeID",
                 "id",
             ),
         );
-        router.delete("/:employeeID/:id", (req, res) =>
+        router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(
                 TimeOffRequest,
                 req,
                 res,
-                "employeeID",
                 "id",
             ),
         );
-        router.get("/:employeeID/:id", (req, res) =>
-            ScheduleDatabase.get(TimeOffRequest, req, res, "employeeID", "id"),
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.get(TimeOffRequest, req, res, "id"),
         );
-        router.get("/:employeeID", (req, res) =>
-            ScheduleDatabase.get(TimeOffRequest, req, res, "employeeID"),
+        router.get("/employee/:employeeID", (req, res) =>
+            ScheduleDatabase.getAllWhere(TimeOffRequest, req, res, "employeeID"),
         );
     }
 }

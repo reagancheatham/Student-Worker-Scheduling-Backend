@@ -8,7 +8,7 @@ import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.ts";
 import { User } from "./user.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class Employee extends Model<
@@ -29,7 +29,7 @@ Employee.init(
         },
         businessID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Business,
                 key: "id",
@@ -68,17 +68,49 @@ class EmployeeRouter extends ModelRouter {
             ScheduleDatabase.create(Employee, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Employee, req, res, "businessID", "id"),
+            ScheduleDatabase.update(Employee, req, res, "id"),
         );
-        router.delete("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.delete(Employee, req, res, "businessID", "id"),
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(Employee, req, res, "id"),
         );
-        router.get("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.get(Employee, req, res, "businessID", "id"),
-        );
-        router.get("/:businessID", (req, res) =>
-            ScheduleDatabase.get(Employee, req, res, "businessID"),
-        );
+        router.get("/:id", this.getEmployee);
+        router.get("/business/:businessID", this.getEmployeesForBusiness);
+    }
+
+    private async getEmployee(req: Request, res: Response) {
+        const id = req.params["id"];
+
+        console.log(`Getting ${Employee.name} with id: ${id}`);
+
+        await Employee.findOne({ where: { id }, include: User })
+            .then((result) => {
+                console.log(
+                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
+                );
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error finding ${Employee.name}: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getEmployeesForBusiness(req: Request, res: Response) {
+        const businessID = req.params["businessID"];
+
+        console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
+
+        await Employee.findAll({ where: { businessID }, include: User })
+            .then((result) => {
+                console.log(
+                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
+                );
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error finding ${Employee.name}: ${error}`);
+                res.status(500).send({ error });
+            });
     }
 }
 

@@ -30,7 +30,7 @@ ScheduleShiftTemplate.init(
         },
         scheduleTemplateID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: ScheduleTemplate,
                 key: "id",

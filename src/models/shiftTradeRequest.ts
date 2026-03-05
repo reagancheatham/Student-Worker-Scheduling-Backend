@@ -5,7 +5,7 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Shift } from "./shift.model.ts";
+import { Shift } from "./shift.ts";
 import { Employee } from "./employee.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
@@ -31,7 +31,7 @@ ShiftTradeRequest.init(
         },
         shiftID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Shift,
                 key: "id",
@@ -82,27 +82,15 @@ class ShiftTradeRequestRouter extends ModelRouter {
             ScheduleDatabase.create(ShiftTradeRequest, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftTradeRequest,
-                req,
-                res,
-                "shiftID",
-                "id",
-            ),
+            ScheduleDatabase.update(ShiftTradeRequest, req, res, "id"),
         );
-        router.delete("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.delete(
-                ShiftTradeRequest,
-                req,
-                res,
-                "shiftID",
-                "id",
-            ),
+        router.delete("/:id", (req, res) =>
+            ScheduleDatabase.delete(ShiftTradeRequest, req, res, "id"),
         );
-        router.get("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID", "id"),
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.get(ShiftTradeRequest, req, res, "id"),
         );
-        router.get("/:shiftID", (req, res) =>
+        router.get("/shift/:shiftID", (req, res) =>
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
     }

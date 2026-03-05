@@ -28,7 +28,7 @@ Role.init(
         },
         businessID: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
+            allowNull: false,
             references: {
                 model: Business,
                 key: "id",
