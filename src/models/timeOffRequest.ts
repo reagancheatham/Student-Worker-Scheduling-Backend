@@ -6,11 +6,12 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
-import { ApprovalStatus } from "../classes/ApprovalStatus.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Request, Response } from "express";
+import { User } from "./user.ts";
 
 export class TimeOffRequest extends Model<
   InferAttributes<TimeOffRequest>,
@@ -104,6 +105,11 @@ class TimeOffRequestRouter extends ModelRouter {
           model: Employee,
           required: true,
           where: { businessID },
+          include: [
+            {
+              model: User,
+            },
+          ],
         },
       ],
     })
