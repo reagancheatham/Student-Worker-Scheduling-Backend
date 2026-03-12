@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { TaskList } from "./taskList.ts";
-import { TaskStatus } from "../classes/taskStatus.ts";
+import { TaskStatus } from "../classes/TaskStatus.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";

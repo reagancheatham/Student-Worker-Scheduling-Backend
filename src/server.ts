@@ -25,7 +25,7 @@ console.log("PORT FROM ENV:", process.env.PORT);
 app.use(cors(defaultCorsConfig))
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use("/", router);
+    .use("/workerscheduling-t6", router);
 
 const port = process.env.PORT;
 app.listen(port, () => {
