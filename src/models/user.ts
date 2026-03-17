@@ -21,6 +21,7 @@ export class User extends Model<
     declare lastName: string;
     declare email: string;
     declare phoneNumber: string;
+    declare profilePictureURL: string;
 }
 
 User.init(
@@ -59,6 +60,10 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
+        profilePictureURL: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        }
     },
     {
         sequelize: sequelizeInstance,
