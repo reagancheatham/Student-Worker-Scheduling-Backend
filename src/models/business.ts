@@ -1,62 +1,86 @@
 import { Model, DataTypes } from "sequelize";
 import type {
-    CreationOptional,
-    InferAttributes,
-    InferCreationAttributes,
+  CreationOptional,
+  InferAttributes,
+  InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
 import { ScheduleDatabase as ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { Manager } from "./manager.ts";
+import { Employee } from "./employee.ts";
+import { User } from "./user.ts";
+import { Request, Response, Router } from "express";
 
 export class Business extends Model<
-    InferAttributes<Business>,
-    InferCreationAttributes<Business>
+  InferAttributes<Business>,
+  InferCreationAttributes<Business>
 > {
-    declare id: CreationOptional<number>;
-    declare name: string;
+  declare id: CreationOptional<number>;
+  declare name: string;
 }
 
 Business.init(
-    {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    {
-        sequelize: sequelizeInstance,
-        timestamps: false,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
+  },
+  {
+    sequelize: sequelizeInstance,
+    timestamps: false,
+  },
 );
 
 class BusinessRouter extends ModelRouter {
-    public path(): string {
-        return "/businesses";
-    }
+  public path(): string {
+    return "/businesses";
+  }
 
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(Business, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(Business, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(Business, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(Business, req, res, "id"),
-        );
-        router.get("/", (req, res) =>
-            ScheduleDatabase.getAll(Business, req, res),
-        );
-    }
+  protected buildRouter(router: Router): void {
+    router.post("/", (req, res) => ScheduleDatabase.create(Business, req, res));
+    router.put("/", (req, res) =>
+      ScheduleDatabase.update(Business, req, res, "id"),
+    );
+    router.delete("/:id", (req, res) =>
+      ScheduleDatabase.delete(Business, req, res, "id"),
+    );
+    router.get("/:id", (req, res) =>
+      ScheduleDatabase.get(Business, req, res, "id"),
+    );
+    router.get("/", (req, res) => this.getAllBusinessesWithOwner(req, res));
+  }
+
+  private async getAllBusinessesWithOwner(req: Request, res: Response) {
+    await Business.findAll({
+      include: [
+        {
+          model: Manager,
+          where: { isOwner: true },
+          required: false,
+          include: [
+            {
+              model: Employee,
+              include: [User],
+            },
+          ],
+        },
+      ],
+    })
+      .then((result) => {
+        res.status(200).send(result);
+      })
+      .catch((error) => {
+        console.error("Error fetching businesses with owner:", error);
+        res.status(500).send({ error });
+      });
+  }
 }
 
 export const businessRouter = new BusinessRouter();
