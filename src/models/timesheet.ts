@@ -5,7 +5,7 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { ApprovalStatus } from "../classes/ApprovalStatus.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 import { Shift } from "./shift.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
