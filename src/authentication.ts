@@ -32,51 +32,30 @@ export class Authentication {
         const authHeader = req.header("Authorization");
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            console.log(authHeader);
             return res.status(401).send({ valid: false });
         }
 
-        const token = authHeader.slice(7); //token from header starts with Bearer
-        const session = await Session.findOne({
-            where: { token },
-        });
+        const token = authHeader.slice(7);
 
-        if (!session) {
-            res.status(404).send({ valid: false });
-        } else {
+        try {
+            const session = await Session.findOne({
+                where: { token },
+            });
+
+            if (!session) {
+                return res.status(404).send({ valid: false });
+            }
+
             await session.destroy();
-            console.log(`Session for token ${token} deleted`);
+
+            console.log(`Session deleted for token: ${token}`);
+
+            return res.status(200).send({ valid: true });
+        } catch (error) {
+            console.error(`Logout error: ${error}`);
+            return res.status(500).send({ valid: false });
         }
     }
-
-    // static async logoutUser(req: Request, res: Response) {
-    //     const authHeader = req.header("Authorization");
-
-    //     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    //         return res.status(401).send({ valid: false });
-    //     }
-
-    //     const token = authHeader.slice(7);
-
-    //     try {
-    //         const session = await Session.findOne({
-    //             where: { token },
-    //         });
-
-    //         if (!session) {
-    //             return res.status(404).send({ valid: false });
-    //         }
-
-    //         await session.destroy();
-
-    //         console.log(`Session deleted for token: ${token}`);
-
-    //         return res.status(200).send({ valid: true });
-    //     } catch (error) {
-    //         console.error(`Logout error: ${error}`);
-    //         return res.status(500).send({ valid: false });
-    //     }
-    // }
 
     static async handleLogin(
         req: Request,
