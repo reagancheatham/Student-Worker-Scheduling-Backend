@@ -1,6 +1,6 @@
 import { Employee } from "./employee.ts";
 import { Business } from "./business.ts";
-import { Manager } from "./manager.ts";
+import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.ts";
 import { PermissionRole } from "./permissionRole.ts";
 import { Role } from "./role.ts";
@@ -22,167 +22,160 @@ import { Timesheet } from "./timesheet.ts";
 import { User } from "./user.ts";
 
 Session.belongsTo(User, {
-  foreignKey: "userID",
+    foreignKey: "userID",
 });
 User.hasMany(Session, {
-  foreignKey: "userID",
+    foreignKey: "userID",
 });
 
 PermissionRole.hasOne(User, {
-  foreignKey: "permissionRoleID",
+    foreignKey: "permissionRoleID",
 });
 
-Manager.belongsTo(Employee, {
-  foreignKey: "employeeID",
+BusinessPermissionRole.hasMany(Employee, {
+    foreignKey: "businessPermissionRoleID",
 });
-Employee.hasMany(Manager, { 
-    foreignKey: "employeeID" 
-});
-
-Manager.belongsTo(Business, {
-  foreignKey: "businessID",
-});
-Business.hasMany(Manager, { 
-    foreignKey: "businessID" 
+Employee.belongsTo(BusinessPermissionRole, {
+    foreignKey: "businessPermissionRoleID",
 });
 
 Employee.belongsTo(User, {
-  foreignKey: "userID",
+    foreignKey: "userID",
 });
 User.hasMany(Employee, {
-  foreignKey: "userID",
+    foreignKey: "userID",
 });
 
 Employee.belongsTo(Business, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 Business.hasMany(Employee, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 
 Settings.belongsTo(Business, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 Business.hasOne(Settings, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 
 EmployeeUnavailability.belongsTo(Employee, {
-  foreignKey: "employeeID",
+    foreignKey: "employeeID",
 });
 Employee.hasMany(EmployeeUnavailability, {
-  foreignKey: "employeeID",
+    foreignKey: "employeeID",
 });
 
 TimeOffRequest.belongsTo(Employee, {
-  foreignKey: "employeeID",
+    foreignKey: "employeeID",
 });
 Employee.hasMany(TimeOffRequest, {
-  foreignKey: "employeeID",
+    foreignKey: "employeeID",
 });
 
 Role.belongsTo(Business, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 Business.hasMany(Role, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 
 ScheduleTemplate.belongsTo(Business, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 Business.hasMany(ScheduleTemplate, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 
 ScheduleShiftTemplate.belongsTo(ScheduleTemplate, {
-  foreignKey: "scheduleTemplateID",
+    foreignKey: "scheduleTemplateID",
 });
 ScheduleTemplate.hasMany(ScheduleShiftTemplate, {
-  foreignKey: "scheduleTemplateID",
+    foreignKey: "scheduleTemplateID",
 });
 
 ShiftTaskListTemplate.belongsTo(ScheduleShiftTemplate, {
-  foreignKey: "scheduleShiftID",
+    foreignKey: "scheduleShiftID",
 });
 ScheduleShiftTemplate.hasOne(ShiftTaskListTemplate, {
-  foreignKey: "scheduleShiftID",
+    foreignKey: "scheduleShiftID",
 });
 
 ShiftTaskTemplate.belongsTo(ShiftTaskListTemplate, {
-  foreignKey: "shiftTaskListID",
+    foreignKey: "shiftTaskListID",
 });
 ShiftTaskListTemplate.hasMany(ShiftTaskTemplate, {
-  foreignKey: "shiftTaskListID",
+    foreignKey: "shiftTaskListID",
 });
 
 TaskListTemplate.belongsTo(Business, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 Business.hasMany(TaskListTemplate, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 
 TaskTemplate.belongsTo(TaskListTemplate, {
-  foreignKey: "taskListTemplateID",
+    foreignKey: "taskListTemplateID",
 });
 TaskListTemplate.hasMany(TaskTemplate, {
-  foreignKey: "taskListTemplateID",
+    foreignKey: "taskListTemplateID",
 });
 
 Shift.belongsTo(Business, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 Business.hasMany(Shift, {
-  foreignKey: "businessID",
+    foreignKey: "businessID",
 });
 
 Shift.belongsTo(Employee, {
-  foreignKey: {
-    name: "employeeID",
-    allowNull: true,
-  },
-  onDelete: "SET NULL",
+    foreignKey: {
+        name: "employeeID",
+        allowNull: true,
+    },
+    onDelete: "SET NULL",
 });
 Employee.hasMany(Shift, {
-  foreignKey: "employeeID",
+    foreignKey: "employeeID",
 });
 
 Timesheet.belongsTo(Shift, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 Shift.hasOne(Timesheet, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 
 ShiftTradeRequest.belongsTo(Shift, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 Shift.hasMany(ShiftTradeRequest, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 
 Employee.hasMany(ShiftTradeRequest, {
-  foreignKey: "targetEmployeeID",
+    foreignKey: "targetEmployeeID",
 });
 
 ShiftOfferRequest.belongsTo(Shift, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 Shift.hasMany(ShiftOfferRequest, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 
 TaskList.belongsTo(Shift, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 Shift.hasOne(TaskList, {
-  foreignKey: "shiftID",
+    foreignKey: "shiftID",
 });
 
 Task.belongsTo(TaskList, {
-  foreignKey: "taskListID",
+    foreignKey: "taskListID",
 });
 TaskList.hasMany(Task, {
-  foreignKey: "taskListID",
+    foreignKey: "taskListID",
 });

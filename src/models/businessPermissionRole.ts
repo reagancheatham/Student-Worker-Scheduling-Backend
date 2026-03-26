@@ -6,21 +6,18 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { ScheduleDatabase as ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { Employee } from "./employee.ts";
-import { User } from "./user.ts";
-import { Request, Response, Router } from "express";
-import { BusinessPermissionRole } from "./businessPermissionRole.ts";
+import { Router } from "express";
+import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
-export class Business extends Model<
-    InferAttributes<Business>,
-    InferCreationAttributes<Business>
+export class BusinessPermissionRole extends Model<
+    InferAttributes<BusinessPermissionRole>,
+    InferCreationAttributes<BusinessPermissionRole>
 > {
     declare id: CreationOptional<number>;
     declare name: string;
 }
 
-Business.init(
+BusinessPermissionRole.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -38,26 +35,28 @@ Business.init(
     },
 );
 
-class BusinessRouter extends ModelRouter {
+class BusinessPermissionRoleRouter extends ModelRouter {
     public path(): string {
-        return "/businesses";
+        return "/businessPermissionRoles";
     }
 
     protected buildRouter(router: Router): void {
         router.post("/", (req, res) =>
-            ScheduleDatabase.create(Business, req, res),
+            ScheduleDatabase.create(BusinessPermissionRole, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Business, req, res, "id"),
+            ScheduleDatabase.update(BusinessPermissionRole, req, res, "id"),
         );
         router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(Business, req, res, "id"),
+            ScheduleDatabase.delete(BusinessPermissionRole, req, res, "id"),
         );
         router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(Business, req, res, "id"),
+            ScheduleDatabase.get(BusinessPermissionRole, req, res, "id"),
         );
-        router.get("/", (req, res) => ScheduleDatabase.getAll(Business, req, res));
+        router.get("/", (req, res) =>
+            ScheduleDatabase.getAll(BusinessPermissionRole, req, res),
+        );
     }
 }
 
-export const businessRouter = new BusinessRouter();
+export const businessPermissionRoleRouter = new BusinessPermissionRoleRouter();

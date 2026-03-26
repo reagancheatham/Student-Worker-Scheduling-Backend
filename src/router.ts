@@ -3,7 +3,7 @@ import { ModelRouter } from "./classes/databaseModel.ts";
 import { businessRouter } from "./models/business.ts";
 import { employeeRouter } from "./models/employee.ts";
 import { userRouter } from "./models/user.ts";
-import { managerRouter } from "./models/manager.ts";
+import { businessPermissionRoleRouter } from "./models/businessPermissionRole.ts";
 import { employeeUnavailabilityRouter } from "./models/employeeUnavailability.ts";
 import { permissionRoleRouter } from "./models/permissionRole.ts";
 import { roleRouter } from "./models/role.ts";
@@ -28,7 +28,7 @@ const router = Router();
 const modelRouters: ModelRouter[] = [
     userRouter,
     businessRouter,
-    managerRouter,
+    businessPermissionRoleRouter,
     employeeRouter,
     employeeUnavailabilityRouter,
     permissionRoleRouter,
