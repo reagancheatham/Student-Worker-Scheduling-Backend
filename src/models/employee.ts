@@ -36,6 +36,7 @@ Employee.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         userID: {
             type: DataTypes.INTEGER,

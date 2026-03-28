@@ -34,6 +34,7 @@ ShiftTaskTemplate.init(
                 model: ShiftTaskListTemplate,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,

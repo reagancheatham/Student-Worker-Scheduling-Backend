@@ -35,6 +35,7 @@ ShiftOfferRequest.init(
                 model: Shift,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         employeeMessage: {
             type: DataTypes.STRING,

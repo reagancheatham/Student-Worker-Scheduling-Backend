@@ -37,6 +37,7 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         startDate: {
             type: DataTypes.DATE,

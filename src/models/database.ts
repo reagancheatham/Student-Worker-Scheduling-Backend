@@ -1,6 +1,7 @@
 import { Employee } from "./employee.ts";
 import { Business } from "./business.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
+import { Invite } from "./invites.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.ts";
 import { PermissionRole } from "./permissionRole.ts";
 import { Role } from "./role.ts";
@@ -38,6 +39,10 @@ BusinessPermissionRole.hasMany(Employee, {
 Employee.belongsTo(BusinessPermissionRole, {
     foreignKey: "businessPermissionRoleID",
 });
+
+BusinessPermissionRole.hasMany(Invite,
+    fore
+)
 
 Employee.belongsTo(User, {
     foreignKey: "userID",
