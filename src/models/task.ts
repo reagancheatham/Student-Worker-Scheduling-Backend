@@ -18,6 +18,7 @@ export class Task extends Model<
     declare id: CreationOptional<number>;
     declare taskListID: number;
     declare name: string;
+    declare description: string;
     declare completeStatus: TaskStatus;
 }
 
@@ -39,6 +40,10 @@ Task.init(
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        description: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         completeStatus: {
             type: DataTypes.ENUM(...Object.values(TaskStatus)),

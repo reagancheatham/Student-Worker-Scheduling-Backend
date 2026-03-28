@@ -28,6 +28,35 @@ export class Authentication {
         }
     }
 
+    static async logoutUser(req: Request, res: Response) {
+        const authHeader = req.header("Authorization");
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).send({ valid: false });
+        }
+
+        const token = authHeader.slice(7);
+
+        try {
+            const session = await Session.findOne({
+                where: { token },
+            });
+
+            if (!session) {
+                return res.status(404).send({ valid: false });
+            }
+
+            await session.destroy();
+
+            console.log(`Session deleted for token: ${token}`);
+
+            return res.status(200).send({ valid: true });
+        } catch (error) {
+            console.error(`Logout error: ${error}`);
+            return res.status(500).send({ valid: false });
+        }
+    }
+
     static async handleLogin(
         req: Request,
         res: Response,
@@ -53,7 +82,7 @@ export class Authentication {
                 res.status(200).send({
                     token: session.token,
                     valid: true,
-                    profilePicture: payload.picture,
+                    profilePicture: payload.picture, //??
                     user,
                 });
             } else {
@@ -152,6 +181,13 @@ class AuthenticationRouter extends ModelRouter {
         router.post("/", (req: Request, res: Response, next: NextFunction) => {
             Authentication.loginUser(req, res).catch(next);
         });
+
+        router.post(
+            "/logout",
+            (req: Request, res: Response, next: NextFunction) => {
+                Authentication.logoutUser(req, res).catch(next);
+            },
+        );
     }
 }
 
