@@ -40,9 +40,19 @@ Employee.belongsTo(BusinessPermissionRole, {
     foreignKey: "businessPermissionRoleID",
 });
 
-BusinessPermissionRole.hasMany(Invite,
-    fore
-)
+Business.hasMany(Invite, {
+    foreignKey: "businessID"
+});
+Invite.belongsTo(Business, {
+    foreignKey: "businessID",
+});
+
+BusinessPermissionRole.hasMany(Invite, {
+    foreignKey: "businessPermissionRoleID"
+});
+Invite.belongsTo(BusinessPermissionRole, {
+    foreignKey: "businessPermissionRoleID",
+});
 
 Employee.belongsTo(User, {
     foreignKey: "userID",

@@ -23,6 +23,7 @@ import { taskTemplateRouter } from "./models/taskTemplate.ts";
 import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
 import { timesheetRouter } from "./models/timesheet.ts";
 import { authenticationRouter } from "./authentication.ts";
+import { inviteRouter } from "./models/invites.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
@@ -49,6 +50,7 @@ const modelRouters: ModelRouter[] = [
     timeOffRequestRouter,
     timesheetRouter,
     authenticationRouter,
+    inviteRouter
 ];
 
 modelRouters.forEach((modelRouter) => {
