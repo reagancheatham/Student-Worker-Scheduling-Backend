@@ -10,6 +10,9 @@ import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { CodeService } from "../classes/randomeCode.ts";
+import { Employee } from "./employee.ts";
+import nodemailer from "nodemailer";
+import { Business } from "./business.ts";
 
 export class Invite extends Model<
     InferAttributes<Invite>,
@@ -22,7 +25,7 @@ export class Invite extends Model<
 
     public static async createInvite(
         email: string,
-        businessID: number,
+        business: Business,
         businessPermissionRoleID: number,
         transaction: Transaction,
     ) {
@@ -33,18 +36,77 @@ export class Invite extends Model<
             {
                 code,
                 email: email,
-                businessID: businessID,
+                businessID: business.id,
                 businessPermissionRoleID: businessPermissionRoleID,
             },
             { transaction: transaction },
         )
-            .then((result) => {
+            .then(async (result) => {
                 console.log("Successfully created invite");
+                const transporter = nodemailer.createTransport({
+                    service: "gmail",
+                    auth: {
+                        user: process.env.NODE_EMAIL,
+                        pass: process.env.NODE_EMAIL_PASSWORD,
+                    },
+                });
+
+                const inviteLink = `http://${process.env.FRONTEND_URL}/login/${code}`;
+
+                try {
+                    await transporter.verify();
+                    console.log("Server is ready to take our messages");
+                } catch (err) {
+                    console.error("Verification failed:", err);
+                }
+
+                await transporter.sendMail({
+                    from: process.env.NODEEMAIL,
+                    to: email,
+                    subject: "You're invited!",
+                    text: `You've been invited. Click here to join: ${inviteLink}`,
+                    html: `
+                <h2>You're Invited</h2>
+                <p>You have been invited to join ${business.name}.</p>
+                <a href="${inviteLink}">Accept Invite</a>
+            `,
+                });
+
+                console.log("Invite email sent");
+
                 return result;
             })
             .catch((error) => {
                 console.log(`Error creating invite: ${error}`);
                 return null;
+            });
+    }
+
+    public static async handleInvite(
+        email: string,
+        code: string,
+        userID: number,
+    ) {
+        await Invite.findOne({ where: { code: code, email: email } })
+            .then((result) => {
+                if (!result) {
+                    console.log("Could not find valid invite");
+                    return;
+                }
+                console.log("Found invite");
+                Employee.create({
+                    businessID: result.businessID,
+                    userID: userID,
+                    businessPermissionRoleID: result.businessPermissionRoleID,
+                })
+                    .then(() => console.log(`Added employee to business`))
+                    .catch((error) => {
+                        console.log(`Error adding employee: ${error}`);
+                    });
+            })
+            .catch(() => {
+                console.log("Could not find valid invite");
+                return;
             });
     }
 }

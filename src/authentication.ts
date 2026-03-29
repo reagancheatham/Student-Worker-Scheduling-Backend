@@ -4,6 +4,7 @@ import { Session } from "./models/session.ts";
 import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
+import { Invite } from "./models/invites.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
@@ -12,6 +13,7 @@ export class Authentication {
     static async loginUser(req: Request, res: Response) {
         const googleClientID = process.env.GOOGLE_CLIENT_ID;
         const googleToken = req.body.credential;
+        const code: string | undefined = req.body.code;
 
         const client = new OAuth2Client(googleClientID);
         const ticket = await client.verifyIdToken({
@@ -24,7 +26,7 @@ export class Authentication {
             console.error(`Could not verify user token`);
             res.status(500).send({ valid: false });
         } else {
-            Authentication.handleLogin(req, res, payload);
+            Authentication.handleLogin(req, res, payload, code);
         }
     }
 
@@ -61,6 +63,7 @@ export class Authentication {
         req: Request,
         res: Response,
         payload: TokenPayload,
+        code: string | undefined
     ) {
         const user = await User.findOne({
             where: {
@@ -71,6 +74,9 @@ export class Authentication {
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
         if (user && process.env.AUTH_SECRET) {
+            if (code) {
+                Invite.handleInvite(user.email, code, user.id)
+            }
             const session = await Session.findOne({
                 where: {
                     userID: user.id,
@@ -119,7 +125,7 @@ export class Authentication {
                 phoneNumber: "000000",
             });
 
-            this.handleLogin(req, res, payload);
+            this.handleLogin(req, res, payload, code);
         }
     }
 

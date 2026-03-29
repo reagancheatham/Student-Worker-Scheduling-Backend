@@ -74,7 +74,7 @@ class BusinessRouter extends ModelRouter {
             .transaction()
             .then((transaction: any) => {
                 return Business.create(
-                    { name: info.name },
+                    { name: info.business.name },
                     { transaction: transaction },
                 )
                     .then(async (data) => {
@@ -122,7 +122,7 @@ class BusinessRouter extends ModelRouter {
             }
             return Invite.createInvite(
                 email,
-                Number(business.id),
+                business,
                 role.id,
                 transaction,
             );
