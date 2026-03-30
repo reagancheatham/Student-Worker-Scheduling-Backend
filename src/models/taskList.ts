@@ -35,6 +35,7 @@ TaskList.init(
                 model: Shift,
                 key: "id",
             },
+            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,

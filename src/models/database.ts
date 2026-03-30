@@ -168,6 +168,7 @@ Shift.hasMany(ShiftOfferRequest, {
 
 TaskList.belongsTo(Shift, {
     foreignKey: "shiftID",
+    onDelete: "CASCADE",
 });
 Shift.hasOne(TaskList, {
     foreignKey: "shiftID",
