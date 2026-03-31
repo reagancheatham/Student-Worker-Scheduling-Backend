@@ -70,13 +70,13 @@ class TaskRouter extends ModelRouter {
     protected buildRouter(router: Router): void {
         router.post("/", (req, res) => ScheduleDatabase.create(Task, req, res));
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Task, req, res, "taskListID", "id"),
+            ScheduleDatabase.update(Task, req, res, "id"),
         );
         router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(Task, req, res, "taskListID", "id"),
+            ScheduleDatabase.delete(Task, req, res, "id"),
         );
         router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(Task, req, res, "taskListID", "id"),
+            ScheduleDatabase.get(Task, req, res, "id"),
         );
         router.get("/taskList/:taskListID", (req, res) =>
             ScheduleDatabase.getAllWhere(Task, req, res, "taskListID"),
