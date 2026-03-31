@@ -4,7 +4,7 @@ import { Session } from "./models/session.ts";
 import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
-import { Invite } from "./models/invites.ts";
+import { Invite } from "./models/invite.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;

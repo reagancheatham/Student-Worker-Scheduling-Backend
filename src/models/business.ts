@@ -11,6 +11,8 @@ import { ScheduleDatabase as ScheduleDatabase } from "../classes/scheduleDatabas
 import { Request, Response, Router } from "express";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Invite } from "./invite.ts";
+import { Employee } from "./employee.ts";
+import { User } from "./user.ts";
 
 export class Business extends Model<
     InferAttributes<Business>,
@@ -46,9 +48,7 @@ class BusinessRouter extends ModelRouter {
 
     protected buildRouter(router: Router): void {
         router.post("/", async (req, res) => this.post(req, res));
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(Business, req, res, "id"),
-        );
+        router.put("/", (req, res) => this.put(req, res));
         router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(Business, req, res, "id"),
         );
@@ -58,6 +58,43 @@ class BusinessRouter extends ModelRouter {
         router.get("/", (req, res) =>
             ScheduleDatabase.getAll(Business, req, res),
         );
+    }
+
+    private async put(req: Request, res: Response) {
+        const info = req.body;
+
+        if (info === null) {
+            console.error(`Error editing Business: info is null`);
+            return Promise.resolve();
+        }
+
+        const oldOwner = (await Employee.findOne({
+            include: [
+                {
+                    model: User,
+                    where: { email: info.email },
+                },
+            ],
+        })) as Employee & { User?: User };
+
+        const isEmailChanged = oldOwner?.User?.email !== info.email;
+
+        console.log(`Editing Business with info: ${JSON.stringify(info)}`);
+
+        await sequelizeInstance.transaction().then((transaction: any) => {
+            return Business.update(info, { where: { id: info.business.id } }, {transaction: transaction}).then(
+                (result) => {
+                    if (result[0] === 0)
+                        console.log(`Could not find a business to update`);
+                    else console.log(`Updated ${result[0]} businessess`);
+
+                    if (isEmailChanged) {
+                        this.invite(info.email, info);
+                    }
+                    res.status(404).send({ affectedCount: result[0] });
+                },
+            );
+        });
     }
 
     private async post(req: Request, res: Response) {
@@ -120,12 +157,7 @@ class BusinessRouter extends ModelRouter {
             if (!role) {
                 throw new Error("Owner role not found");
             }
-            return Invite.createInvite(
-                email,
-                business,
-                role.id,
-                transaction,
-            );
+            return Invite.createInvite(email, business, role.id, transaction);
         });
     }
 }
