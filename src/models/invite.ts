@@ -53,13 +53,6 @@ export class Invite extends Model<
 
                 const inviteLink = `http://${process.env.FRONTEND_URL}/login/${code}`;
 
-                try {
-                    await transporter.verify();
-                    console.log("Server is ready to take our messages");
-                } catch (err) {
-                    console.error("Verification failed:", err);
-                }
-
                 await transporter.sendMail({
                     from: process.env.NODEEMAIL,
                     to: email,

@@ -10,7 +10,7 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase as ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Request, Response, Router } from "express";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
-import { Invite } from "./invites.ts";
+import { Invite } from "./invite.ts";
 
 export class Business extends Model<
     InferAttributes<Business>,
