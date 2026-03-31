@@ -105,9 +105,9 @@ class ShiftRouter extends ModelRouter {
             ScheduleDatabase.delete(Shift, req, res, "id"),
         );
         router.get("/:id", this.getShift);
-        router.get("/:businessID", this.getShiftsForBusiness);
+        router.get("/business/:businessID", this.getShiftsForBusiness);
         router.get(
-            "/:businessID/startTime=:startTime/endTime=:endTime",
+            "/business/:businessID/startTime=:startTime/endTime=:endTime",
             (req, res) => this.getShiftsWithinRange(req, res),
         );
     }
