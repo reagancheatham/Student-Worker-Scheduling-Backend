@@ -32,46 +32,29 @@ export class Invite extends Model<
         const code = CodeService.generate10DigitCode();
 
         console.log("Creating invite");
-        await Invite.create(
+
+        return Invite.create(
             {
                 code,
                 email: email,
                 businessID: business.id,
-                businessPermissionRoleID: businessPermissionRoleID,
+                businessPermissionRoleID,
             },
-            { transaction: transaction },
+            { transaction },
         )
-            .then(async (result) => {
+            .then((result) => {
                 console.log("Successfully created invite");
-                const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                        user: process.env.NODE_EMAIL,
-                        pass: process.env.NODE_EMAIL_PASSWORD,
-                    },
-                });
 
-                const inviteLink = `http://${process.env.FRONTEND_URL}/login/${code}`;
-
-                await transporter.sendMail({
-                    from: process.env.NODEEMAIL,
-                    to: email,
-                    subject: "You're invited!",
-                    text: `You've been invited. Click here to join: ${inviteLink}`,
-                    html: `
-                <h2>You're Invited</h2>
-                <p>You have been invited to join ${business.name}.</p>
-                <a href="${inviteLink}">Accept Invite</a>
-            `,
-                });
-
-                console.log("Invite email sent");
-
-                return result;
+                return {
+                    invite: result,
+                    code,
+                    email,
+                    businessName: business.name,
+                };
             })
             .catch((error) => {
                 console.log(`Error creating invite: ${error}`);
-                return null;
+                throw error;
             });
     }
 
@@ -100,6 +83,38 @@ export class Invite extends Model<
             .catch(() => {
                 console.log("Could not find valid invite");
                 return;
+            });
+    }
+
+    public static async sendInviteEmail(
+        email: string,
+        code: string,
+        businessName: string,
+    ) {
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.NODE_EMAIL,
+                pass: process.env.NODE_EMAIL_PASSWORD,
+            },
+        });
+
+        const inviteLink = `http://${process.env.FRONTEND_URL}/login/${code}`;
+
+        return transporter
+            .sendMail({
+                from: process.env.NODE_EMAIL,
+                to: email,
+                subject: "You're invited!",
+                text: `You've been invited. Click here to join: ${inviteLink}`,
+                html: `
+            <h2>You're Invited</h2>
+            <p>You have been invited to join ${businessName}.</p>
+            <a href="${inviteLink}">Accept Invite</a>
+        `,
+            })
+            .then(() => {
+                console.log("Invite email sent");
             });
     }
 }

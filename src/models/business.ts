@@ -1,5 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import type {
+import {
     CreationOptional,
     InferAttributes,
     InferCreationAttributes,
@@ -63,85 +63,157 @@ class BusinessRouter extends ModelRouter {
     private async put(req: Request, res: Response) {
         const info = req.body;
 
-        if (info === null) {
+        if (!info) {
             console.error(`Error editing Business: info is null`);
-            return Promise.resolve();
+            return res.status(400).send("Invalid request body");
         }
 
-        const oldOwner = (await Employee.findOne({
-            include: [
-                {
-                    model: User,
-                    where: { email: info.email },
-                },
-            ],
-        })) as Employee & { User?: User };
-
-        const isEmailChanged = oldOwner?.User?.email !== info.email;
+        let invitePayload: any = null;
+        let oldEmployee: Employee;
 
         console.log(`Editing Business with info: ${JSON.stringify(info)}`);
 
-        await sequelizeInstance.transaction().then((transaction: any) => {
-            return Business.update(info, { where: { id: info.business.id } }, {transaction: transaction}).then(
-                (result) => {
-                    if (result[0] === 0)
-                        console.log(`Could not find a business to update`);
-                    else console.log(`Updated ${result[0]} businessess`);
+        sequelizeInstance
+            .transaction((transaction: any) => {
+                return Employee.findOne({
+                    where: { businessID: info.id },
+                    include: [
+                        User,
+                        {
+                            model: BusinessPermissionRole,
+                            where: { name: "Owner" },
+                        },
+                    ],
+                    transaction,
+                }).then(async (data: any) => {
+                    oldEmployee = data;
 
-                    if (isEmailChanged) {
-                        this.invite(info.email, info);
+                    if (!oldEmployee) {
+                        throw new Error("Employee not found");
                     }
-                    res.status(404).send({ affectedCount: result[0] });
-                },
-            );
-        });
+
+                    const isEmailChanged =
+                        info.email !== undefined &&
+                        data.User?.email !== info.email;
+
+                    return Business.update(info, {
+                        where: { id: info.id },
+                        transaction,
+                        returning: true,
+                    })
+                        .then(([count]) => {
+                            if (count === 0) {
+                                throw new Error(
+                                    "Could not find a business to update",
+                                );
+                            }
+
+                            console.log(`Updated ${data[0]} business(es)`);
+
+                            return Business.update(info, {
+                                where: { id: info.id },
+                                transaction,
+                                returning: true,
+                            }).then(() => {
+                                return Business.findOne({
+                                    where: { id: info.id },
+                                    transaction,
+                                })
+                                    .then((business) => {
+                                        if (isEmailChanged && business) {
+                                            return this.invite(
+                                                info.email,
+                                                business,
+                                                transaction,
+                                            ).then((inviteResult) => {
+                                                invitePayload = inviteResult;
+                                                return inviteResult;
+                                            });
+                                        }
+                                    })
+                                    .catch((err) => {
+                                        console.error("Update failed:", err);
+                                        throw err;
+                                    });
+                            });
+                        })
+                        .catch((err) => {
+                            console.error("Update failed:", err);
+                            throw err;
+                        });
+                });
+            })
+            .then(() => {
+                console.log("Successful Transaction");
+
+                if (invitePayload) {
+                    Employee.destroy({ where: { id: oldEmployee.id } });
+                    console.log(`Deleting employee and sending invite`);
+                    return Invite.sendInviteEmail(
+                        invitePayload.email,
+                        invitePayload.code,
+                        invitePayload.businessName,
+                    );
+                }
+            })
+            .then(() => {
+                return res.status(200).send({ success: true });
+            })
+            .catch((error: any) => {
+                console.error("Transaction failed:", error);
+                return res.status(500).send({ error });
+            });
     }
 
     private async post(req: Request, res: Response) {
         const info = req.body;
 
-        if (info === null) {
+        if (!info) {
             console.error(`Error creating Business: info is null`);
-            return Promise.resolve();
+            return res.status(400).send("Invalid request body");
+        }
+
+        if (!info.email || Array.isArray(info.email)) {
+            console.log("Invalid email param");
+            return res.status(400).send("Invalid email");
         }
 
         console.log(`Creating Business with info: ${JSON.stringify(info)}`);
 
-        await sequelizeInstance
-            .transaction()
-            .then((transaction: any) => {
-                return Business.create(
-                    { name: info.business.name },
-                    { transaction: transaction },
-                )
-                    .then(async (data) => {
+        let newInvite: any = null;
+        let createdBusiness: any = null;
+
+        sequelizeInstance
+            .transaction((transaction: any) => {
+                return Business.create({ name: info.name }, { transaction })
+                    .then((business) => {
                         console.log(`Successfully created Business`);
-                        const email = info.email;
-                        if (!email || Array.isArray(email)) {
-                            console.log("Invalid email param");
-                            return res.status(500).send("Invalid email");
-                        }
-                        return this.invite(email, data, transaction).then(
-                            () => data,
-                        );
+
+                        createdBusiness = business;
+
+                        return this.invite(info.email, business, transaction);
                     })
-                    .then((data) => {
-                        return transaction.commit().then(() => data);
-                    })
-                    .then((data) => {
-                        console.log("Successful Transaction");
-                        res.status(200).send(data);
-                    })
-                    .catch((error) => {
-                        return transaction.rollback().then(() => {
-                            console.error("Transaction rolled back:", error);
-                            res.status(500).send({ error });
-                        });
+                    .then((result) => {
+                        newInvite = result;
                     });
             })
+            .then(() => {
+                console.log("Successful Transaction");
+
+                if (newInvite) {
+                    return Invite.sendInviteEmail(
+                        newInvite.email,
+                        newInvite.code,
+                        newInvite.businessName,
+                    );
+                }
+            })
+            .then(() => {
+                return res.status(200).send(createdBusiness);
+            })
             .catch((error: any) => {
-                console.log("Failed transaction");
-                res.status(500).send({ error });
+                console.error("Transaction failed:", error);
+                return res.status(500).send({ error });
             });
     }
 
@@ -157,9 +229,9 @@ class BusinessRouter extends ModelRouter {
             if (!role) {
                 throw new Error("Owner role not found");
             }
+
             return Invite.createInvite(email, business, role.id, transaction);
         });
     }
 }
-
 export const businessRouter = new BusinessRouter();
