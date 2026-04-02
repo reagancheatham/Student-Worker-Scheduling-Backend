@@ -92,7 +92,7 @@ class ScheduleTemplateRouter extends ModelRouter {
                 ScheduleTemplate,
                 req,
                 res,
-                "businessID",
+                ["businessID"],
             ),
         );
     }

@@ -1,7 +1,6 @@
-import { Business } from "./business.ts";
 import { Employee } from "./employee.ts";
+import { Business } from "./business.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.ts";
-import { Manager } from "./manager.ts";
 import { PermissionRole } from "./permissionRole.ts";
 import { Role } from "./role.ts";
 import { ScheduleShiftTemplate } from "./scheduleShiftTemplate.ts";
@@ -30,13 +29,6 @@ User.hasMany(Session, {
 
 PermissionRole.hasOne(User, {
     foreignKey: "permissionRoleID",
-});
-
-Manager.belongsTo(Employee, {
-    foreignKey: "employeeID",
-});
-Manager.belongsTo(Business, {
-    foreignKey: "businessID",
 });
 
 Employee.belongsTo(User, {

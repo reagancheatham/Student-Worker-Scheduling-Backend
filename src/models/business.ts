@@ -6,8 +6,10 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { ScheduleDatabase as ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { User } from "./user.ts";
+import { Employee } from "./employee.ts";
 
 export class Business extends Model<
     InferAttributes<Business>,
@@ -55,6 +57,25 @@ class BusinessRouter extends ModelRouter {
         );
         router.get("/", (req, res) =>
             ScheduleDatabase.getAll(Business, req, res),
+        );
+        router.get(
+            "/user/:email",
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(Business, req, res, [], {
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    where: { email: req.params.email },
+                                },
+                            ],
+                        },
+                    ],
+                }),
         );
     }
 }

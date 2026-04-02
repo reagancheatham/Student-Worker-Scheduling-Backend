@@ -78,7 +78,7 @@ class ShiftTaskTemplateRouter extends ModelRouter {
                 ShiftTaskTemplate,
                 req,
                 res,
-                "shiftTaskListID",
+                ["shiftTaskListID"],
             ),
         );
     }
