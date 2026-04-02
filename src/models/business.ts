@@ -76,7 +76,7 @@ class BusinessRouter extends ModelRouter {
         sequelizeInstance
             .transaction((transaction: any) => {
                 return Employee.findOne({
-                    where: { businessID: info.id },
+                    where: { businessID: info.business.id },
                     include: [
                         User,
                         {
@@ -97,7 +97,7 @@ class BusinessRouter extends ModelRouter {
                         data.User?.email !== info.email;
 
                     return Business.update(info, {
-                        where: { id: info.id },
+                        where: { id: info.business.id },
                         transaction,
                         returning: true,
                     })
@@ -111,12 +111,12 @@ class BusinessRouter extends ModelRouter {
                             console.log(`Updated ${data[0]} business(es)`);
 
                             return Business.update(info, {
-                                where: { id: info.id },
+                                where: { id: info.business.id },
                                 transaction,
                                 returning: true,
                             }).then(() => {
                                 return Business.findOne({
-                                    where: { id: info.id },
+                                    where: { id: info.business.id },
                                     transaction,
                                 })
                                     .then((business) => {
