@@ -96,7 +96,7 @@ class BusinessRouter extends ModelRouter {
                         info.email !== undefined &&
                         data.User?.email !== info.email;
 
-                    return Business.update(info, {
+                    return Business.update(info.business, {
                         where: { id: info.business.id },
                         transaction,
                         returning: true,
