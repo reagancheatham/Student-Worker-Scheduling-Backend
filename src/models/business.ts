@@ -59,7 +59,7 @@ class BusinessRouter extends ModelRouter {
             ScheduleDatabase.getAll(Business, req, res),
         );
         router.get(
-            "/user/:email",
+            "/user/:id",
             (req, res) =>
                 ScheduleDatabase.getAllWhere(Business, req, res, [], {
                     include: [
@@ -70,7 +70,7 @@ class BusinessRouter extends ModelRouter {
                                 {
                                     model: User,
                                     required: true,
-                                    where: { email: req.params.email },
+                                    where: { id: req.params.id },
                                 },
                             ],
                         },
