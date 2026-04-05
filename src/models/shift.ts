@@ -89,6 +89,12 @@ type ShiftRangeParams = {
     endTime: string;
 };
 
+type ShiftRangeParamsEmployee = {
+    employeeID: string;
+    startTime: string;
+    endTime: string;
+}
+
 class ShiftRouter extends ModelRouter {
     public path(): string {
         return "/shifts";
@@ -109,6 +115,9 @@ class ShiftRouter extends ModelRouter {
         router.get(
             "/:businessID/startTime=:startTime/endTime=:endTime",
             (req, res) => this.getShiftsWithinRange(req, res),
+        );
+        router.get("/:employeeID/startTime=:startTime/endTime=:endTime",
+            (req, res) => this.getShiftsForEmployeeWithinRange(req, res),
         );
     }
 
@@ -183,6 +192,41 @@ class ShiftRouter extends ModelRouter {
 
         const where = {
             businessID,
+            startTime: {
+                [Op.gte]: startTime,
+            },
+            endTime: {
+                [Op.lte]: endTime,
+            },
+        };
+
+        await Shift.findAll({
+            where,
+            include: {
+                model: Employee,
+                include: [User],
+            },
+        })
+            .then((result) => {
+                console.log(`Found ${result.length} ${Shift.name}s`);
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error getting all ${Shift.name}s: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getShiftsForEmployeeWithinRange(
+        req: Request<ShiftRangeParamsEmployee>,
+        res: Response,
+    ) {
+        const employeeID = Number(req.params.employeeID);
+        const startTime = new Date(req.params.startTime);
+        const endTime = new Date(req.params.endTime);
+
+        const where = {
+            employeeID,
             startTime: {
                 [Op.gte]: startTime,
             },
