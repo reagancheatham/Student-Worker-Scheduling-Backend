@@ -176,6 +176,7 @@ Shift.hasOne(TaskList, {
 
 Task.belongsTo(TaskList, {
     foreignKey: "taskListID",
+    onDelete: "CASCADE",
 });
 TaskList.hasMany(Task, {
     foreignKey: "taskListID",

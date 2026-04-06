@@ -36,6 +36,7 @@ Task.init(
                 model: TaskList,
                 key: "id",
             },
+            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,
