@@ -75,7 +75,7 @@ class EmployeeRouter extends ModelRouter {
         );
         router.get("/:id", this.getEmployee);
         router.get("/business/:businessID", this.getEmployeesForBusiness);
-        router.get("/:userID", this.getEmployeeByUserID);
+        router.get("/user/:userID", this.getEmployeeByUserID);
     }
 
     private async getEmployee(req: Request, res: Response) {
