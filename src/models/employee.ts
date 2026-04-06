@@ -75,6 +75,7 @@ class EmployeeRouter extends ModelRouter {
         );
         router.get("/:id", this.getEmployee);
         router.get("/business/:businessID", this.getEmployeesForBusiness);
+        router.get("/:userID", this.getEmployeeByUserID);
     }
 
     private async getEmployee(req: Request, res: Response) {
@@ -83,6 +84,24 @@ class EmployeeRouter extends ModelRouter {
         console.log(`Getting ${Employee.name} with id: ${id}`);
 
         await Employee.findOne({ where: { id }, include: User })
+            .then((result) => {
+                console.log(
+                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
+                );
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                console.error(`Error finding ${Employee.name}: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getEmployeeByUserID(req: Request, res: Response) {
+        const userID = req.params["userID"];
+
+        console.log(`Getting ${Employee.name} by user id: ${userID}`);
+
+        await Employee.findOne({ where: { userID }, include: User })
             .then((result) => {
                 console.log(
                     `Found ${Employee.name}: ${JSON.stringify(result)}`,
