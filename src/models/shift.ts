@@ -93,7 +93,7 @@ type ShiftRangeParamsEmployee = {
     employeeID: string;
     startTime: string;
     endTime: string;
-}
+};
 
 class ShiftRouter extends ModelRouter {
     public path(): string {
@@ -110,15 +110,16 @@ class ShiftRouter extends ModelRouter {
         router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(Shift, req, res, "id"),
         );
-        router.get("/:id", this.getShift);
-        router.get("/:businessID", this.getShiftsForBusiness);
         router.get(
-            "/:businessID/startTime=:startTime/endTime=:endTime",
+            "/business/:businessID/startTime=:startTime/endTime=:endTime",
             (req, res) => this.getShiftsWithinRange(req, res),
         );
-        router.get("/:employeeID/startTime=:startTime/endTime=:endTime",
+        router.get(
+            "/employee/:employeeID/startTime=:startTime/endTime=:endTime",
             (req, res) => this.getShiftsForEmployeeWithinRange(req, res),
         );
+        router.get("/:id", this.getShift);
+        router.get("/:businessID", this.getShiftsForBusiness);
     }
 
     private async getShift(req: Request<ShiftParams>, res: Response) {
