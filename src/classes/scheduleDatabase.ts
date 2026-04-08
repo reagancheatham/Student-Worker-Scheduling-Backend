@@ -25,6 +25,14 @@ export class ScheduleDatabase {
                 res.status(200).send(data);
             })
             .catch((error) => {
+                if (error.name === "SequelizeUniqueConstraintError") {
+                    const fields = error.errors.map((error: any) => error.path);
+
+                    return res.status(409).send({
+                        message: `${fields.join(", ")} must be unique`,
+                    });
+                }
+                
                 console.error(`Error creating ${model.name}: ${error}`);
                 res.status(500).send({ error });
             });
@@ -51,7 +59,7 @@ export class ScheduleDatabase {
         keys.forEach((key) => {
             where[key as string] = info[key as string];
         });
-        
+
         await model
             .update(info, { where })
             .then((result) => {
@@ -59,9 +67,17 @@ export class ScheduleDatabase {
                     console.log(`Could not find a ${model.name} to update`);
                 else console.log(`Updated ${result[0]} ${model.name}s`);
 
-                res.status(200).send({ affectedCount: result[0] });
+                res.status(404).send({ affectedCount: result[0] });
             })
             .catch((error) => {
+                if (error.name === "SequelizeUniqueConstraintError") {
+                    const fields = error.errors.map((error: any) => error.path);
+
+                    return res.status(409).send({
+                        message: `${fields.join(", ")} must be unique`,
+                    });
+                }
+
                 console.error(`Error updating ${model.name}: ${error}`);
                 res.status(500).send({ error });
             });
@@ -144,7 +160,8 @@ export class ScheduleDatabase {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        ...keys: (keyof Attributes<M>)[]
+        keys: (keyof Attributes<M>)[] = [],
+        options: any = {},
     ) {
         const where: any = {};
 
@@ -159,6 +176,7 @@ export class ScheduleDatabase {
         await model
             .findAll({
                 where,
+                ...options
             })
             .then((result) => {
                 console.log(`Found ${result.length} ${model.name}s`);

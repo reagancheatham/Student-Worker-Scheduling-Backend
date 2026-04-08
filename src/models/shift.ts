@@ -40,6 +40,7 @@ Shift.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         employeeID: {
             type: DataTypes.INTEGER,
@@ -125,10 +126,12 @@ class ShiftRouter extends ModelRouter {
 
         await Shift.findOne({
             where,
-            include: {
-                model: Employee,
-                include: [User],
-            },
+            include: [
+                {
+                    model: Employee,
+                    include: [User],
+                },
+            ],
         })
             .then((result) => {
                 console.log(`Found ${Shift.name}: ${JSON.stringify(result)}`);

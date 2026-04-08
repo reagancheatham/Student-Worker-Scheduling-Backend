@@ -33,6 +33,7 @@ Role.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,
@@ -68,7 +69,7 @@ class RoleRouter extends ModelRouter {
             ScheduleDatabase.get(Role, req, res, "businessID", "id"),
         );
         router.get("/:businessID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Role, req, res, "businessID"),
+            ScheduleDatabase.getAllWhere(Role, req, res, ["businessID"]),
         );
     }
 }

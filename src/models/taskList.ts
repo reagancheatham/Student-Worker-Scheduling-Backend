@@ -1,4 +1,5 @@
 import { Model, DataTypes } from "sequelize";
+import { Request, Response } from "express";
 import type {
     CreationOptional,
     InferAttributes,
@@ -9,6 +10,7 @@ import { Shift } from "./shift.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { Task } from "./task.ts";
 
 export class TaskList extends Model<
     InferAttributes<TaskList>,
@@ -37,6 +39,7 @@ TaskList.init(
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+            defaultValue: "Task List",
         },
     },
     {
@@ -69,9 +72,28 @@ class TaskListRouter extends ModelRouter {
         router.get("/:id", (req, res) =>
             ScheduleDatabase.get(TaskList, req, res, "id"),
         );
-        router.get("/shift/:shiftID", (req, res) =>
-            ScheduleDatabase.getAllWhere(TaskList, req, res, "shiftID"),
-        );
+        router.get("/shift/:shiftID", this.getOrCreateForShift);
+    }
+
+    private async getOrCreateForShift(req: Request, res: Response) {
+        try {
+            const response = await TaskList.findOrCreate({
+                where: req.params,
+                defaults: {
+                    shiftID: Number(req.params.shiftID),
+                },
+                include: {
+                    model: Task,
+                },
+            });
+
+            const taskList = response[0];
+            console.log(`Successfully found/created ${TaskList.name}`);
+            res.status(200).send(taskList);
+        } catch (error) {
+            console.error(`Error creating ${TaskList.name}: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 }
 

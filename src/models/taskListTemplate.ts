@@ -33,6 +33,7 @@ TaskListTemplate.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,
@@ -89,7 +90,7 @@ class TaskListTemplateRouter extends ModelRouter {
                 TaskListTemplate,
                 req,
                 res,
-                "businessID",
+                ["businessID"],
             ),
         );
     }

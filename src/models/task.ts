@@ -18,6 +18,7 @@ export class Task extends Model<
     declare id: CreationOptional<number>;
     declare taskListID: number;
     declare name: string;
+    declare description: string;
     declare completeStatus: TaskStatus;
 }
 
@@ -39,6 +40,10 @@ Task.init(
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        description: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         completeStatus: {
             type: DataTypes.ENUM(...Object.values(TaskStatus)),
@@ -74,7 +79,7 @@ class TaskRouter extends ModelRouter {
             ScheduleDatabase.get(Task, req, res, "taskListID", "id"),
         );
         router.get("/taskList/:taskListID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Task, req, res, "taskListID"),
+            ScheduleDatabase.getAllWhere(Task, req, res, ["taskListID"]),
         );
     }
 }

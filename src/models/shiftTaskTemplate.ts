@@ -34,6 +34,7 @@ ShiftTaskTemplate.init(
                 model: ShiftTaskListTemplate,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,
@@ -78,7 +79,7 @@ class ShiftTaskTemplateRouter extends ModelRouter {
                 ShiftTaskTemplate,
                 req,
                 res,
-                "shiftTaskListID",
+                ["shiftTaskListID"],
             ),
         );
     }

@@ -5,41 +5,26 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { User } from "./user.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
-export class Session extends Model<
-    InferAttributes<Session>,
-    InferCreationAttributes<Session>
+export class BusinessPermissionRole extends Model<
+    InferAttributes<BusinessPermissionRole>,
+    InferCreationAttributes<BusinessPermissionRole>
 > {
     declare id: CreationOptional<number>;
-    declare userID: number;
-    declare expirationTime: Date;
-    declare token: string;
+    declare name: string;
 }
 
-Session.init(
+BusinessPermissionRole.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        userID: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: User,
-                key: "id",
-            },
-        },
-        expirationTime: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
-        token: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -50,28 +35,28 @@ Session.init(
     },
 );
 
-class SessionRouter extends ModelRouter {
+class BusinessPermissionRoleRouter extends ModelRouter {
     public path(): string {
-        return "/sessions";
+        return "/businessPermissionRoles";
     }
 
     protected buildRouter(router: Router): void {
         router.post("/", (req, res) =>
-            ScheduleDatabase.create(Session, req, res),
+            ScheduleDatabase.create(BusinessPermissionRole, req, res),
         );
         router.put("/", (req, res) =>
-            ScheduleDatabase.update(Session, req, res, "id"),
+            ScheduleDatabase.update(BusinessPermissionRole, req, res, "id"),
         );
         router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(Session, req, res, "id"),
+            ScheduleDatabase.delete(BusinessPermissionRole, req, res, "id"),
         );
         router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(Session, req, res, "id"),
+            ScheduleDatabase.get(BusinessPermissionRole, req, res, "id"),
         );
-        router.get("/user/:userID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Session, req, res, ["userID"]),
+        router.get("/", (req, res) =>
+            ScheduleDatabase.getAll(BusinessPermissionRole, req, res),
         );
     }
 }
 
-export const sessionRouter = new SessionRouter();
+export const businessPermissionRoleRouter = new BusinessPermissionRoleRouter();

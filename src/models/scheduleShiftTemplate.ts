@@ -35,6 +35,7 @@ ScheduleShiftTemplate.init(
                 model: ScheduleTemplate,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,
@@ -109,7 +110,7 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                 ScheduleShiftTemplate,
                 req,
                 res,
-                "scheduleTemplateID",
+                ["scheduleTemplateID"],
             ),
         );
     }

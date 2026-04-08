@@ -39,6 +39,7 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         startDate: {
             type: DataTypes.DATE,
@@ -99,7 +100,7 @@ class TimeOffRequestRouter extends ModelRouter {
                 TimeOffRequest,
                 req,
                 res,
-                "employeeID",
+                ["employeeID"],
             ),
         );
         router.get("/business/:businessID", this.getTimeOffRequestForBusiness);

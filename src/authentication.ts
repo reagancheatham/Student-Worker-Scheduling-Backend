@@ -4,6 +4,7 @@ import { Session } from "./models/session.ts";
 import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
+import { Invite } from "./models/invite.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
@@ -12,6 +13,7 @@ export class Authentication {
     static async loginUser(req: Request, res: Response) {
         const googleClientID = process.env.GOOGLE_CLIENT_ID;
         const googleToken = req.body.credential;
+        const code: string | undefined = req.body.code;
 
         const client = new OAuth2Client(googleClientID);
         const ticket = await client.verifyIdToken({
@@ -24,7 +26,36 @@ export class Authentication {
             console.error(`Could not verify user token`);
             res.status(500).send({ valid: false });
         } else {
-            Authentication.handleLogin(req, res, payload);
+            Authentication.handleLogin(req, res, payload, code);
+        }
+    }
+
+    static async logoutUser(req: Request, res: Response) {
+        const authHeader = req.header("Authorization");
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).send({ valid: false });
+        }
+
+        const token = authHeader.slice(7);
+
+        try {
+            const session = await Session.findOne({
+                where: { token },
+            });
+
+            if (!session) {
+                return res.status(404).send({ valid: false });
+            }
+
+            await session.destroy();
+
+            console.log(`Session deleted for token: ${token}`);
+
+            return res.status(200).send({ valid: true });
+        } catch (error) {
+            console.error(`Logout error: ${error}`);
+            return res.status(500).send({ valid: false });
         }
     }
 
@@ -32,6 +63,7 @@ export class Authentication {
         req: Request,
         res: Response,
         payload: TokenPayload,
+        code: string | undefined
     ) {
         const user = await User.findOne({
             where: {
@@ -42,6 +74,9 @@ export class Authentication {
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
         if (user && process.env.AUTH_SECRET) {
+            if (code) {
+                Invite.handleInvite(user.email, code, user.id)
+            }
             const session = await Session.findOne({
                 where: {
                     userID: user.id,
@@ -53,7 +88,7 @@ export class Authentication {
                 res.status(200).send({
                     token: session.token,
                     valid: true,
-                    profilePicture: payload.picture,
+                    profilePicture: payload.picture, //??
                     user,
                 });
             } else {
@@ -90,7 +125,7 @@ export class Authentication {
                 phoneNumber: "000000",
             });
 
-            this.handleLogin(req, res, payload);
+            this.handleLogin(req, res, payload, code);
         }
     }
 
@@ -152,6 +187,14 @@ class AuthenticationRouter extends ModelRouter {
         router.post("/", (req: Request, res: Response, next: NextFunction) => {
             Authentication.loginUser(req, res).catch(next);
         });
+
+        router.post(
+            "/logout",
+            (req: Request, res: Response, next: NextFunction) => {
+                Authentication.logoutUser(req, res).catch(next);
+            },
+        );
+
     }
 }
 
