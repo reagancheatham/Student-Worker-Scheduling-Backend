@@ -36,7 +36,7 @@ Employee.init(
                 model: Business,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         userID: {
             type: DataTypes.INTEGER,
@@ -132,7 +132,9 @@ class EmployeeRouter extends ModelRouter {
             include: [
                 {
                     model: BusinessPermissionRole,
+                    attributes: [],
                     where: { name: "Owner" },
+                    required: true,
                 },
                 Business,
                 User,
