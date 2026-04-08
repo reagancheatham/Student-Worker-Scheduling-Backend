@@ -86,14 +86,15 @@ class TaskListRouter extends ModelRouter {
         );
 
         try {
-            const result = await TaskList.create(info);
+            const list = await TaskList.create(info);
             const tasks = info.tasks as Task[];
 
             tasks.forEach((task) => {
-                task.taskListID = result.id;
+                task.taskListID = list.id;
             });
 
             await TaskListRouter.updateTaskListTasks(tasks);
+            res.status(200).send(list);
         } catch (error) {
             console.error(`Error creating ${TaskList.name}: ${error}`);
             res.status(500).send({ error });
@@ -137,7 +138,7 @@ class TaskListRouter extends ModelRouter {
 
     private static async updateTaskListTasks(tasks: Task[]) {
         // No tasks to update, just leave
-        if (!tasks) return Promise.resolve();
+        if (!tasks || tasks.length == 0) return Promise.resolve();
 
         console.log(`Updating ${TaskList.name} tasks`);
 

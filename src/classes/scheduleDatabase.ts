@@ -32,7 +32,7 @@ export class ScheduleDatabase {
                         message: `${fields.join(", ")} must be unique`,
                     });
                 }
-                
+
                 console.error(`Error creating ${model.name}: ${error}`);
                 res.status(500).send({ error });
             });
@@ -67,7 +67,7 @@ export class ScheduleDatabase {
                     console.log(`Could not find a ${model.name} to update`);
                 else console.log(`Updated ${result[0]} ${model.name}s`);
 
-                res.status(404).send({ affectedCount: result[0] });
+                res.status(200).send({ affectedCount: result[0] });
             })
             .catch((error) => {
                 if (error.name === "SequelizeUniqueConstraintError") {
