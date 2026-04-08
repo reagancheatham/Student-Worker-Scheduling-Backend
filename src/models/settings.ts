@@ -22,6 +22,7 @@ Settings.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
     },
     {

@@ -33,6 +33,7 @@ ShiftTaskListTemplate.init(
                 model: ScheduleShiftTemplate,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,

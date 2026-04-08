@@ -1,5 +1,7 @@
 import { Employee } from "./employee.ts";
 import { Business } from "./business.ts";
+import { BusinessPermissionRole } from "./businessPermissionRole.ts";
+import { Invite } from "./invite.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.ts";
 import { PermissionRole } from "./permissionRole.ts";
 import { Role } from "./role.ts";
@@ -29,6 +31,27 @@ User.hasMany(Session, {
 
 PermissionRole.hasOne(User, {
     foreignKey: "permissionRoleID",
+});
+
+BusinessPermissionRole.hasMany(Employee, {
+    foreignKey: "businessPermissionRoleID",
+});
+Employee.belongsTo(BusinessPermissionRole, {
+    foreignKey: "businessPermissionRoleID",
+});
+
+Business.hasMany(Invite, {
+    foreignKey: "businessID"
+});
+Invite.belongsTo(Business, {
+    foreignKey: "businessID",
+});
+
+BusinessPermissionRole.hasMany(Invite, {
+    foreignKey: "businessPermissionRoleID"
+});
+Invite.belongsTo(BusinessPermissionRole, {
+    foreignKey: "businessPermissionRoleID",
 });
 
 Employee.belongsTo(User, {
