@@ -136,14 +136,14 @@ class TaskListRouter extends ModelRouter {
     }
 
     private static async updateTaskListTasks(tasks: Task[]) {
-        if (!tasks)
-            // No tasks to update, just leave
-            return Promise.resolve();
+        // No tasks to update, just leave
+        if (!tasks) return Promise.resolve();
 
         console.log(`Updating ${TaskList.name} tasks`);
 
-        const promises = tasks.map(async (task) => {
+        const promises = tasks.map(async (task, index) => {
             const id = task.id;
+            task.listOrder = index;
 
             if (task.id > 0) await Task.update(task, { where: { id } });
             else await Task.create(task);
@@ -166,6 +166,7 @@ class TaskListRouter extends ModelRouter {
 
             const taskList = response[0];
             console.log(`Successfully found/created ${TaskList.name}`);
+
             res.status(200).send(taskList);
         } catch (error) {
             console.error(`Error creating ${TaskList.name}: ${error}`);

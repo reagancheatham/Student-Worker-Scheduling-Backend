@@ -17,6 +17,7 @@ export class Task extends Model<
 > {
     declare id: CreationOptional<number>;
     declare taskListID: number;
+    declare listOrder: number;
     declare name: string;
     declare description: string;
     declare completeStatus: TaskStatus;
@@ -37,6 +38,10 @@ Task.init(
                 key: "id",
             },
             onDelete: "CASCADE",
+        },
+        listOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
