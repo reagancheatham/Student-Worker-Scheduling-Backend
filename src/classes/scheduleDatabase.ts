@@ -160,7 +160,8 @@ export class ScheduleDatabase {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        ...keys: (keyof Attributes<M>)[]
+        keys: (keyof Attributes<M>)[] = [],
+        options: any = {},
     ) {
         const where: any = {};
 
@@ -175,6 +176,7 @@ export class ScheduleDatabase {
         await model
             .findAll({
                 where,
+                ...options
             })
             .then((result) => {
                 console.log(`Found ${result.length} ${model.name}s`);

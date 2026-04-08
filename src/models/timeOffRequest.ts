@@ -100,7 +100,7 @@ class TimeOffRequestRouter extends ModelRouter {
                 TimeOffRequest,
                 req,
                 res,
-                "employeeID",
+                ["employeeID"],
             ),
         );
         router.get("/business/:businessID", this.getTimeOffRequestForBusiness);
