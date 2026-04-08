@@ -33,6 +33,7 @@ Role.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,

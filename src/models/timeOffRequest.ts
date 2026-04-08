@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
-import { ApprovalStatus } from "../classes/ApprovalStatus.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
@@ -39,6 +39,7 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         startDate: {
             type: DataTypes.DATE,

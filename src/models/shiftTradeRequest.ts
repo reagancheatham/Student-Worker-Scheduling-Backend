@@ -36,6 +36,7 @@ ShiftTradeRequest.init(
                 model: Shift,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         targetEmployeeID: {
             type: DataTypes.INTEGER,
@@ -44,6 +45,7 @@ ShiftTradeRequest.init(
                 model: Employee,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         employeeMessage: {
             type: DataTypes.STRING,

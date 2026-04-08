@@ -1,7 +1,8 @@
-import { Business } from "./business.ts";
 import { Employee } from "./employee.ts";
+import { Business } from "./business.ts";
+import { BusinessPermissionRole } from "./businessPermissionRole.ts";
+import { Invite } from "./invite.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.ts";
-import { Manager } from "./manager.ts";
 import { PermissionRole } from "./permissionRole.ts";
 import { Role } from "./role.ts";
 import { ScheduleShiftTemplate } from "./scheduleShiftTemplate.ts";
@@ -32,11 +33,25 @@ PermissionRole.hasOne(User, {
     foreignKey: "permissionRoleID",
 });
 
-Manager.belongsTo(Employee, {
-    foreignKey: "employeeID",
+BusinessPermissionRole.hasMany(Employee, {
+    foreignKey: "businessPermissionRoleID",
 });
-Manager.belongsTo(Business, {
+Employee.belongsTo(BusinessPermissionRole, {
+    foreignKey: "businessPermissionRoleID",
+});
+
+Business.hasMany(Invite, {
+    foreignKey: "businessID"
+});
+Invite.belongsTo(Business, {
     foreignKey: "businessID",
+});
+
+BusinessPermissionRole.hasMany(Invite, {
+    foreignKey: "businessPermissionRoleID"
+});
+Invite.belongsTo(BusinessPermissionRole, {
+    foreignKey: "businessPermissionRoleID",
 });
 
 Employee.belongsTo(User, {

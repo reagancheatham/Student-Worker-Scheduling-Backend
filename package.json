@@ -12,6 +12,7 @@
     "jsonwebtoken": "^9.0.3",
     "lts": "^2.0.0",
     "mysql2": "^3.16.0",
+    "nodemailer": "^8.0.4",
     "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.7"
   },
@@ -21,6 +22,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.2.3",
+    "@types/nodemailer": "^7.0.11",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
