@@ -194,6 +194,7 @@ class AuthenticationRouter extends ModelRouter {
                 Authentication.logoutUser(req, res).catch(next);
             },
         );
+
     }
 }
 

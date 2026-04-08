@@ -90,7 +90,7 @@ class ShiftTaskListTemplateRouter extends ModelRouter {
                 ShiftTaskListTemplate,
                 req,
                 res,
-                "scheduleShiftID",
+                ["scheduleShiftID"],
             ),
         );
     }

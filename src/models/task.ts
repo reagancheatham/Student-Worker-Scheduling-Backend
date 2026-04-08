@@ -85,7 +85,7 @@ class TaskRouter extends ModelRouter {
             ScheduleDatabase.get(Task, req, res, "id"),
         );
         router.get("/taskList/:taskListID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Task, req, res, "taskListID"),
+            ScheduleDatabase.getAllWhere(Task, req, res, ["taskListID"]),
         );
     }
 }

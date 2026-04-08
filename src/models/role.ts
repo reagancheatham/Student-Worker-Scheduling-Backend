@@ -69,7 +69,7 @@ class RoleRouter extends ModelRouter {
             ScheduleDatabase.get(Role, req, res, "businessID", "id"),
         );
         router.get("/:businessID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Role, req, res, "businessID"),
+            ScheduleDatabase.getAllWhere(Role, req, res, ["businessID"]),
         );
     }
 }

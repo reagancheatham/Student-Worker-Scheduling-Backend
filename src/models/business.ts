@@ -58,6 +58,25 @@ class BusinessRouter extends ModelRouter {
         router.get("/", (req, res) =>
             ScheduleDatabase.getAll(Business, req, res),
         );
+        router.get(
+            "/user/:id",
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(Business, req, res, [], {
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    where: { id: req.params.id },
+                                },
+                            ],
+                        },
+                    ],
+                }),
+        );
     }
 
     private async updateBusiness(req: Request, res: Response) {

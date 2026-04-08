@@ -90,7 +90,7 @@ class TaskListTemplateRouter extends ModelRouter {
                 TaskListTemplate,
                 req,
                 res,
-                "businessID",
+                ["businessID"],
             ),
         );
     }
