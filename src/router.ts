@@ -16,7 +16,7 @@ import { shiftOfferRequestRouter } from "./models/shiftOfferRequest.ts";
 import { shiftTaskListTemplateRouter } from "./models/shiftTaskListTemplate.ts";
 import { shiftTaskTemplateRouter } from "./models/shiftTaskTemplate.ts";
 import { shiftTradeRequestRouter } from "./models/shiftTradeRequest.ts";
-import { taskRouter } from "./routers/taskRouter.ts"
+import { taskRouter } from "./routers/taskRouter.ts";
 import { taskCheckOffRouter } from "./models/taskCheckOff.ts";
 import { taskListRouter } from "./routers/taskListRouter.ts";
 import { taskListTemplateRouter } from "./models/taskListTemplate.ts";
@@ -29,15 +29,19 @@ import { inviteRouter } from "./models/invite.ts";
 const router = Router();
 const modelRouters: ModelRouter[] = [
     userRouter,
-    businessRouter,
     businessPermissionRoleRouter,
+    permissionRoleRouter,
+    sessionRouter,
+    inviteRouter,
+];
+
+const businessRouters: ModelRouter[] = [
+    businessRouter,
     employeeRouter,
     employeeUnavailabilityRouter,
-    permissionRoleRouter,
     roleRouter,
     scheduleShiftTemplateRouter,
     scheduleTemplateRouter,
-    sessionRouter,
     settingsRouter,
     shiftRouter,
     shiftOfferRequestRouter,
@@ -51,7 +55,6 @@ const modelRouters: ModelRouter[] = [
     taskTemplateRouter,
     timeOffRequestRouter,
     timesheetRouter,
-    inviteRouter,
 ];
 
 router.use(authenticationRouter.path(), authenticationRouter.router());
@@ -59,6 +62,12 @@ router.use(Authentication.validateSession);
 
 modelRouters.forEach((modelRouter) => {
     router.use(modelRouter.path(), modelRouter.router());
+});
+
+businessRouters.forEach((businessRouter) => {
+    const routerInstance = businessRouter.router();
+    routerInstance.use(Authentication.authorizeBusinessRequest);
+    router.use(businessRouter.path(), routerInstance);
 });
 
 export { router };

@@ -204,7 +204,7 @@ class BusinessRouter extends ModelRouter {
 
         sequelizeInstance
             .transaction((transaction: any) => {
-                return Business.create({ name: info.name }, { transaction })
+                return Business.create({ name: info.business.name }, { transaction })
                     .then((business) => {
                         console.log(`Successfully created Business`);
 
