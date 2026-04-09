@@ -1,6 +1,6 @@
+import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Employee } from "./employee.ts";
 import { Business } from "./business.ts";
-import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Invite } from "./invite.ts";
 import { EmployeeUnavailability } from "./employeeUnavailability.ts";
 import { PermissionRole } from "./permissionRole.ts";
@@ -21,6 +21,10 @@ import { TaskTemplate } from "./taskTemplate.ts";
 import { TimeOffRequest } from "./timeOffRequest.ts";
 import { Timesheet } from "./timesheet.ts";
 import { User } from "./user.ts";
+import { MessageNotification } from "./messageNotification.ts";
+import { ShiftOfferRequestNotification } from "./shiftOfferRequestNotification.ts";
+import { ShiftTradeRequestNotification } from "./shiftTradeRequestNotification.ts";
+import { TimeOffRequestNotification } from "./timeOffRequestNotification.ts";
 
 Session.belongsTo(User, {
     foreignKey: "userID",
@@ -41,14 +45,14 @@ Employee.belongsTo(BusinessPermissionRole, {
 });
 
 Business.hasMany(Invite, {
-    foreignKey: "businessID"
+    foreignKey: "businessID",
 });
 Invite.belongsTo(Business, {
     foreignKey: "businessID",
 });
 
 BusinessPermissionRole.hasMany(Invite, {
-    foreignKey: "businessPermissionRoleID"
+    foreignKey: "businessPermissionRoleID",
 });
 Invite.belongsTo(BusinessPermissionRole, {
     foreignKey: "businessPermissionRoleID",
@@ -193,4 +197,32 @@ Task.belongsTo(TaskList, {
 });
 TaskList.hasMany(Task, {
     foreignKey: "taskListID",
+});
+
+MessageNotification.belongsTo(Employee, {
+    foreignKey: "employeeID",
+});
+Employee.hasMany(MessageNotification, {
+    foreignKey: "employeeID",
+});
+
+ShiftOfferRequestNotification.belongsTo(ShiftOfferRequest, {
+    foreignKey: "shiftOfferRequestID",
+});
+ShiftOfferRequest.hasOne(ShiftOfferRequestNotification, {
+    foreignKey: "shiftOfferRequestID",
+});
+
+ShiftTradeRequestNotification.belongsTo(ShiftTradeRequest, {
+    foreignKey: "shiftTradeRequestID",
+});
+ShiftTradeRequest.hasOne(ShiftTradeRequestNotification, {
+    foreignKey: "shiftTradeRequestID",
+});
+
+TimeOffRequestNotification.belongsTo(TimeOffRequest, {
+    foreignKey: "timeOffRequestID",
+});
+TimeOffRequest.hasOne(TimeOffRequestNotification, {
+    foreignKey: "timeOffRequestID",
 });

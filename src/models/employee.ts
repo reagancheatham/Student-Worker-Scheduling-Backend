@@ -50,6 +50,7 @@ Employee.init(
         businessPermissionRoleID: {
             type: DataTypes.INTEGER,
             allowNull: false,
+            defaultValue: 1,
             references: {
                 model: BusinessPermissionRole,
                 key: "id",

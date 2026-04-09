@@ -12,6 +12,7 @@ import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Request, Response } from "express";
 import { User } from "./user.ts";
+import { TimeOffRequestNotification } from "./timeOffRequestNotification.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
@@ -39,7 +40,7 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         startDate: {
             type: DataTypes.DATE,
@@ -84,7 +85,7 @@ class TimeOffRequestRouter extends ModelRouter {
 
     protected buildRouter(router: Router): void {
         router.post("/", (req, res) =>
-            ScheduleDatabase.create(TimeOffRequest, req, res),
+            TimeOffRequestRouter.createTimeOffRequest(req, res),
         );
         router.put("/", (req, res) =>
             ScheduleDatabase.update(TimeOffRequest, req, res, "id"),
@@ -96,17 +97,20 @@ class TimeOffRequestRouter extends ModelRouter {
             ScheduleDatabase.get(TimeOffRequest, req, res, "id"),
         );
         router.get("/employee/:employeeID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                TimeOffRequest,
-                req,
-                res,
-                ["employeeID"],
-            ),
+            ScheduleDatabase.getAllWhere(TimeOffRequest, req, res, [
+                "employeeID",
+            ]),
         );
-        router.get("/business/:businessID", this.getTimeOffRequestForBusiness);
+        router.get(
+            "/business/:businessID",
+            TimeOffRequestRouter.getTimeOffRequestForBusiness,
+        );
     }
 
-    private async getTimeOffRequestForBusiness(req: Request, res: Response) {
+    private static async getTimeOffRequestForBusiness(
+        req: Request,
+        res: Response,
+    ) {
         const businessID = req.params["businessID"];
 
         console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
@@ -135,6 +139,19 @@ class TimeOffRequestRouter extends ModelRouter {
                 console.error(`Error finding ${Employee.name}: ${error}`);
                 res.status(500).send({ error });
             });
+    }
+
+    private static async createTimeOffRequest(req: Request, res: Response) {
+        let timeOffRequest = await ScheduleDatabase.create<TimeOffRequest>(
+            TimeOffRequest,
+            req,
+            res,
+        );
+        if (timeOffRequest != null) {
+            TimeOffRequestNotification.create({
+                timeOffRequestID: timeOffRequest.id,
+            });
+        }
     }
 }
 

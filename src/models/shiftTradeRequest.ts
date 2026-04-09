@@ -10,6 +10,7 @@ import { Employee } from "./employee.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { ShiftTradeRequestNotification } from "./shiftTradeRequestNotification.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -124,6 +125,19 @@ class ShiftTradeRequestRouter extends ModelRouter {
                 res.status(500).send({ error });
             });
     }
+
+    private static async createShiftTradeRequest(req: Request, res: Response) {
+            let shiftTradeRequest = await ScheduleDatabase.create<ShiftTradeRequest>(
+                ShiftTradeRequest,
+                req,
+                res,
+            );
+            if (shiftTradeRequest != null) {
+                ShiftTradeRequestNotification.create({
+                    shiftTradeRequestID: shiftTradeRequest.id,
+                });
+            }
+        }
 }
 
 export const shiftTradeRequestRouter = new ShiftTradeRequestRouter();

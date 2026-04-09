@@ -9,6 +9,7 @@ import { Shift } from "./shift.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { ShiftOfferRequestNotification } from "./shiftOfferRequestNotification.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -130,6 +131,19 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 res.status(500).send({ error });
             });
     }
+
+    private static async createShiftOfferRequest(req: Request, res: Response) {
+            let shiftOfferRequest = await ScheduleDatabase.create<ShiftOfferRequest>(
+                ShiftOfferRequest,
+                req,
+                res,
+            );
+            if (shiftOfferRequest != null) {
+                ShiftOfferRequestNotification.create({
+                    shiftOfferRequestID: shiftOfferRequest.id,
+                });
+            }
+        }
 }
 
 export const shiftOfferRequestRouter = new ShiftOfferRequestRouter();

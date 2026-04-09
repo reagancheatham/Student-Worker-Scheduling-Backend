@@ -24,6 +24,10 @@ import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
 import { timesheetRouter } from "./models/timesheet.ts";
 import { authenticationRouter } from "./authentication.ts";
 import { inviteRouter } from "./models/invite.ts";
+import { messageNotificationRouter } from "./models/messageNotification.ts";
+import { timeOffRequestNotificationRouter } from "./models/timeOffRequestNotification.ts";
+import { shiftTradeRequestNotificationRouter } from "./models/shiftTradeRequestNotification.ts";
+import { shiftOfferRequestNotificationRouter } from "./models/shiftOfferRequestNotification.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
@@ -50,7 +54,11 @@ const modelRouters: ModelRouter[] = [
     timeOffRequestRouter,
     timesheetRouter,
     authenticationRouter,
-    inviteRouter
+    inviteRouter,
+    messageNotificationRouter,
+    timeOffRequestNotificationRouter,
+    shiftTradeRequestNotificationRouter,
+    shiftOfferRequestNotificationRouter,
 ];
 
 modelRouters.forEach((modelRouter) => {

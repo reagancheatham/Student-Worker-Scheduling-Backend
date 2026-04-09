@@ -6,7 +6,7 @@ export class ScheduleDatabase {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-    ) {
+    ): Promise<M | void> {
         const info = req.body;
 
         if (info === null) {
@@ -18,24 +18,24 @@ export class ScheduleDatabase {
             `Creating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
-        await model
-            .create(info)
-            .then((data) => {
-                console.log(`Successfully created ${model.name}`);
-                res.status(200).send(data);
-            })
-            .catch((error) => {
-                if (error.name === "SequelizeUniqueConstraintError") {
-                    const fields = error.errors.map((error: any) => error.path);
+        try {
+            const data = await model.create(info);
 
-                    return res.status(409).send({
-                        message: `${fields.join(", ")} must be unique`,
-                    });
-                }
-                
-                console.error(`Error creating ${model.name}: ${error}`);
-                res.status(500).send({ error });
-            });
+            console.log(`Successfully created ${model.name}`);
+            res.status(200).send(data);
+
+            return data;
+        } catch (error: any) {
+            if (error.name === "SequelizeUniqueConstraintError") {
+                const fields = error.errors.map((error: any) => error.path);
+                res.status(409).send({
+                    message: `${fields.join(", ")} must be unique`,
+                });
+            }
+
+            console.error(`Error creating ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 
     public static async update<M extends Model>(
@@ -176,7 +176,7 @@ export class ScheduleDatabase {
         await model
             .findAll({
                 where,
-                ...options
+                ...options,
             })
             .then((result) => {
                 console.log(`Found ${result.length} ${model.name}s`);
