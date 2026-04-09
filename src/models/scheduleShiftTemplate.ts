@@ -110,6 +110,7 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                 ScheduleShiftTemplate,
                 req,
                 res,
+                {},
                 "scheduleTemplateID",
             ),
         );

@@ -15,6 +15,7 @@ import { ShiftTaskListTemplate } from "./shiftTaskListTemplate.ts";
 import { ShiftTaskTemplate } from "./shiftTaskTemplate.ts";
 import { ShiftTradeRequest } from "./shiftTradeRequest.ts";
 import { Task } from "./task.ts";
+import { TaskCheckOff } from "./taskCheckOff.ts";
 import { TaskList } from "./taskList.ts";
 import { TaskListTemplate } from "./taskListTemplate.ts";
 import { TaskTemplate } from "./taskTemplate.ts";
@@ -41,14 +42,14 @@ Employee.belongsTo(BusinessPermissionRole, {
 });
 
 Business.hasMany(Invite, {
-    foreignKey: "businessID"
+    foreignKey: "businessID",
 });
 Invite.belongsTo(Business, {
     foreignKey: "businessID",
 });
 
 BusinessPermissionRole.hasMany(Invite, {
-    foreignKey: "businessPermissionRoleID"
+    foreignKey: "businessPermissionRoleID",
 });
 Invite.belongsTo(BusinessPermissionRole, {
     foreignKey: "businessPermissionRoleID",
@@ -183,6 +184,7 @@ Shift.hasMany(ShiftOfferRequest, {
 
 TaskList.belongsTo(Shift, {
     foreignKey: "shiftID",
+    onDelete: "CASCADE",
 });
 Shift.hasOne(TaskList, {
     foreignKey: "shiftID",
@@ -190,7 +192,24 @@ Shift.hasOne(TaskList, {
 
 Task.belongsTo(TaskList, {
     foreignKey: "taskListID",
+    onDelete: "CASCADE",
 });
 TaskList.hasMany(Task, {
     foreignKey: "taskListID",
+});
+
+TaskCheckOff.belongsTo(Task, {
+    foreignKey: "taskID",
+    onDelete: "CASCADE",
+});
+Task.hasMany(TaskCheckOff, {
+    foreignKey: "taskID",
+});
+
+TaskCheckOff.belongsTo(Employee, {
+    foreignKey: "sourceEmployeeID",
+    onDelete: "SET NULL",
+});
+Employee.hasMany(TaskCheckOff, {
+    foreignKey: "sourceEmployeeID",
 });

@@ -47,8 +47,8 @@ class BusinessRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", async (req, res) => this.post(req, res));
-        router.put("/", (req, res) => this.put(req, res));
+        router.post("/", async (req, res) => this.createBusiness(req, res));
+        router.put("/", (req, res) => this.updateBusiness(req, res));
         router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(Business, req, res, "id"),
         );
@@ -58,9 +58,28 @@ class BusinessRouter extends ModelRouter {
         router.get("/", (req, res) =>
             ScheduleDatabase.getAll(Business, req, res),
         );
+        router.get(
+            "/user/:id",
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(Business, req, res, {
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    where: { id: req.params.id },
+                                },
+                            ],
+                        },
+                    ],
+                }),
+        );
     }
 
-    private async put(req: Request, res: Response) {
+    private async updateBusiness(req: Request, res: Response) {
         const info = req.body;
 
         if (!info) {
@@ -165,7 +184,7 @@ class BusinessRouter extends ModelRouter {
             });
     }
 
-    private async post(req: Request, res: Response) {
+    private async createBusiness(req: Request, res: Response) {
         const info = req.body;
 
         if (!info) {

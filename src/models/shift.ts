@@ -120,7 +120,7 @@ class ShiftRouter extends ModelRouter {
             (req, res) => this.getShiftsForEmployeeWithinRange(req, res),
         );
         router.get("/:id", this.getShift);
-        router.get("/:businessID", this.getShiftsForBusiness);
+        router.get("/business/:businessID", this.getShiftsForBusiness);
     }
 
     private async getShift(req: Request<ShiftParams>, res: Response) {

@@ -6,10 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { TaskList } from "./taskList.ts";
-import { TaskStatus } from "../classes/TaskStatus.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class Task extends Model<
     InferAttributes<Task>,
@@ -17,9 +13,9 @@ export class Task extends Model<
 > {
     declare id: CreationOptional<number>;
     declare taskListID: number;
+    declare listOrder: number;
     declare name: string;
     declare description: string;
-    declare completeStatus: TaskStatus;
 }
 
 Task.init(
@@ -36,6 +32,11 @@ Task.init(
                 model: TaskList,
                 key: "id",
             },
+            onDelete: "CASCADE",
+        },
+        listOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
@@ -45,43 +46,15 @@ Task.init(
             type: DataTypes.STRING,
             allowNull: true,
         },
-        completeStatus: {
-            type: DataTypes.ENUM(...Object.values(TaskStatus)),
-            allowNull: false,
-        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
         indexes: [
             {
-                unique: true,
-                fields: ["name", "completeStatus", "taskListID"],
+                unique: false,
+                fields: ["name", "taskListID", "listOrder", "description"],
             },
         ],
     },
 );
-
-class TaskRouter extends ModelRouter {
-    public path(): string {
-        return "/tasks";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) => ScheduleDatabase.create(Task, req, res));
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(Task, req, res, "taskListID", "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(Task, req, res, "taskListID", "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(Task, req, res, "taskListID", "id"),
-        );
-        router.get("/taskList/:taskListID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Task, req, res, "taskListID"),
-        );
-    }
-}
-
-export const taskRouter = new TaskRouter();

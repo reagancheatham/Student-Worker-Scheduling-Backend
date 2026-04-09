@@ -84,64 +84,35 @@ class EmployeeRouter extends ModelRouter {
         router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(Employee, req, res, "id"),
         );
-        router.get("/business/:businessID", this.getEmployeesForBusiness);
+        router.get("/business/:businessID", (req, res) =>
+            ScheduleDatabase.getAllWhere(
+                Employee,
+                req,
+                res,
+                { include: User },
+                "businessID",
+            ),
+        );
         router.get("/owners", this.getAllOwners);
-        router.get("/:id", this.getEmployee);
-        router.get("/user/:userID", this.getEmployeeByUserID);
-    }
-
-    private async getEmployee(req: Request, res: Response) {
-        const id = req.params["id"];
-
-        console.log(`Getting ${Employee.name} with id: ${id}`);
-
-        await Employee.findOne({ where: { id }, include: User })
-            .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-
-    private async getEmployeeByUserID(req: Request, res: Response) {
-        const userID = req.params["userID"];
-
-        console.log(`Getting ${Employee.name} by user id: ${userID}`);
-
-        await Employee.findOne({ where: { userID }, include: User })
-            .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-
-    private async getEmployeesForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
-
-        await Employee.findAll({ where: { businessID }, include: User })
-            .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
-                res.status(500).send({ error });
-            });
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.getWhere(
+                Employee,
+                req,
+                res,
+                { include: User },
+                "id",
+            ),
+        );
+        router.get("/user/:userID/business/:businessID", (req, res) =>
+            ScheduleDatabase.getWhere(
+                Employee,
+                req,
+                res,
+                { include: User },
+                "userID",
+                "businessID",
+            ),
+        );
     }
 
     private async getAllOwners(req: Request, res: Response) {
@@ -151,7 +122,9 @@ class EmployeeRouter extends ModelRouter {
             include: [
                 {
                     model: BusinessPermissionRole,
+                    attributes: [],
                     where: { name: "Owner" },
+                    required: true,
                 },
                 Business,
                 User,
