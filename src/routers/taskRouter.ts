@@ -3,6 +3,8 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Task } from "../models/task.ts";
 import { TaskCheckOff } from "../models/taskCheckOff.ts";
+import { adminAuth, businessAuth } from "../authentication.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 // i've discovered that we need to move routers out of model files for certain things to work...
 class TaskRouter extends ModelRouter {
@@ -11,14 +13,14 @@ class TaskRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) => ScheduleDatabase.create(Task, req, res));
-        router.put("/", (req, res) =>
+        router.post("/", adminAuth, (req, res) => ScheduleDatabase.create(Task, req, res));
+        router.put("/", adminAuth, (req, res) =>
             ScheduleDatabase.update(Task, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", adminAuth, (req, res) =>
             ScheduleDatabase.delete(Task, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", adminAuth, (req, res) =>
             ScheduleDatabase.getWhere(
                 Task,
                 req,
@@ -27,7 +29,7 @@ class TaskRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/taskList/:taskListID", (req, res) =>
+        router.get("/taskList/:taskListID", businessAuth, (req, res) =>
             ScheduleDatabase.getAllWhere(
                 Task,
                 req,
@@ -46,7 +48,7 @@ class TaskRouter extends ModelRouter {
         task.listOrder = listOrder;
         let taskPromises: Promise<any>[] = [];
 
-        console.log("creating task: " + JSON.stringify(task));
+        Logger.log("creating task: " + JSON.stringify(task));
         if (task.id > 0)
             taskPromises.push(Task.update(task, { where: { id } }));
         else {
@@ -54,7 +56,7 @@ class TaskRouter extends ModelRouter {
             id = taskInstance.id;
         } 
         
-        console.log("task created");
+        Logger.log("task created");
 
         const checkOffs: TaskCheckOff[] = (task as any)["checkOffs"];
 

@@ -13,6 +13,7 @@ import { CodeService } from "../classes/codeService.ts";
 import { Employee } from "./employee.ts";
 import nodemailer from "nodemailer";
 import { Business } from "./business.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class Invite extends Model<
     InferAttributes<Invite>,
@@ -31,7 +32,7 @@ export class Invite extends Model<
     ) {
         const code = CodeService.generate10DigitCode();
 
-        console.log("Creating invite");
+        Logger.log("Creating invite");
 
         return Invite.create(
             {
@@ -43,7 +44,7 @@ export class Invite extends Model<
             { transaction },
         )
             .then((result) => {
-                console.log("Successfully created invite");
+                Logger.log("Successfully created invite");
             
                 return {
                     invite: result,
@@ -53,7 +54,7 @@ export class Invite extends Model<
                 };
             })
             .catch((error) => {
-                console.log(`Error creating invite: ${error}`);
+                Logger.log(`Error creating invite: ${error}`);
                 throw error;
             });
     }
@@ -66,22 +67,22 @@ export class Invite extends Model<
         await Invite.findOne({ where: { code: code, email: email } })
             .then((result) => {
                 if (!result) {
-                    console.log("Could not find valid invite");
+                    Logger.log("Could not find valid invite");
                     return;
                 }
-                console.log("Found invite");
+                Logger.log("Found invite");
                 Employee.create({
                     businessID: result.businessID,
                     userID: userID,
                     businessPermissionRoleID: result.businessPermissionRoleID,
                 })
-                    .then(() => console.log(`Added employee to business`))
+                    .then(() => Logger.log(`Added employee to business`))
                     .catch((error) => {
-                        console.log(`Error adding employee: ${error}`);
+                        Logger.log(`Error adding employee: ${error}`);
                     });
             })
             .catch(() => {
-                console.log("Could not find valid invite");
+                Logger.log("Could not find valid invite");
                 return;
             });
     }
@@ -114,7 +115,7 @@ export class Invite extends Model<
         `,
             })
             .then(() => {
-                console.log("Invite email sent");
+                Logger.log("Invite email sent");
             });
     }
 }

@@ -13,6 +13,7 @@ import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Invite } from "./invite.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class Employee extends Model<
     InferAttributes<Employee>,
@@ -118,7 +119,7 @@ class EmployeeRouter extends ModelRouter {
     }
 
     private static async getAllOwners(req: Request, res: Response) {
-        console.log(`Getting all Owners`);
+        Logger.log(`Getting all Owners`);
 
         await Employee.findAll({
             include: [
@@ -133,13 +134,13 @@ class EmployeeRouter extends ModelRouter {
             ],
         })
             .then((result) => {
-                console.log(
+                Logger.log(
                     `Found ${Employee.name}: ${JSON.stringify(result)}`,
                 );
                 res.status(200).send(result);
             })
             .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
+                Logger.error(`Error finding ${Employee.name}: ${error}`);
                 res.status(500).send({ error });
             });
     }
@@ -177,7 +178,7 @@ class EmployeeRouter extends ModelRouter {
                     return;
                 }
                 if (employee) {
-                    console.log(employee);
+                    Logger.log(employee);
                     res.status(500).send({
                         err: "Employee already exists in business!",
                     });

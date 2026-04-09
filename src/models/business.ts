@@ -13,6 +13,7 @@ import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Invite } from "./invite.ts";
 import { Employee } from "./employee.ts";
 import { User } from "./user.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class Business extends Model<
     InferAttributes<Business>,
@@ -83,14 +84,14 @@ class BusinessRouter extends ModelRouter {
         const info = req.body;
 
         if (!info) {
-            console.error(`Error editing Business: info is null`);
+            Logger.error(`Error editing Business: info is null`);
             return res.status(400).send("Invalid request body");
         }
 
         let invitePayload: any = null;
         let oldEmployee: Employee;
 
-        console.log(`Editing Business with info: ${JSON.stringify(info)}`);
+        Logger.log(`Editing Business with info: ${JSON.stringify(info)}`);
 
         sequelizeInstance
             .transaction((transaction: any) => {
@@ -127,7 +128,7 @@ class BusinessRouter extends ModelRouter {
                                 );
                             }
 
-                            console.log(`Updated ${data[0]} business(es)`);
+                            Logger.log(`Updated ${data[0]} business(es)`);
 
                             return Business.update(info, {
                                 where: { id: info.business.id },
@@ -151,23 +152,23 @@ class BusinessRouter extends ModelRouter {
                                         }
                                     })
                                     .catch((err) => {
-                                        console.error("Update failed:", err);
+                                        Logger.error("Update failed:", err);
                                         throw err;
                                     });
                             });
                         })
                         .catch((err) => {
-                            console.error("Update failed:", err);
+                            Logger.error("Update failed:", err);
                             throw err;
                         });
                 });
             })
             .then(() => {
-                console.log("Successful Transaction");
+                Logger.log("Successful Transaction");
 
                 if (invitePayload) {
                     Employee.destroy({ where: { id: oldEmployee.id } });
-                    console.log(`Deleting employee and sending invite`);
+                    Logger.log(`Deleting employee and sending invite`);
                     return Invite.sendInviteEmail(
                         invitePayload.email,
                         invitePayload.code,
@@ -179,7 +180,7 @@ class BusinessRouter extends ModelRouter {
                 return res.status(200).send({ success: true });
             })
             .catch((error: any) => {
-                console.error("Transaction failed:", error);
+                Logger.error("Transaction failed:", error);
                 return res.status(500).send({ error });
             });
     }
@@ -188,16 +189,16 @@ class BusinessRouter extends ModelRouter {
         const info = req.body;
 
         if (!info) {
-            console.error(`Error creating Business: info is null`);
+            Logger.error(`Error creating Business: info is null`);
             return res.status(400).send("Invalid request body");
         }
 
         if (!info.email || Array.isArray(info.email)) {
-            console.log("Invalid email param");
+            Logger.log("Invalid email param");
             return res.status(400).send("Invalid email");
         }
 
-        console.log(`Creating Business with info: ${JSON.stringify(info)}`);
+        Logger.log(`Creating Business with info: ${JSON.stringify(info)}`);
 
         let newInvite: any = null;
         let createdBusiness: any = null;
@@ -206,7 +207,7 @@ class BusinessRouter extends ModelRouter {
             .transaction((transaction: any) => {
                 return Business.create({ name: info.business.name }, { transaction })
                     .then((business) => {
-                        console.log(`Successfully created Business`);
+                        Logger.log(`Successfully created Business`);
 
                         createdBusiness = business;
 
@@ -217,7 +218,7 @@ class BusinessRouter extends ModelRouter {
                     });
             })
             .then(() => {
-                console.log("Successful Transaction");
+                Logger.log("Successful Transaction");
 
                 if (newInvite) {
                     return Invite.sendInviteEmail(
@@ -231,7 +232,7 @@ class BusinessRouter extends ModelRouter {
                 return res.status(200).send(createdBusiness);
             })
             .catch((error: any) => {
-                console.error("Transaction failed:", error);
+                Logger.error("Transaction failed:", error);
                 return res.status(500).send({ error });
             });
     }

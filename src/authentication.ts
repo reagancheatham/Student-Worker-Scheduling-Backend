@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
 import { Employee } from "./models/employee.ts";
+import { PermissionRole } from "./models/permissionRole.ts";
+import { Logger } from "./classes/util/logger.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
@@ -24,7 +26,7 @@ export class Authentication {
         const payload = ticket.getPayload();
 
         if (payload == null) {
-            console.error(`Could not verify user token`);
+            Logger.error(`Could not verify user token`);
             res.status(500).send({ valid: false });
         } else {
             Authentication.handleLogin(req, res, payload, code);
@@ -51,11 +53,11 @@ export class Authentication {
 
             await session.destroy();
 
-            console.log(`Session deleted for token: ${token}`);
+            Logger.log(`Session deleted for token: ${token}`);
 
             return res.status(200).send({ valid: true });
         } catch (error) {
-            console.error(`Logout error: ${error}`);
+            Logger.error(`Logout error: ${error}`);
             return res.status(500).send({ valid: false });
         }
     }
@@ -72,7 +74,7 @@ export class Authentication {
             },
         });
 
-        console.log("Found User")
+        Logger.log("Found User");
 
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
@@ -87,7 +89,7 @@ export class Authentication {
             });
 
             if (session) {
-                console.log(`Found Existing Session`);
+                Logger.log(`Found Existing Session`);
                 res.status(200).send({
                     token: session.token,
                     valid: true,
@@ -109,7 +111,7 @@ export class Authentication {
                     expirationTime: expirationTime,
                 });
 
-                console.log(`Created New Session`);
+                Logger.log(`Created New Session`);
 
                 res.status(200).send({
                     token: token,
@@ -142,17 +144,19 @@ export class Authentication {
         if (authHeader && authHeader.startsWith("Bearer ")) {
             const token = authHeader.slice(7);
 
-            Session.findOne({ where: { token: token } })
+            Session.findOne({ where: { token: token }, include: User })
                 .then((result) => {
-                    console.log(`Found ${token}: ${JSON.stringify(result)}`);
+                    Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
+                    (req as any).user = (result as any).User;
+
                     next();
                 })
                 .catch(() => {
-                    console.error(`Unauthorized. No token ${token} exists`);
+                    Logger.error(`Unauthorized. No token ${token} exists`);
                     res.status(401).send({ valid: false });
                 });
         } else {
-            console.error(`Unauthorized. No authentication header`);
+            Logger.error(`Unauthorized. No authentication header`);
             res.status(401).send({ valid: false });
         }
     }
@@ -167,84 +171,16 @@ export class Authentication {
 
             Session.findOne({ where: { token: token } })
                 .then((result) => {
-                    console.log(`Found ${token}: ${JSON.stringify(result)}`);
+                    Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
                     return { valid: true, token: token };
                 })
                 .catch((error) => {
-                    console.error(`Unauthorized. No token ${token} exists`);
+                    Logger.error(`Unauthorized. No token ${token} exists`);
                     return { valid: false, token: null };
                 });
         }
-        console.error(`Unauthorized. No authentication header`);
+        Logger.error(`Unauthorized. No authentication header`);
         return { valid: false, token: null };
-    }
-
-    public static async authorizeBusinessRequest(
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) {
-        console.log("PATH: " + req.path);
-        console.log("REQUEST PARAMS: " + JSON.stringify(req.params));
-        console.log("REQUEST BODY: ", req.body);
-
-        const authHeader = req.header("authorization");
-        const businessID = Authentication.getBusinessID(req);
-
-        if (!businessID) {
-            console.error("No business ID included in request");
-            res.status(401).send({ valid: false });
-
-            return;
-        }
-
-        if (authHeader && authHeader.startsWith("Bearer ")) {
-            const token = authHeader.slice(7);
-
-            try {
-                const result = await Session.findOne({ where: { token } });
-
-                if (!result) {
-                    console.error(`Unauthorized. No token ${token} exists`);
-                    res.status(401).send({ valid: false });
-
-                    return;
-                }
-
-                const user = await User.findOne({
-                    where: { id: result.userID },
-                });
-
-                if (!user) {
-                    console.error(
-                        `Could not find user with ID: ${result.userID}`,
-                    );
-                    res.status(401).send({ valid: false });
-
-                    return;
-                }
-
-                const membership = await Employee.findOne({
-                    where: { userID: user.id, businessID },
-                });
-
-                if (membership) next();
-                else {
-                    console.error("Request not made from employee!");
-                    res.status(401).send({ valid: false });
-                }
-            } catch (error) {
-                console.error(`Unauthorized. No token ${token} exists`);
-                res.status(401).send({ valid: false });
-            }
-        } else {
-            console.error(`Unauthorized. No authentication header`);
-            res.status(401).send({ valid: false });
-        }
-    }
-
-    private static getBusinessID(req: Request): number | undefined {
-        return req.params?.businessID || req.body?.businessID;
     }
 }
 
@@ -265,6 +201,80 @@ class AuthenticationRouter extends ModelRouter {
             },
         );
     }
+}
+
+export async function adminAuth(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    const user: User = (req as any).user;
+    const admin = await isAdmin(user);
+
+    if (admin) next();
+    else res.status(401).send({ valid: false });
+}
+
+export async function businessAuth(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    const user: User = (req as any).user;
+    const admin = await isAdmin(user);
+
+    if (admin) next();
+
+    const businessID = getBusinessID(req);
+
+    if (!user) {
+        Logger.error("No valid user in request.");
+        res.status(401).send({ valid: false });
+
+        return;
+    }
+
+    if (!businessID) {
+        Logger.error("No business ID included in request.");
+        res.status(401).send({ valid: false });
+
+        return;
+    }
+
+    try {
+        const membership = await Employee.findOne({
+            where: { userID: user.id, businessID },
+        });
+
+        if (membership) next();
+        else {
+            Logger.error("Request not made from employee!");
+            res.status(401).send({ valid: false });
+        }
+    } catch (error) {
+        Logger.error(`Unauthorized to edit business.`);
+        res.status(401).send({ valid: false });
+    }
+}
+
+async function isAdmin(user: User): Promise<boolean> {
+    if (!user) return false;
+
+    try {
+        const permissionRole = await PermissionRole.findOne({
+            where: { id: user.permissionRoleID },
+        });
+
+        if (permissionRole && permissionRole.name === "Admin") return true;
+        else return false;
+    } catch (error) {
+        Logger.error(`Error authenticating admin: ${error}`);
+        return false;
+    }
+}
+
+function getBusinessID(req: Request): number | undefined {
+    return req.params?.businessID || req.body?.businessID;
 }
 
 export const authenticationRouter = new AuthenticationRouter();

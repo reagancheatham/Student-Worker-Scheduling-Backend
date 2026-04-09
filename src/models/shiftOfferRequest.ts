@@ -117,14 +117,14 @@ class ShiftOfferRequestRouter extends ModelRouter {
             ],
         })
             .then((results) => {
-                console.log(
+                Logger.log(
                     `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
                 res.status(200).send({ results });
             })
             .catch((error) => {
-                console.error(
+                Logger.error(
                     `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
                 );
 

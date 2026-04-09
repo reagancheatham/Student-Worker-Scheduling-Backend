@@ -110,7 +110,7 @@ class TimeOffRequestRouter extends ModelRouter {
     private async getTimeOffRequestForBusiness(req: Request, res: Response) {
         const businessID = req.params["businessID"];
 
-        console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
+        Logger.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
 
         await TimeOffRequest.findAll({
             include: [
@@ -127,13 +127,13 @@ class TimeOffRequestRouter extends ModelRouter {
             ],
         })
             .then((result) => {
-                console.log(
+                Logger.log(
                     `Found ${Employee.name}: ${JSON.stringify(result)}`,
                 );
                 res.status(200).send(result);
             })
             .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
+                Logger.error(`Error finding ${Employee.name}: ${error}`);
                 res.status(500).send({ error });
             });
     }
