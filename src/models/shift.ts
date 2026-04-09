@@ -191,9 +191,7 @@ class ShiftRouter extends ModelRouter {
         const businessID = Number(req.params.businessID);
         const startTime = new Date(req.params.startTime);
         const endTime = new Date(req.params.endTime);
-
-        console.log("HI BUSINESS ID: " + businessID);
-
+        
         const where = {
             businessID,
             startTime: {
