@@ -147,9 +147,16 @@ class EmployeeRouter extends ModelRouter {
     private static async createEmployee(req: Request, res: Response) {
         let email = req.body.email;
         let businessID = req.params.businessID;
+        let isManager = req.body.isManager;
+
+        let businessPermissionRole = "Employee";
+
+        if (isManager) {
+            businessPermissionRole = "Manager"
+        }
 
         return BusinessPermissionRole.findOne({
-            where: { name: "Employee" },
+            where: { name: businessPermissionRole },
         }).then(async (role) => {
             if (!role) {
                 throw new Error("Employee role not found");
