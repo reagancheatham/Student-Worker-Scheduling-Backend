@@ -21,6 +21,7 @@ import { TaskTemplate } from "./taskTemplate.ts";
 import { TimeOffRequest } from "./timeOffRequest.ts";
 import { Timesheet } from "./timesheet.ts";
 import { User } from "./user.ts";
+import { TaskCheckOff } from "./taskCheckOff.ts";
 
 Session.belongsTo(User, {
     foreignKey: "userID",
@@ -41,14 +42,14 @@ Employee.belongsTo(BusinessPermissionRole, {
 });
 
 Business.hasMany(Invite, {
-    foreignKey: "businessID"
+    foreignKey: "businessID",
 });
 Invite.belongsTo(Business, {
     foreignKey: "businessID",
 });
 
 BusinessPermissionRole.hasMany(Invite, {
-    foreignKey: "businessPermissionRoleID"
+    foreignKey: "businessPermissionRoleID",
 });
 Invite.belongsTo(BusinessPermissionRole, {
     foreignKey: "businessPermissionRoleID",
@@ -195,4 +196,17 @@ Task.belongsTo(TaskList, {
 });
 TaskList.hasMany(Task, {
     foreignKey: "taskListID",
+});
+
+TaskCheckOff.belongsTo(Task, {
+    foreignKey: "taskID",
+    onDelete: "CASCADE",
+});
+Task.hasMany(TaskCheckOff, {
+    foreignKey: "taskID",
+});
+
+TaskCheckOff.hasOne(Employee, {
+    foreignKey: "sourceEmployeeID",
+    onDelete: "SET NULL",
 });

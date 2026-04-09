@@ -31,7 +31,7 @@ export class Authentication {
     }
 
     static async logoutUser(req: Request, res: Response) {
-        const authHeader = req.header("Authorization");
+        const authHeader = req.header("authorization");
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return res.status(401).send({ valid: false });
@@ -63,7 +63,7 @@ export class Authentication {
         req: Request,
         res: Response,
         payload: TokenPayload,
-        code: string | undefined
+        code: string | undefined,
     ) {
         const user = await User.findOne({
             where: {
@@ -75,7 +75,7 @@ export class Authentication {
 
         if (user && process.env.AUTH_SECRET) {
             if (code) {
-                Invite.handleInvite(user.email, code, user.id)
+                Invite.handleInvite(user.email, code, user.id);
             }
             const session = await Session.findOne({
                 where: {
@@ -134,7 +134,7 @@ export class Authentication {
         res: Response,
         next: NextFunction,
     ) {
-        const authHeader = req.header("authentication");
+        const authHeader = req.header("authorization");
 
         if (authHeader && authHeader.startsWith("Bearer ")) {
             const token = authHeader.slice(7);
@@ -142,10 +142,9 @@ export class Authentication {
             Session.findOne({ where: { token: token } })
                 .then((result) => {
                     console.log(`Found ${token}: ${JSON.stringify(result)}`);
-                    res.status(200).send({ valid: true });
                     next();
                 })
-                .catch((error) => {
+                .catch(() => {
                     console.error(`Unauthorized. No token ${token} exists`);
                     res.status(401).send({ valid: false });
                 });
@@ -194,7 +193,6 @@ class AuthenticationRouter extends ModelRouter {
                 Authentication.logoutUser(req, res).catch(next);
             },
         );
-
     }
 }
 
