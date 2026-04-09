@@ -5,12 +5,13 @@ import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
+import { Employee } from "./models/employee.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
 
 export class Authentication {
-    static async loginUser(req: Request, res: Response) {
+    public static async loginUser(req: Request, res: Response) {
         const googleClientID = process.env.GOOGLE_CLIENT_ID;
         const googleToken = req.body.credential;
         const code: string | undefined = req.body.code;
@@ -30,7 +31,7 @@ export class Authentication {
         }
     }
 
-    static async logoutUser(req: Request, res: Response) {
+    public static async logoutUser(req: Request, res: Response) {
         const authHeader = req.header("authorization");
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -59,7 +60,7 @@ export class Authentication {
         }
     }
 
-    static async handleLogin(
+    public static async handleLogin(
         req: Request,
         res: Response,
         payload: TokenPayload,
@@ -129,7 +130,7 @@ export class Authentication {
         }
     }
 
-    static async validateSession(
+    public static async validateSession(
         req: Request,
         res: Response,
         next: NextFunction,
@@ -154,7 +155,7 @@ export class Authentication {
         }
     }
 
-    static async tryGetToken(
+    public static async tryGetToken(
         req: Request,
     ): Promise<{ valid: boolean; token: string | null }> {
         const authHeader = req.header("authentication");
@@ -174,6 +175,74 @@ export class Authentication {
         }
         console.error(`Unauthorized. No authentication header`);
         return { valid: false, token: null };
+    }
+
+    public static async authorizeBusinessRequest(
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) {
+        console.log("PATH: " + req.path);
+        console.log("REQUEST PARAMS: " + JSON.stringify(req.params));
+        console.log("REQUEST BODY: ", req.body);
+
+        const authHeader = req.header("authorization");
+        const businessID = Authentication.getBusinessID(req);
+
+        if (!businessID) {
+            console.error("No business ID included in request");
+            res.status(401).send({ valid: false });
+
+            return;
+        }
+
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            const token = authHeader.slice(7);
+
+            try {
+                const result = await Session.findOne({ where: { token } });
+
+                if (!result) {
+                    console.error(`Unauthorized. No token ${token} exists`);
+                    res.status(401).send({ valid: false });
+
+                    return;
+                }
+
+                const user = await User.findOne({
+                    where: { id: result.userID },
+                });
+
+                if (!user) {
+                    console.error(
+                        `Could not find user with ID: ${result.userID}`,
+                    );
+                    res.status(401).send({ valid: false });
+
+                    return;
+                }
+
+                const membership = await Employee.findOne({
+                    where: { userID: user.id, businessID },
+                });
+
+                if (membership) next();
+                else {
+                    console.error("Request not made from employee!");
+                    res.status(401).send({ valid: false });
+                }
+            } catch (error) {
+                console.error(`Unauthorized. No token ${token} exists`);
+                res.status(401).send({ valid: false });
+            }
+        } else {
+            console.error(`Unauthorized. No authentication header`);
+            res.status(401).send({ valid: false });
+        }
+    }
+
+    private static getBusinessID(req: Request): number | undefined {
+        return req.params?.businessID || req.body?.businessID;
     }
 }
 
