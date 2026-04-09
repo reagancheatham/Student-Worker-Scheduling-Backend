@@ -65,9 +65,7 @@ modelRouters.forEach((modelRouter) => {
 });
 
 businessRouters.forEach((businessRouter) => {
-    const routerInstance = businessRouter.router();
-    routerInstance.use(Authentication.authorizeBusinessRequest);
-    router.use(businessRouter.path(), routerInstance);
+    router.use(businessRouter.path(), businessRouter.router());
 });
 
 export { router };
