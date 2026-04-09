@@ -1,5 +1,4 @@
 import { Model, DataTypes } from "sequelize";
-import { Request, Response } from "express";
 import type {
     CreationOptional,
     InferAttributes,
@@ -7,11 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Shift } from "./shift.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { Task } from "./task.ts";
-
 export class TaskList extends Model<
     InferAttributes<TaskList>,
     InferCreationAttributes<TaskList>
@@ -35,6 +29,7 @@ TaskList.init(
                 model: Shift,
                 key: "id",
             },
+            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,
@@ -53,48 +48,3 @@ TaskList.init(
         ],
     },
 );
-
-class TaskListRouter extends ModelRouter {
-    public path(): string {
-        return "/taskLists";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(TaskList, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(TaskList, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(TaskList, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(TaskList, req, res, "id"),
-        );
-        router.get("/shift/:shiftID", this.getOrCreateForShift);
-    }
-
-    private async getOrCreateForShift(req: Request, res: Response) {
-        try {
-            const response = await TaskList.findOrCreate({
-                where: req.params,
-                defaults: {
-                    shiftID: Number(req.params.shiftID),
-                },
-                include: {
-                    model: Task,
-                },
-            });
-
-            const taskList = response[0];
-            console.log(`Successfully found/created ${TaskList.name}`);
-            res.status(200).send(taskList);
-        } catch (error) {
-            console.error(`Error creating ${TaskList.name}: ${error}`);
-            res.status(500).send({ error });
-        }
-    }
-}
-
-export const taskListRouter = new TaskListRouter();

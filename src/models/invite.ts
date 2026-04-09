@@ -9,7 +9,7 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
-import { CodeService } from "../classes/randomeCode.ts";
+import { CodeService } from "../classes/codeService.ts";
 import { Employee } from "./employee.ts";
 import nodemailer from "nodemailer";
 import { Business } from "./business.ts";

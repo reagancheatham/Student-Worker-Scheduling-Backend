@@ -1,4 +1,10 @@
-import { Attributes, Model, ModelStatic } from "sequelize";
+import {
+    Attributes,
+    FindOptions,
+    Includeable,
+    Model,
+    ModelStatic,
+} from "sequelize";
 import type { Request, Response } from "express";
 
 export class ScheduleDatabase {
@@ -67,7 +73,7 @@ export class ScheduleDatabase {
                 console.log(`Could not find a ${model.name} to update`);
             else console.log(`Updated ${result[0]} ${model.name}s`);
 
-            res.status(404).send({ affectedCount: result[0] });
+            res.status(200).send({ affectedCount: result[0] });
         } catch (error: any) {
             if (error.name === "SequelizeUniqueConstraintError") {
                 const fields = error.errors.map((error: any) => error.path);
@@ -139,11 +145,46 @@ export class ScheduleDatabase {
         }
     }
 
+    public static async getWhere<M extends Model>(
+        model: ModelStatic<M>,
+        req: Request,
+        res: Response,
+        options: FindOptions<Attributes<M>>,
+        ...keys: (keyof Attributes<M>)[]
+    ): Promise<M | undefined> {
+        const where: any = {};
+
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
+
+        options.where = where;
+
+        console.log(
+            `Getting ${model.name} with info: ${JSON.stringify(options)}`,
+        );
+
+        try {
+            const result = await model.findOne(options);
+
+            console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+            res.status(200).send(result);
+
+            if (result) return result;
+        } catch (error: any) {
+            console.error(`Error getting ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
+    }
+
     public static async getAll<M extends Model>(
         model: ModelStatic<M>,
         req: Request,
         res: Response,
+        include?: Includeable,
     ): Promise<M[] | undefined> {
+        if (!include) include = {};
+
         try {
             const result = await model.findAll();
 
@@ -161,22 +202,24 @@ export class ScheduleDatabase {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        keys: (keyof Attributes<M>)[] = [],
-        options: any = {},
-    ) {
+        options: FindOptions<Attributes<M>>,
+        ...keys: (keyof Attributes<M>)[]
+    ): Promise<M[] | undefined> {
         const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(
-            `Getting ${model.name} with info: ${JSON.stringify(where)}`,
-        );
+        options.where = where;
+
+        console.log(`Getting ${model.name} with info: `, options);
 
         try {
-            const result = await model.findAll({ where, ...options });
+            const result = await model.findAll(options);
             console.log(`Found ${result.length} ${model.name}s`);
+            console.log("result: " + JSON.stringify(result));
+
             res.status(200).send(result);
 
             return result;
