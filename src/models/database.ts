@@ -15,13 +15,13 @@ import { ShiftTaskListTemplate } from "./shiftTaskListTemplate.ts";
 import { ShiftTaskTemplate } from "./shiftTaskTemplate.ts";
 import { ShiftTradeRequest } from "./shiftTradeRequest.ts";
 import { Task } from "./task.ts";
+import { TaskCheckOff } from "./taskCheckOff.ts";
 import { TaskList } from "./taskList.ts";
 import { TaskListTemplate } from "./taskListTemplate.ts";
 import { TaskTemplate } from "./taskTemplate.ts";
 import { TimeOffRequest } from "./timeOffRequest.ts";
 import { Timesheet } from "./timesheet.ts";
 import { User } from "./user.ts";
-import { TaskCheckOff } from "./taskCheckOff.ts";
 
 Session.belongsTo(User, {
     foreignKey: "userID",
@@ -206,7 +206,10 @@ Task.hasMany(TaskCheckOff, {
     foreignKey: "taskID",
 });
 
-TaskCheckOff.hasOne(Employee, {
+TaskCheckOff.belongsTo(Employee, {
     foreignKey: "sourceEmployeeID",
     onDelete: "SET NULL",
+});
+Employee.hasMany(TaskCheckOff, {
+    foreignKey: "sourceEmployeeID",
 });

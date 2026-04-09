@@ -6,10 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { TaskList } from "./taskList.ts";
-import { TaskStatus } from "../classes/taskStatus.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class Task extends Model<
     InferAttributes<Task>,
@@ -20,7 +16,6 @@ export class Task extends Model<
     declare listOrder: number;
     declare name: string;
     declare description: string;
-    declare completeStatus: TaskStatus;
 }
 
 Task.init(
@@ -51,10 +46,6 @@ Task.init(
             type: DataTypes.STRING,
             allowNull: true,
         },
-        completeStatus: {
-            type: DataTypes.ENUM(...Object.values(TaskStatus)),
-            allowNull: false,
-        },
     },
     {
         sequelize: sequelizeInstance,
@@ -62,32 +53,8 @@ Task.init(
         indexes: [
             {
                 unique: false,
-                fields: ["name", "completeStatus", "taskListID"],
+                fields: ["name", "taskListID", "listOrder", "description"],
             },
         ],
     },
 );
-
-class TaskRouter extends ModelRouter {
-    public path(): string {
-        return "/tasks";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) => ScheduleDatabase.create(Task, req, res));
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(Task, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(Task, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(Task, req, res, "id"),
-        );
-        router.get("/taskList/:taskListID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Task, req, res, {}, "taskListID"),
-        );
-    }
-}
-
-export const taskRouter = new TaskRouter();

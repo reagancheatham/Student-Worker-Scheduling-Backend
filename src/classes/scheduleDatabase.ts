@@ -73,7 +73,7 @@ export class ScheduleDatabase {
                 console.log(`Could not find a ${model.name} to update`);
             else console.log(`Updated ${result[0]} ${model.name}s`);
 
-            res.status(404).send({ affectedCount: result[0] });
+            res.status(200).send({ affectedCount: result[0] });
         } catch (error: any) {
             if (error.name === "SequelizeUniqueConstraintError") {
                 const fields = error.errors.map((error: any) => error.path);
@@ -158,12 +158,14 @@ export class ScheduleDatabase {
             where[key as string] = req.params[key as string];
         });
 
+        options.where = where;
+
         console.log(
             `Getting ${model.name} with info: ${JSON.stringify(options)}`,
         );
 
         try {
-            const result = await model.findOne({ where, ...options });
+            const result = await model.findOne(options);
 
             console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
             res.status(200).send(result);
@@ -200,7 +202,7 @@ export class ScheduleDatabase {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        options: any = {},
+        options: FindOptions<Attributes<M>>,
         ...keys: (keyof Attributes<M>)[]
     ): Promise<M[] | undefined> {
         const where: any = {};
@@ -209,13 +211,15 @@ export class ScheduleDatabase {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(
-            `Getting ${model.name} with info: ${JSON.stringify(where)}`,
-        );
+        options.where = where;
+
+        console.log(`Getting ${model.name} with info: `, options);
 
         try {
-            const result = await model.findAll({ where, ...options });
+            const result = await model.findAll(options);
             console.log(`Found ${result.length} ${model.name}s`);
+            console.log("result: " + JSON.stringify(result));
+
             res.status(200).send(result);
 
             return result;

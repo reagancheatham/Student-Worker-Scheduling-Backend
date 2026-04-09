@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { businessRouter } from "./models/business.ts";
 import { employeeRouter } from "./models/employee.ts";
@@ -16,9 +16,9 @@ import { shiftOfferRequestRouter } from "./models/shiftOfferRequest.ts";
 import { shiftTaskListTemplateRouter } from "./models/shiftTaskListTemplate.ts";
 import { shiftTaskTemplateRouter } from "./models/shiftTaskTemplate.ts";
 import { shiftTradeRequestRouter } from "./models/shiftTradeRequest.ts";
-import { taskRouter } from "./models/task.ts";
+import { taskRouter } from "./routers/taskRouter.ts"
 import { taskCheckOffRouter } from "./models/taskCheckOff.ts";
-import { taskListRouter } from "./models/taskList.ts";
+import { taskListRouter } from "./routers/taskListRouter.ts";
 import { taskListTemplateRouter } from "./models/taskListTemplate.ts";
 import { taskTemplateRouter } from "./models/taskTemplate.ts";
 import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
