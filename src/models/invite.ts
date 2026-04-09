@@ -27,7 +27,7 @@ export class Invite extends Model<
         email: string,
         business: Business,
         businessPermissionRoleID: number,
-        transaction: Transaction,
+        transaction?: Transaction,
     ) {
         const code = CodeService.generate10DigitCode();
 
@@ -44,7 +44,7 @@ export class Invite extends Model<
         )
             .then((result) => {
                 console.log("Successfully created invite");
-
+            
                 return {
                     invite: result,
                     code,

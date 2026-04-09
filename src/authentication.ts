@@ -71,6 +71,8 @@ export class Authentication {
             },
         });
 
+        console.log("Found User")
+
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
         if (user && process.env.AUTH_SECRET) {
