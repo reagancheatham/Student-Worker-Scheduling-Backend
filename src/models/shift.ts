@@ -40,6 +40,7 @@ Shift.init(
                 model: Business,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         employeeID: {
             type: DataTypes.INTEGER,

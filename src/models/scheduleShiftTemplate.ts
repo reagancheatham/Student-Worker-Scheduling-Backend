@@ -35,6 +35,7 @@ ScheduleShiftTemplate.init(
                 model: ScheduleTemplate,
                 key: "id",
             },
+            onDelete: "CASCADE"
         },
         name: {
             type: DataTypes.STRING,

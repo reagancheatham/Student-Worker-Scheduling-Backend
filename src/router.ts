@@ -3,7 +3,7 @@ import { ModelRouter } from "./classes/databaseModel.ts";
 import { businessRouter } from "./models/business.ts";
 import { employeeRouter } from "./models/employee.ts";
 import { userRouter } from "./models/user.ts";
-import { managerRouter } from "./models/manager.ts";
+import { businessPermissionRoleRouter } from "./models/businessPermissionRole.ts";
 import { employeeUnavailabilityRouter } from "./models/employeeUnavailability.ts";
 import { permissionRoleRouter } from "./models/permissionRole.ts";
 import { roleRouter } from "./models/role.ts";
@@ -23,12 +23,13 @@ import { taskTemplateRouter } from "./models/taskTemplate.ts";
 import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
 import { timesheetRouter } from "./models/timesheet.ts";
 import { authenticationRouter } from "./authentication.ts";
+import { inviteRouter } from "./models/invite.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
     userRouter,
     businessRouter,
-    managerRouter,
+    businessPermissionRoleRouter,
     employeeRouter,
     employeeUnavailabilityRouter,
     permissionRoleRouter,
@@ -49,6 +50,7 @@ const modelRouters: ModelRouter[] = [
     timeOffRequestRouter,
     timesheetRouter,
     authenticationRouter,
+    inviteRouter
 ];
 
 modelRouters.forEach((modelRouter) => {
