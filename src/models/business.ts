@@ -61,7 +61,7 @@ class BusinessRouter extends ModelRouter {
         router.get(
             "/user/:id",
             (req, res) =>
-                ScheduleDatabase.getAllWhere(Business, req, res, [], {
+                ScheduleDatabase.getAllWhere(Business, req, res, {
                     include: [
                         {
                             model: Employee,

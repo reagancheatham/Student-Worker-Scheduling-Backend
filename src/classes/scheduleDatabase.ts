@@ -1,4 +1,10 @@
-import { Attributes, Model, ModelStatic } from "sequelize";
+import {
+    Attributes,
+    FindOptions,
+    Includeable,
+    Model,
+    ModelStatic,
+} from "sequelize";
 import type { Request, Response } from "express";
 
 export class ScheduleDatabase {
@@ -139,11 +145,44 @@ export class ScheduleDatabase {
         }
     }
 
+    public static async getWhere<M extends Model>(
+        model: ModelStatic<M>,
+        req: Request,
+        res: Response,
+        options: FindOptions<Attributes<M>>,
+        ...keys: (keyof Attributes<M>)[]
+    ): Promise<M | undefined> {
+        const where: any = {};
+
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
+
+        console.log(
+            `Getting ${model.name} with info: ${JSON.stringify(options)}`,
+        );
+
+        try {
+            const result = await model.findOne({ where, ...options });
+
+            console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+            res.status(200).send(result);
+
+            if (result) return result;
+        } catch (error: any) {
+            console.error(`Error getting ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
+    }
+
     public static async getAll<M extends Model>(
         model: ModelStatic<M>,
         req: Request,
         res: Response,
+        include?: Includeable,
     ): Promise<M[] | undefined> {
+        if (!include) include = {};
+
         try {
             const result = await model.findAll();
 
@@ -161,9 +200,9 @@ export class ScheduleDatabase {
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        keys: (keyof Attributes<M>)[] = [],
         options: any = {},
-    ) {
+        ...keys: (keyof Attributes<M>)[]
+    ): Promise<M[] | undefined> {
         const where: any = {};
 
         keys.forEach((key) => {

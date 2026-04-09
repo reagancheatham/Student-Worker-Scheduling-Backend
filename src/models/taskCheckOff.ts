@@ -1,6 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import type {
     CreationOptional,
+    Includeable,
     InferAttributes,
     InferCreationAttributes,
 } from "sequelize";
@@ -10,6 +11,12 @@ import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Task } from "./task.ts";
 import { Employee } from "./employee.ts";
+import { User } from "./user.ts";
+
+const include: Includeable = {
+    model: Employee,
+    include: [User],
+};
 
 export class TaskCheckOff extends Model<
     InferAttributes<TaskCheckOff>,
@@ -58,7 +65,9 @@ class TaskCheckOffRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) => ScheduleDatabase.create(TaskCheckOff, req, res));
+        router.post("/", (req, res) =>
+            ScheduleDatabase.create(TaskCheckOff, req, res),
+        );
         router.put("/", (req, res) =>
             ScheduleDatabase.update(TaskCheckOff, req, res, "id"),
         );
@@ -66,10 +75,26 @@ class TaskCheckOffRouter extends ModelRouter {
             ScheduleDatabase.delete(TaskCheckOff, req, res, "id"),
         );
         router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(TaskCheckOff, req, res, "id"),
+            ScheduleDatabase.getWhere(
+                TaskCheckOff,
+                req,
+                res,
+                {
+                    include,
+                },
+                "id",
+            ),
         );
         router.get("/task/:taskID", (req, res) =>
-            ScheduleDatabase.getAllWhere(TaskCheckOff, req, res, ["taskID"]),
+            ScheduleDatabase.getAllWhere(
+                TaskCheckOff,
+                req,
+                res,
+                {
+                    include,
+                },
+                "taskID",
+            ),
         );
     }
 }

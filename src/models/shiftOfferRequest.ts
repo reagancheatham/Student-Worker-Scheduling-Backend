@@ -35,7 +35,7 @@ ShiftOfferRequest.init(
                 model: Shift,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         employeeMessage: {
             type: DataTypes.STRING,
@@ -97,7 +97,8 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 ShiftOfferRequest,
                 req,
                 res,
-                ["shiftID"],
+                {},
+                "shiftID",
             ),
         );
         router.get("/business/:businessID", this.getAllRequestsForBusiness);
