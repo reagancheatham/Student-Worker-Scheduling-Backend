@@ -113,7 +113,7 @@ class ShiftRouter extends ModelRouter {
         );
         router.get(
             "/business/:businessID/startTime=:startTime/endTime=:endTime",
-            (req, res) => this.getShiftsWithinRange(req, res),
+            (req, res) => this.getShiftsForBusinessWithinRange(req, res),
         );
         router.get(
             "/employee/:employeeID/startTime=:startTime/endTime=:endTime",
@@ -184,13 +184,15 @@ class ShiftRouter extends ModelRouter {
             });
     }
 
-    private async getShiftsWithinRange(
+    private async getShiftsForBusinessWithinRange(
         req: Request<ShiftRangeParams>,
         res: Response,
     ) {
         const businessID = Number(req.params.businessID);
         const startTime = new Date(req.params.startTime);
         const endTime = new Date(req.params.endTime);
+
+        console.log("HI BUSINESS ID: " + businessID);
 
         const where = {
             businessID,
