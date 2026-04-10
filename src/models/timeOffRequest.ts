@@ -12,6 +12,7 @@ import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Request, Response } from "express";
 import { User } from "./user.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,

@@ -146,17 +146,23 @@ export class Authentication {
 
             Session.findOne({ where: { token: token }, include: User })
                 .then((result) => {
-                    Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
-                    (req as any).user = (result as any).User;
+                    if (result) {
+                        Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
+                        (req as any).user = (result as any).User;
 
-                    next();
+                        if (next) next();
+                        else res.status(200).send({ valid: true });
+                    } else {
+                        Logger.error(`Unauthorized: No token ${token} exists.`);
+                        res.status(401).send({ valid: false });
+                    }
                 })
                 .catch(() => {
-                    Logger.error(`Unauthorized. No token ${token} exists`);
+                    Logger.error(`Unauthorized: No token ${token} exists.`);
                     res.status(401).send({ valid: false });
                 });
         } else {
-            Logger.error(`Unauthorized. No authentication header`);
+            Logger.error(`Unauthorized: No authentication header.`);
             res.status(401).send({ valid: false });
         }
     }
@@ -190,16 +196,11 @@ class AuthenticationRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req: Request, res: Response, next: NextFunction) => {
-            Authentication.loginUser(req, res).catch(next);
-        });
+        router.post("/", Authentication.loginUser);
 
-        router.post(
-            "/logout",
-            (req: Request, res: Response, next: NextFunction) => {
-                Authentication.logoutUser(req, res).catch(next);
-            },
-        );
+        router.post("/logout", Authentication.logoutUser);
+
+        router.get("/validate", Authentication.validateSession);
     }
 }
 
