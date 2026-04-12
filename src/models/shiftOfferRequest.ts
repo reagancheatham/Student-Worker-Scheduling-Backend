@@ -9,6 +9,7 @@ import { Shift } from "./shift.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -117,14 +118,14 @@ class ShiftOfferRequestRouter extends ModelRouter {
             ],
         })
             .then((results) => {
-                console.log(
+                Logger.log(
                     `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
                 res.status(200).send({ results });
             })
             .catch((error) => {
-                console.error(
+                Logger.error(
                     `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
                 );
 

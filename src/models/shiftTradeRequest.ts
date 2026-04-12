@@ -10,6 +10,7 @@ import { Employee } from "./employee.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -110,14 +111,14 @@ class ShiftTradeRequestRouter extends ModelRouter {
             ],
         })
             .then((results) => {
-                console.log(
+                Logger.log(
                     `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
                 res.status(200).send({ results });
             })
             .catch((error) => {
-                console.error(
+                Logger.error(
                     `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
                 );
 

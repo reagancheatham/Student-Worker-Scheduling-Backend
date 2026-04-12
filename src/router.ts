@@ -33,9 +33,6 @@ const modelRouters: ModelRouter[] = [
     permissionRoleRouter,
     sessionRouter,
     inviteRouter,
-];
-
-const businessRouters: ModelRouter[] = [
     businessRouter,
     employeeRouter,
     employeeUnavailabilityRouter,
@@ -62,10 +59,6 @@ router.use(Authentication.validateSession);
 
 modelRouters.forEach((modelRouter) => {
     router.use(modelRouter.path(), modelRouter.router());
-});
-
-businessRouters.forEach((businessRouter) => {
-    router.use(businessRouter.path(), businessRouter.router());
 });
 
 export { router };

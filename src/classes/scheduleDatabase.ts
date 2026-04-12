@@ -6,6 +6,7 @@ import {
     ModelStatic,
 } from "sequelize";
 import type { Request, Response } from "express";
+import { Logger } from "./util/logger.ts";
 
 export class ScheduleDatabase {
     public static async create<M extends Model>(
@@ -16,18 +17,18 @@ export class ScheduleDatabase {
         const info = req.body;
 
         if (info === null) {
-            console.error(`Error creating ${model.name}: info is null`);
+            Logger.error(`Error creating ${model.name}: info is null`);
             return Promise.resolve(undefined);
         }
 
-        console.log(
+        Logger.log(
             `Creating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
         try {
             const data = await model.create(info);
 
-            console.log(`Successfully created ${model.name}`);
+            Logger.log(`Successfully created ${model.name}`);
             res.status(200).send(data);
 
             return data;
@@ -39,7 +40,7 @@ export class ScheduleDatabase {
                 });
             }
 
-            console.error(`Error creating ${model.name}: ${error}`);
+            Logger.error(`Error creating ${model.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -53,11 +54,11 @@ export class ScheduleDatabase {
         const info = req.body;
 
         if (!info) {
-            console.error(`Error updating ${model.name}: info is null`);
+            Logger.error(`Error updating ${model.name}: info is null`);
             return Promise.resolve();
         }
 
-        console.log(
+        Logger.log(
             `Updating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
@@ -70,8 +71,8 @@ export class ScheduleDatabase {
             const result = await model.update(info, { where });
 
             if (result[0] === 0)
-                console.log(`Could not find a ${model.name} to update`);
-            else console.log(`Updated ${result[0]} ${model.name}s`);
+                Logger.log(`Could not find a ${model.name} to update`);
+            else Logger.log(`Updated ${result[0]} ${model.name}s`);
 
             res.status(200).send({ affectedCount: result[0] });
         } catch (error: any) {
@@ -83,7 +84,7 @@ export class ScheduleDatabase {
                 });
             }
 
-            console.error(`Error updating ${model.name}: ${error}`);
+            Logger.error(`Error updating ${model.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -100,18 +101,18 @@ export class ScheduleDatabase {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
+        Logger.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
 
         await model
             .destroy({
                 where,
             })
             .then(() => {
-                console.log(`Successfully deleted ${model.name}`);
+                Logger.log(`Successfully deleted ${model.name}`);
                 res.status(200).send({});
             })
             .catch((error) => {
-                console.error(`Error deleting ${model.name}: ${error}`);
+                Logger.error(`Error deleting ${model.name}: ${error}`);
                 res.status(500).send({ error });
             });
     }
@@ -128,19 +129,19 @@ export class ScheduleDatabase {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(
+        Logger.log(
             `Getting ${model.name} with info: ${JSON.stringify(where)}`,
         );
 
         try {
             const result = await model.findOne({ where });
 
-            console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+            Logger.log(`Found ${model.name}: ${JSON.stringify(result)}`);
             res.status(200).send(result);
 
             if (result) return result;
         } catch (error: any) {
-            console.error(`Error getting ${model.name}: ${error}`);
+            Logger.error(`Error getting ${model.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -160,19 +161,19 @@ export class ScheduleDatabase {
 
         options.where = where;
 
-        console.log(
+        Logger.log(
             `Getting ${model.name} with info: ${JSON.stringify(options)}`,
         );
 
         try {
             const result = await model.findOne(options);
 
-            console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+            Logger.log(`Found ${model.name}: ${JSON.stringify(result)}`);
             res.status(200).send(result);
 
             if (result) return result;
         } catch (error: any) {
-            console.error(`Error getting ${model.name}: ${error}`);
+            Logger.error(`Error getting ${model.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -188,12 +189,12 @@ export class ScheduleDatabase {
         try {
             const result = await model.findAll();
 
-            console.log(`Found ${result.length} ${model.name}s`);
+            Logger.log(`Found ${result.length} ${model.name}s`);
             res.status(200).send(result);
 
             return result;
         } catch (error: any) {
-            console.error(`Error getting ${model.name}s: ${error}`);
+            Logger.error(`Error getting ${model.name}s: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -213,18 +214,18 @@ export class ScheduleDatabase {
 
         options.where = where;
 
-        console.log(`Getting ${model.name} with info: `, options);
+        Logger.log(`Getting ${model.name} with info: `, options);
 
         try {
             const result = await model.findAll(options);
-            console.log(`Found ${result.length} ${model.name}s`);
-            console.log("result: " + JSON.stringify(result));
+            Logger.log(`Found ${result.length} ${model.name}s`);
+            Logger.log("result: " + JSON.stringify(result));
 
             res.status(200).send(result);
 
             return result;
         } catch (error: any) {
-            console.error(`Error getting all ${model.name}s: ${error}`);
+            Logger.error(`Error getting all ${model.name}s: ${error}`);
             res.status(500).send({ error });
         }
     }
