@@ -28,9 +28,7 @@ export class Authentication {
         if (payload == null) {
             Logger.error(`Could not verify user token`);
             res.status(500).send({ valid: false });
-        } else {
-            Authentication.handleLogin(req, res, payload, code);
-        }
+        } else Authentication.handleLogin(req, res, payload, code);
     }
 
     public static async logoutUser(req: Request, res: Response) {
@@ -48,17 +46,19 @@ export class Authentication {
             });
 
             if (!session) {
-                return res.status(404).send({ valid: false });
+                res.status(401).send({ valid: false });
+                return;
             }
 
             await session.destroy();
 
             Logger.log(`Session deleted for token: ${token}`);
 
-            return res.status(200).send({ valid: true });
+            res.status(200).send({ valid: true });
+            return;
         } catch (error) {
             Logger.error(`Logout error: ${error}`);
-            return res.status(500).send({ valid: false });
+            res.status(500).send({ valid: false });
         }
     }
 
@@ -79,9 +79,8 @@ export class Authentication {
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
         if (user && process.env.AUTH_SECRET) {
-            if (code) {
-                Invite.handleInvite(user.email, code, user.id);
-            }
+            if (code) Invite.handleInvite(user.email, code, user.id);
+
             const session = await Session.findOne({
                 where: {
                     userID: user.id,
@@ -144,23 +143,25 @@ export class Authentication {
         if (authHeader && authHeader.startsWith("Bearer ")) {
             const token = authHeader.slice(7);
 
-            Session.findOne({ where: { token: token }, include: User })
-                .then((result) => {
-                    if (result) {
-                        Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
-                        (req as any).user = (result as any).User;
-
-                        if (next) next();
-                        else res.status(200).send({ valid: true });
-                    } else {
-                        Logger.error(`Unauthorized: No token ${token} exists.`);
-                        res.status(401).send({ valid: false });
-                    }
-                })
-                .catch(() => {
-                    Logger.error(`Unauthorized: No token ${token} exists.`);
-                    res.status(401).send({ valid: false });
+            try {
+                const result = await Session.findOne({
+                    where: { token },
+                    include: User,
                 });
+
+                if (!result) {
+                    Logger.error(`Unauthorized: No token ${token} exists.`);
+                    return res.status(401).send({ valid: false });
+                }
+
+                Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
+                (req as any).user = (result as any).User;
+
+                return next();
+            } catch (error) {
+                Logger.error(`Unauthorized: No token ${token} exists.`);
+                res.status(401).send({ valid: false, error });
+            }
         } else {
             Logger.error(`Unauthorized: No authentication header.`);
             res.status(401).send({ valid: false });
@@ -197,10 +198,10 @@ class AuthenticationRouter extends ModelRouter {
 
     protected buildRouter(router: Router): void {
         router.post("/", Authentication.loginUser);
-
         router.post("/logout", Authentication.logoutUser);
-
-        router.get("/validate", Authentication.validateSession);
+        router.post("/validate", Authentication.validateSession, (req, res) =>
+            res.status(200).send({ valid: true }),
+        );
     }
 }
 

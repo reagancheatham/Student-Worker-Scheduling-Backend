@@ -6,18 +6,11 @@ import "./models/database.ts";
 import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./router.ts";
 import { Logger } from "./classes/util/logger.ts";
+import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 
 const app = express();
 
-sequelizeInstance
-    .sync({ alter: true })
-    .then(() => {
-        Logger.log("Database tables created successfully!");
-    })
-    .catch((err) => {
-        Logger.error("Unable to create database tables:", err);
-    });
-
+initializeSequelize(sequelizeInstance);
 dotenv.config();
 
 app.use(cors(defaultCorsConfig))
