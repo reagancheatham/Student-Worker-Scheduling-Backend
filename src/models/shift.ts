@@ -26,6 +26,7 @@ export class Shift extends Model<
     declare startTime: Date;
     declare endTime: Date;
     declare color: EventColor;
+    declare published: boolean;
 }
 
 Shift.init(
@@ -69,13 +70,23 @@ Shift.init(
             type: DataTypes.ENUM(...Object.values(EventColor)),
             allowNull: false,
         },
+        published: {
+            type: DataTypes.BOOLEAN,
+        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
         indexes: [
             {
-                fields: ["name", "startTime", "endTime", "businessID", "color"],
+                fields: [
+                    "name",
+                    "startTime",
+                    "endTime",
+                    "businessID",
+                    "color",
+                    "published",
+                ],
             },
         ],
     },
@@ -116,12 +127,18 @@ class ShiftRouter extends ModelRouter {
         router.get(
             "/business/:businessID/startTime=:startTime/endTime=:endTime",
             businessAuth,
-            (req: any, res) => this.getShiftsForBusinessWithinRange(req, res),
+            this.getShiftsForBusinessWithinRange,
         );
         router.get(
             "/employee/:employeeID/startTime=:startTime/endTime=:endTime",
             businessAuth,
             (req: any, res) => this.getShiftsForEmployeeWithinRange(req, res),
+        );
+        router.get(
+            "/employee/:employeeID/startTime=:startTime/endTime=:endTime/published",
+            businessAuth,
+            (req: any, res) =>
+                this.getShiftsForEmployeeWithinRange(req, res, true),
         );
         router.get("/:id", businessAuth, this.getShift);
         router.get(
@@ -138,9 +155,7 @@ class ShiftRouter extends ModelRouter {
             id,
         };
 
-        Logger.log(
-            `Getting ${Shift.name} with info: ${JSON.stringify(where)}`,
-        );
+        Logger.log(`Getting ${Shift.name} with info: ${JSON.stringify(where)}`);
 
         await Shift.findOne({
             where,
@@ -230,12 +245,13 @@ class ShiftRouter extends ModelRouter {
     private async getShiftsForEmployeeWithinRange(
         req: Request<ShiftRangeParamsEmployee>,
         res: Response,
+        published: boolean = false,
     ) {
         const employeeID = Number(req.params.employeeID);
         const startTime = new Date(req.params.startTime);
         const endTime = new Date(req.params.endTime);
 
-        const where = {
+        const where: any = {
             employeeID,
             startTime: {
                 [Op.gte]: startTime,
@@ -244,6 +260,8 @@ class ShiftRouter extends ModelRouter {
                 [Op.lte]: endTime,
             },
         };
+
+        if (published) where.published = true;
 
         await Shift.findAll({
             where,
