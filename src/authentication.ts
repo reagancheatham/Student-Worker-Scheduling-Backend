@@ -224,7 +224,10 @@ export async function businessAuth(
     const user: User = (req as any).user;
     const admin = await isAdmin(user);
 
-    if (admin) next();
+    if (admin) {
+        next();
+        return;
+    }
 
     const businessID = getBusinessID(req);
 
@@ -251,6 +254,8 @@ export async function businessAuth(
         else {
             Logger.error("Request not made from employee!");
             res.status(401).send({ valid: false });
+
+            return;
         }
     } catch (error) {
         Logger.error(`Unauthorized to edit business.`);

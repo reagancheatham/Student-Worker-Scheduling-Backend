@@ -12,7 +12,7 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Business } from "./business.ts";
 import { EventColor } from "../classes/eventColor.ts";
 import { User } from "./user.ts";
-import { adminAuth, businessAuth } from "../authentication.ts";
+import { businessAuth } from "../authentication.ts";
 import { Logger } from "../classes/util/logger.ts";
 
 export class Shift extends Model<
