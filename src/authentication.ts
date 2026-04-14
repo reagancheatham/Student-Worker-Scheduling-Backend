@@ -217,54 +217,7 @@ export async function adminAuth(
     else res.status(401).send({ valid: false });
 }
 
-export async function businessAuth(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) {
-    const user: User = (req as any).user;
-    const admin = await isAdmin(user);
-
-    if (admin) {
-        next();
-        return;
-    }
-
-    const businessID = getBusinessID(req);
-
-    if (!user) {
-        Logger.error("No valid user in request.");
-        res.status(401).send({ valid: false });
-
-        return;
-    }
-
-    if (!businessID) {
-        Logger.error("No business ID included in request.");
-        res.status(401).send({ valid: false });
-
-        return;
-    }
-
-    try {
-        const membership = await Employee.findOne({
-            where: { userID: user.id, businessID },
-        });
-
-        if (membership) next();
-        else {
-            Logger.error("Request not made from employee!");
-            res.status(401).send({ valid: false });
-
-            return;
-        }
-    } catch (error) {
-        Logger.error(`Unauthorized to edit business.`);
-        res.status(401).send({ valid: false });
-    }
-}
-
-async function isAdmin(user: User): Promise<boolean> {
+export async function isAdmin(user: User): Promise<boolean> {
     if (!user) return false;
 
     try {
@@ -278,10 +231,6 @@ async function isAdmin(user: User): Promise<boolean> {
         Logger.error(`Error authenticating admin: ${error}`);
         return false;
     }
-}
-
-function getBusinessID(req: Request): number | undefined {
-    return req.params?.businessID || req.body?.businessID;
 }
 
 export const authenticationRouter = new AuthenticationRouter();

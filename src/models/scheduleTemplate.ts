@@ -70,7 +70,7 @@ class ScheduleTemplateRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.delete("/:businessID/:id", (req, res) =>
+        router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(
                 ScheduleTemplate,
                 req,
@@ -79,7 +79,7 @@ class ScheduleTemplateRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/:businessID/:id", (req, res) =>
+        router.get("/:id", (req, res) =>
             ScheduleDatabase.get(
                 ScheduleTemplate,
                 req,
@@ -88,7 +88,7 @@ class ScheduleTemplateRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/:businessID", (req, res) =>
+        router.get("/business/:businessID", (req, res) =>
             ScheduleDatabase.getAllWhere(
                 ScheduleTemplate,
                 req,

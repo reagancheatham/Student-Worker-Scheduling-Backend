@@ -12,7 +12,7 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Business } from "./business.ts";
 import { EventColor } from "../classes/eventColor.ts";
 import { User } from "./user.ts";
-import { businessAuth } from "../authentication.ts";
+import { businessAuth } from "../authorization/businessAuthorization.ts";
 import { Logger } from "../classes/util/logger.ts";
 
 export class Shift extends Model<
@@ -115,35 +115,35 @@ class ShiftRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", businessAuth, (req, res) =>
+        router.post("/", businessAuth(), (req, res) =>
             ScheduleDatabase.create(Shift, req, res),
         );
-        router.put("/", businessAuth, (req, res) =>
+        router.put("/", businessAuth(), (req, res) =>
             ScheduleDatabase.update(Shift, req, res, "id"),
         );
-        router.delete("/:id", businessAuth, (req, res) =>
+        router.delete("/:id", businessAuth(), (req, res) =>
             ScheduleDatabase.delete(Shift, req, res, "id"),
         );
         router.get(
             "/business/:businessID/startTime=:startTime/endTime=:endTime",
-            businessAuth,
+            businessAuth(),
             this.getShiftsForBusinessWithinRange,
         );
         router.get(
             "/employee/:employeeID/startTime=:startTime/endTime=:endTime",
-            businessAuth,
+            businessAuth(),
             (req: any, res) => this.getShiftsForEmployeeWithinRange(req, res),
         );
         router.get(
             "/employee/:employeeID/startTime=:startTime/endTime=:endTime/published",
-            businessAuth,
+            businessAuth(),
             (req: any, res) =>
                 this.getShiftsForEmployeeWithinRange(req, res, true),
         );
-        router.get("/:id", businessAuth, this.getShift);
+        router.get("/:id", businessAuth(), this.getShift);
         router.get(
             "/business/:businessID",
-            businessAuth,
+            businessAuth(),
             this.getShiftsForBusiness,
         );
     }
