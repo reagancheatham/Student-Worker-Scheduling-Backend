@@ -14,6 +14,7 @@ import {
     BusinessResolver,
 } from "../authorization/businessAuthorization.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { EventColor } from "../classes/eventColor.ts";
 
 export class ScheduleShiftTemplate extends Model<
     InferAttributes<ScheduleShiftTemplate>,
@@ -24,6 +25,7 @@ export class ScheduleShiftTemplate extends Model<
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
+    declare color: EventColor;
 }
 
 ScheduleShiftTemplate.init(
@@ -54,6 +56,10 @@ ScheduleShiftTemplate.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        color: {
+            type: DataTypes.ENUM(...Object.values(EventColor)),
+            allowNull: false,
+        },
     },
     {
         sequelize: sequelizeInstance,
@@ -61,7 +67,7 @@ ScheduleShiftTemplate.init(
         indexes: [
             {
                 unique: true,
-                fields: ["scheduleTemplateID", "name"],
+                fields: ["scheduleTemplateID", "name", "color"],
             },
         ],
         validate: {
@@ -112,38 +118,35 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.delete(
-            "/:id",
-            businessAuth(resolver),
-            (req, res) =>
-                ScheduleDatabase.delete(
-                    ScheduleShiftTemplate,
-                    req,
-                    res,
-                    "scheduleTemplateID",
-                    "id",
-                ),
-        );
-        router.get(
-            "/:id",
-            businessAuth(resolver),
-            (req, res) =>
-                ScheduleDatabase.get(
-                    ScheduleShiftTemplate,
-                    req,
-                    res,
-                    "scheduleTemplateID",
-                    "id",
-                ),
-        );
-        router.get("/scheduleTemplate/:scheduleTemplateID", businessAuth(resolver), (req, res) =>
-            ScheduleDatabase.getAllWhere(
+        router.delete("/:id", businessAuth(resolver), (req, res) =>
+            ScheduleDatabase.delete(
                 ScheduleShiftTemplate,
                 req,
                 res,
-                {},
                 "scheduleTemplateID",
+                "id",
             ),
+        );
+        router.get("/:id", businessAuth(resolver), (req, res) =>
+            ScheduleDatabase.get(
+                ScheduleShiftTemplate,
+                req,
+                res,
+                "scheduleTemplateID",
+                "id",
+            ),
+        );
+        router.get(
+            "/template/:scheduleTemplateID",
+            businessAuth(resolver),
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(
+                    ScheduleShiftTemplate,
+                    req,
+                    res,
+                    {},
+                    "scheduleTemplateID",
+                ),
         );
     }
 }

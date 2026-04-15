@@ -5,7 +5,6 @@ import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
-import { Employee } from "./models/employee.ts";
 import { PermissionRole } from "./models/permissionRole.ts";
 import { Logger } from "./classes/util/logger.ts";
 

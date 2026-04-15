@@ -3,8 +3,9 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Task } from "../models/task.ts";
 import { TaskCheckOff } from "../models/taskCheckOff.ts";
-import { adminAuth, businessAuth } from "../authentication.ts";
+import { adminAuth } from "../authentication.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { businessAuth } from "../authorization/businessAuthorization.ts";
 
 // i've discovered that we need to move routers out of model files for certain things to work...
 class TaskRouter extends ModelRouter {
@@ -29,7 +30,7 @@ class TaskRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/taskList/:taskListID", businessAuth, (req, res) =>
+        router.get("/taskList/:taskListID", businessAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(
                 Task,
                 req,
