@@ -101,8 +101,8 @@ class ShiftTradeRequestRouter extends ModelRouter {
         router.get("/shift/:shiftID", (req, res) =>
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
-        router.get("/business/:businessID", this.getAllRequestsForBusiness );
-        router.get("/business/:businessID", this.getAllPendingRequestsForBusiness);
+        router.get("/available/:businessID", this.getAllRequestsForBusiness );
+        router.get("/pending/:businessID", this.getAllPendingRequestsForBusiness);
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
