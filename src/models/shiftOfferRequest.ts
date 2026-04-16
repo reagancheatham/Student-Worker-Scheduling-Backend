@@ -52,9 +52,9 @@ ShiftOfferRequest.init(
             allowNull: false,
         },
         status: {
-            type: DataTypes.ENUM('Pending', 'Approved', 'Denied'),
+            type: DataTypes.ENUM("Pending", "Approved", "Denied"),
             allowNull: true,
-        }
+        },
     },
     {
         sequelize: sequelizeInstance,
@@ -108,6 +108,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
             ),
         );
         router.get("/business/:businessID", this.getAllRequestsForBusiness);
+        router.get("/business/:businessID", this.getAllPendingRequestsForBussiness);
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
@@ -115,6 +116,35 @@ class ShiftOfferRequestRouter extends ModelRouter {
 
         await ShiftOfferRequest.findAll({
             where: { status: null },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send({ results });
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getAllPendingRequestsForBussiness(req: Request, res: Response) {
+        const businessID = req.params["businessID"];
+
+        await ShiftOfferRequest.findAll({
+            where: { status: 'Pending' },
             include: [
                 {
                     model: Shift,

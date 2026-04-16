@@ -102,6 +102,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
         router.get("/business/:businessID", this.getAllRequestsForBusiness );
+        router.get("/business/:businessID", this.getAllPendingRequestsForBusiness);
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
@@ -109,6 +110,35 @@ class ShiftTradeRequestRouter extends ModelRouter {
 
         await ShiftTradeRequest.findAll({
             where: { status: null },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send({ results });
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getAllPendingRequestsForBusiness(req: Request, res: Response) {
+        const businessID = req.params["businessID"];
+
+        await ShiftTradeRequest.findAll({
+            where: { status: 'Pending' },
             include: [
                 {
                     model: Shift,
