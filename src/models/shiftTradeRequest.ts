@@ -101,7 +101,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
         router.get("/shift/:shiftID", (req, res) =>
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
-        router.get("/available/:businessID", this.getAllRequestsForBusiness );
+        router.get("/available/:businessID", this.getAllRequestsForBusiness);
         router.get("/pending/:businessID", this.getAllPendingRequestsForBusiness);
     }
 
@@ -123,7 +123,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({ results });
+                res.status(200).send({results});
             })
             .catch((error) => {
                 Logger.error(
@@ -152,7 +152,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({ results });
+                res.status(200).send({results});
             })
             .catch((error) => {
                 Logger.error(

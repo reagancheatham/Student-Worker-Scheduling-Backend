@@ -108,7 +108,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
             ),
         );
         router.get("/available/:businessID", this.getAllRequestsForBusiness);
-        router.get("/pending/:businessID", this.getAllPendingRequestsForBussiness);
+        router.get("/pending/:businessID", this.getAllPendingRequestsForBusiness);
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
@@ -129,7 +129,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({ results });
+                res.status(200).send({results});
             })
             .catch((error) => {
                 Logger.error(
@@ -140,7 +140,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
             });
     }
 
-    private async getAllPendingRequestsForBussiness(req: Request, res: Response) {
+    private async getAllPendingRequestsForBusiness(req: Request, res: Response) {
         const businessID = req.params["businessID"];
 
         await ShiftOfferRequest.findAll({
@@ -158,7 +158,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({ results });
+                res.status(200).send({results});
             })
             .catch((error) => {
                 Logger.error(
