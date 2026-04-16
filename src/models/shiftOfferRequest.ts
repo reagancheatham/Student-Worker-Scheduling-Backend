@@ -121,6 +121,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
 
         await ShiftOfferRequest.findAll({
             where: { status: null },
+            logging: true,
             include: [
                 {
                     model: Shift,
