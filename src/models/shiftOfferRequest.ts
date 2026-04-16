@@ -107,8 +107,8 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 "shiftID",
             ),
         );
-        router.get("/business/:businessID", this.getAllRequestsForBusiness);
-        router.get("/business/:businessID", this.getAllPendingRequestsForBussiness);
+        router.get("/avaliable/:businessID", this.getAllRequestsForBusiness);
+        router.get("/pending/:businessID", this.getAllPendingRequestsForBussiness);
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
