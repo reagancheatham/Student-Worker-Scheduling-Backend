@@ -10,6 +10,8 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { Employee } from "./employee.ts";
+import { User } from "./user.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -108,7 +110,10 @@ class ShiftOfferRequestRouter extends ModelRouter {
             ),
         );
         router.get("/available/:businessID", this.getAllRequestsForBusiness);
-        router.get("/pending/:businessID", this.getAllPendingRequestsForBusiness);
+        router.get(
+            "/pending/:businessID",
+            this.getAllPendingRequestsForBusiness,
+        );
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
@@ -121,6 +126,20 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     model: Shift,
                     required: true,
                     where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
                 },
             ],
         })
@@ -129,7 +148,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({results});
+                res.status(200).send({ results });
             })
             .catch((error) => {
                 Logger.error(
@@ -140,16 +159,33 @@ class ShiftOfferRequestRouter extends ModelRouter {
             });
     }
 
-    private async getAllPendingRequestsForBusiness(req: Request, res: Response) {
+    private async getAllPendingRequestsForBusiness(
+        req: Request,
+        res: Response,
+    ) {
         const businessID = req.params["businessID"];
 
         await ShiftOfferRequest.findAll({
-            where: { status: 'Pending' },
+            where: { status: "Pending" },
             include: [
                 {
                     model: Shift,
                     required: true,
                     where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
                 },
             ],
         })
@@ -158,7 +194,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({results});
+                res.status(200).send({ results });
             })
             .catch((error) => {
                 Logger.error(

@@ -11,6 +11,7 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { User } from "./user.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -38,7 +39,7 @@ ShiftTradeRequest.init(
                 model: Shift,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         targetEmployeeID: {
             type: DataTypes.INTEGER,
@@ -47,7 +48,7 @@ ShiftTradeRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         employeeMessage: {
             type: DataTypes.STRING,
@@ -58,7 +59,7 @@ ShiftTradeRequest.init(
             allowNull: false,
         },
         status: {
-            type: DataTypes.ENUM('Pending', 'Approved', 'Denied'),
+            type: DataTypes.ENUM("Pending", "Approved", "Denied"),
             allowNull: true,
         },
     },
@@ -102,7 +103,10 @@ class ShiftTradeRequestRouter extends ModelRouter {
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
         router.get("/available/:businessID", this.getAllRequestsForBusiness);
-        router.get("/pending/:businessID", this.getAllPendingRequestsForBusiness);
+        router.get(
+            "/pending/:businessID",
+            this.getAllPendingRequestsForBusiness,
+        );
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {
@@ -115,6 +119,20 @@ class ShiftTradeRequestRouter extends ModelRouter {
                     model: Shift,
                     required: true,
                     where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
                 },
             ],
         })
@@ -123,7 +141,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({results});
+                res.status(200).send({ results });
             })
             .catch((error) => {
                 Logger.error(
@@ -134,16 +152,33 @@ class ShiftTradeRequestRouter extends ModelRouter {
             });
     }
 
-    private async getAllPendingRequestsForBusiness(req: Request, res: Response) {
+    private async getAllPendingRequestsForBusiness(
+        req: Request,
+        res: Response,
+    ) {
         const businessID = req.params["businessID"];
 
         await ShiftTradeRequest.findAll({
-            where: { status: 'Pending' },
+            where: { status: "Pending" },
             include: [
                 {
                     model: Shift,
                     required: true,
                     where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
                 },
             ],
         })
@@ -152,7 +187,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({results});
+                res.status(200).send({ results });
             })
             .catch((error) => {
                 Logger.error(
