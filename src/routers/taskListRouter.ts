@@ -8,6 +8,27 @@ import { taskRouter } from "./taskRouter.ts";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { businessAuth, BusinessResolver } from "../authorization/businessAuthorization.ts";
+import { Shift } from "../models/shift.ts";
+
+const resolver: BusinessResolver = async (req: Request) => {
+    let shiftID = req.params?.shiftID;
+
+    if (!shiftID) shiftID = req.body?.shiftID;
+
+    if (!shiftID) return undefined;
+
+    try {
+        const shift = await Shift.findOne({ where: { id: shiftID } });
+
+        if (!shift) return undefined;
+
+        return shift.businessID;
+    } catch (error) {
+        Logger.error(`Error fetching ${Shift.name}.`);
+        return undefined;
+    }
+};
 
 class TaskListRouter extends ModelRouter {
     public path(): string {
@@ -15,15 +36,15 @@ class TaskListRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", TaskListRouter.createTaskList);
-        router.put("/", TaskListRouter.updateTaskList);
-        router.delete("/:id", (req, res) =>
+        router.post("/", businessAuth(resolver), TaskListRouter.createTaskList);
+        router.put("/", businessAuth(resolver), TaskListRouter.updateTaskList);
+        router.delete("/:id", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.delete(TaskList, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.get(TaskList, req, res, "id"),
         );
-        router.get("/shift/:shiftID", TaskListRouter.getOrCreateForShift);
+        router.get("/shift/:shiftID", businessAuth(resolver), TaskListRouter.getOrCreateForShift);
     }
 
     private static async createTaskList(req: Request, res: Response) {
@@ -91,7 +112,7 @@ class TaskListRouter extends ModelRouter {
 
     private static async updateTaskListTasks(tasks: Task[]) {
         // No tasks to update, just leave
-        if (!tasks || tasks.length == 0) return Promise.resolve();
+        if (!tasks || tasks.length === 0) return Promise.resolve();
 
         Logger.log(`Updating ${TaskList.name} tasks`);
 

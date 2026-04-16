@@ -81,7 +81,9 @@ ScheduleShiftTemplate.init(
 );
 
 const resolver: BusinessResolver = async (req: Request) => {
-    const scheduleTemplateID = req.params?.scheduleTemplateID;
+    let scheduleTemplateID = req.params?.scheduleTemplateID;
+
+    if (!scheduleTemplateID) scheduleTemplateID = req.body?.scheduleTemplateID;
 
     if (!scheduleTemplateID) return undefined;
 

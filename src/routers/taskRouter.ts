@@ -14,7 +14,9 @@ class TaskRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", adminAuth, (req, res) => ScheduleDatabase.create(Task, req, res));
+        router.post("/", adminAuth, (req, res) =>
+            ScheduleDatabase.create(Task, req, res),
+        );
         router.put("/", adminAuth, (req, res) =>
             ScheduleDatabase.update(Task, req, res, "id"),
         );
@@ -46,18 +48,15 @@ class TaskRouter extends ModelRouter {
         listOrder: number,
     ): Promise<void> {
         let id = task.id;
-        task.listOrder = listOrder;
         let taskPromises: Promise<any>[] = [];
+        task.listOrder = listOrder;
 
-        Logger.log("creating task: " + JSON.stringify(task));
         if (task.id > 0)
             taskPromises.push(Task.update(task, { where: { id } }));
         else {
             let taskInstance = await Task.create(task);
             id = taskInstance.id;
-        } 
-        
-        Logger.log("task created");
+        }
 
         const checkOffs: TaskCheckOff[] = (task as any)["checkOffs"];
 

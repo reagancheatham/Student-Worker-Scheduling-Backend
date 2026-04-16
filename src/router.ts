@@ -13,7 +13,7 @@ import { sessionRouter } from "./models/session.ts";
 import { settingsRouter } from "./models/settings.ts";
 import { shiftRouter } from "./models/shift.ts";
 import { shiftOfferRequestRouter } from "./models/shiftOfferRequest.ts";
-import { shiftTaskListTemplateRouter } from "./models/shiftTaskListTemplate.ts";
+import { shiftTaskListTemplateRouter } from "./routers/shiftTaskListTemplateRouter.ts";
 import { shiftTaskTemplateRouter } from "./models/shiftTaskTemplate.ts";
 import { shiftTradeRequestRouter } from "./models/shiftTradeRequest.ts";
 import { taskRouter } from "./routers/taskRouter.ts";

@@ -7,8 +7,15 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ShiftTaskListTemplate } from "./shiftTaskListTemplate.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Request, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
+import { ScheduleShiftTemplate } from "./scheduleShiftTemplate.ts";
+import { ScheduleTemplate } from "./scheduleTemplate.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class ShiftTaskTemplate extends Model<
     InferAttributes<ShiftTaskTemplate>,
@@ -16,6 +23,7 @@ export class ShiftTaskTemplate extends Model<
 > {
     declare id: CreationOptional<number>;
     declare shiftTaskListID: number;
+    declare listOrder: number;
     declare name: string;
     declare description: string;
 }
@@ -34,7 +42,11 @@ ShiftTaskTemplate.init(
                 model: ShiftTaskListTemplate,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
+        },
+        listOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
@@ -56,33 +68,83 @@ ShiftTaskTemplate.init(
     },
 );
 
+const resolver: BusinessResolver = async (req: Request) => {
+    let shiftTaskListID = req.params?.shiftTaskListID;
+
+    if (!shiftTaskListID) shiftTaskListID = req.body?.shiftTaskListID;
+
+    if (!shiftTaskListID) return undefined;
+
+    try {
+        const taskList = await ShiftTaskListTemplate.findOne({
+            where: { id: shiftTaskListID },
+        });
+
+        if (!taskList) return undefined;
+
+        const shift = await ScheduleShiftTemplate.findOne({
+            where: { id: taskList.scheduleShiftID },
+        });
+
+        if (!shift) return undefined;
+
+        const scheduleTemplateID = shift.scheduleTemplateID;
+        const schedule = await ScheduleTemplate.findOne({
+            where: { id: scheduleTemplateID },
+        });
+
+        return schedule?.businessID;
+    } catch (error) {
+        Logger.error(`Error fetching ${ScheduleTemplate.name}.`);
+        return undefined;
+    }
+};
+
 class ShiftTaskTemplateRouter extends ModelRouter {
     public path(): string {
         return "/shiftTaskTemplates";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.create(ShiftTaskTemplate, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.update(ShiftTaskTemplate, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.delete(ShiftTaskTemplate, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.get(ShiftTaskTemplate, req, res, "id"),
         );
-        router.get("/shiftTaskList/:shiftTaskListID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ShiftTaskTemplate,
-                req,
-                res,
-                {},
-                "shiftTaskListID",
-            ),
+        router.get(
+            "/shiftTaskList/:shiftTaskListID",
+            businessAuth(resolver),
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(
+                    ShiftTaskTemplate,
+                    req,
+                    res,
+                    {},
+                    "shiftTaskListID",
+                ),
         );
+    }
+
+    public async createOrUpdateTask(
+        task: ShiftTaskTemplate,
+        listOrder: number,
+    ): Promise<void> {
+        let id = task.id;
+        task.listOrder = listOrder;
+
+        if (task.id > 0)
+            await ShiftTaskTemplate.update(task, { where: { id } });
+        else {
+            let taskInstance = await ShiftTaskTemplate.create(task);
+            id = taskInstance.id;
+        }
     }
 }
 
