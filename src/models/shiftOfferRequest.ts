@@ -20,6 +20,7 @@ export class ShiftOfferRequest extends Model<
     declare employeeMessage: string;
     declare claimingEmployeeID: number;
     declare timeSent: Date;
+    declare status: string;
 }
 
 ShiftOfferRequest.init(
@@ -50,6 +51,10 @@ ShiftOfferRequest.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        status: {
+            type: DataTypes.ENUM('Pending', 'Approved', 'Denied'),
+            allowNull: true,
+        }
     },
     {
         sequelize: sequelizeInstance,
@@ -109,6 +114,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
         const businessID = req.params["businessID"];
 
         await ShiftOfferRequest.findAll({
+            where: { status: null },
             include: [
                 {
                     model: Shift,

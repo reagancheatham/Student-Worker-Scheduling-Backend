@@ -21,6 +21,7 @@ export class ShiftTradeRequest extends Model<
     declare targetEmployeeID: number;
     declare employeeMessage: string;
     declare timeSent: Date;
+    declare status: string;
 }
 
 ShiftTradeRequest.init(
@@ -55,6 +56,10 @@ ShiftTradeRequest.init(
         timeSent: {
             type: DataTypes.DATE,
             allowNull: false,
+        },
+        status: {
+            type: DataTypes.ENUM('Pending', 'Approved', 'Denied'),
+            allowNull: true,
         },
     },
     {
@@ -103,6 +108,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
         const businessID = req.params["businessID"];
 
         await ShiftTradeRequest.findAll({
+            where: { status: null },
             include: [
                 {
                     model: Shift,
