@@ -74,7 +74,7 @@ class ShiftTaskListTemplateRouter extends ModelRouter {
 
         if (!info) {
             Logger.error(
-                `Error updating ${ShiftTaskListTemplate.name}: info is null`,
+                `Error creating ${ShiftTaskListTemplate.name}: info is null`,
             );
             return Promise.resolve();
         }
@@ -175,6 +175,8 @@ class ShiftTaskListTemplateRouter extends ModelRouter {
             Logger.log(
                 `Successfully found/created ${ShiftTaskListTemplate.name}`,
             );
+
+            console.log("LIST TEMPLATE: " + JSON.stringify(response));
 
             res.status(200).send(taskList);
         } catch (error) {

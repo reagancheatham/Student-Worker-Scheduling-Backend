@@ -66,7 +66,6 @@ class ScheduleTemplateRouter extends ModelRouter {
                 ScheduleTemplate,
                 req,
                 res,
-                "businessID",
                 "id",
             ),
         );
@@ -75,7 +74,6 @@ class ScheduleTemplateRouter extends ModelRouter {
                 ScheduleTemplate,
                 req,
                 res,
-                "businessID",
                 "id",
             ),
         );
@@ -84,7 +82,6 @@ class ScheduleTemplateRouter extends ModelRouter {
                 ScheduleTemplate,
                 req,
                 res,
-                "businessID",
                 "id",
             ),
         );
@@ -94,7 +91,6 @@ class ScheduleTemplateRouter extends ModelRouter {
                 req,
                 res,
                 {},
-                "businessID",
             ),
         );
     }

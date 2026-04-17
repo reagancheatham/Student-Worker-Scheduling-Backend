@@ -153,7 +153,7 @@ export class Authentication {
                     return res.status(401).send({ valid: false });
                 }
 
-                Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
+                Logger.log(`Found session: ${JSON.stringify(result)}`);
                 (req as any).user = (result as any).User;
 
                 return next();
@@ -229,6 +229,26 @@ export async function isAdmin(user: User): Promise<boolean> {
     } catch (error) {
         Logger.error(`Error authenticating admin: ${error}`);
         return false;
+    }
+}
+
+export async function userAuth(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    const user: User = (req as any).user;
+
+    try {
+        const id = Number(req.params?.id);
+
+        if (!id || isNaN(id) || user.id !== id) {
+            Logger.error(`User authorization failed`);
+            res.status(401).send({ valid: false });
+            return;
+        } else next();
+    } catch (error: any) {
+        Logger.error(`Error parsing userID: ${error}`);
     }
 }
 

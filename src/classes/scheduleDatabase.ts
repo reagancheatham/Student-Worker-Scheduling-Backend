@@ -219,7 +219,6 @@ export class ScheduleDatabase {
         try {
             const result = await model.findAll(options);
             Logger.log(`Found ${result.length} ${model.name}s`);
-            Logger.log("result: " + JSON.stringify(result));
 
             res.status(200).send(result);
 

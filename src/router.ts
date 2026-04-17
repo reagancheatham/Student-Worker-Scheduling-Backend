@@ -7,7 +7,7 @@ import { businessPermissionRoleRouter } from "./models/businessPermissionRole.ts
 import { employeeUnavailabilityRouter } from "./models/employeeUnavailability.ts";
 import { permissionRoleRouter } from "./models/permissionRole.ts";
 import { roleRouter } from "./models/role.ts";
-import { scheduleShiftTemplateRouter } from "./models/scheduleShiftTemplate.ts";
+import { scheduleShiftTemplateRouter } from "./routers/scheduleShiftTemplateRouter.ts";
 import { scheduleTemplateRouter } from "./models/scheduleTemplate.ts";
 import { sessionRouter } from "./models/session.ts";
 import { settingsRouter } from "./models/settings.ts";

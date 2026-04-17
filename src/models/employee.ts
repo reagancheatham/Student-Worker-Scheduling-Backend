@@ -14,6 +14,8 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Invite } from "./invite.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { businessAuth } from "../authorization/businessAuthorization.ts";
+import { adminAuth } from "../authentication.ts";
 
 export class Employee extends Model<
     InferAttributes<Employee>,
@@ -78,26 +80,16 @@ class EmployeeRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/business/:businessID", (req, res) =>
+        router.post("/", businessAuth(), (req: any, res: any) =>
             EmployeeRouter.createEmployee(req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth(), (req: any, res: any) =>
             ScheduleDatabase.update(Employee, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", businessAuth(), (req: any, res: any) =>
             ScheduleDatabase.delete(Employee, req, res, "id"),
         );
-        router.get("/business/:businessID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                Employee,
-                req,
-                res,
-                { include: User },
-                "businessID",
-            ),
-        );
-        router.get("/owners", EmployeeRouter.getAllOwners);
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(), (req: any, res: any) =>
             ScheduleDatabase.getWhere(
                 Employee,
                 req,
@@ -106,15 +98,34 @@ class EmployeeRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/user/:userID/business/:businessID", (req, res) =>
-            ScheduleDatabase.getWhere(
-                Employee,
-                req,
-                res,
-                { include: User },
-                "userID",
-                "businessID",
-            ),
+        router.get(
+            "/business/:businessID",
+            businessAuth(),
+            (req: any, res: any) => {
+                console.log("get all employees!");
+
+                return ScheduleDatabase.getAllWhere(
+                    Employee,
+                    req,
+                    res,
+                    { include: User },
+                    "businessID",
+                );
+            },
+        );
+        router.get("/owners", adminAuth, EmployeeRouter.getAllOwners);
+        router.get(
+            "/user/:userID/business/:businessID",
+            businessAuth,
+            (req: any, res: any) =>
+                ScheduleDatabase.getWhere(
+                    Employee,
+                    req,
+                    res,
+                    { include: User },
+                    "userID",
+                    "businessID",
+                ),
         );
     }
 
@@ -134,9 +145,7 @@ class EmployeeRouter extends ModelRouter {
             ],
         })
             .then((result) => {
-                Logger.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
+                Logger.log(`Found ${Employee.name}: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             })
             .catch((error) => {
@@ -153,7 +162,7 @@ class EmployeeRouter extends ModelRouter {
         let businessPermissionRole = "Employee";
 
         if (isManager) {
-            businessPermissionRole = "Manager"
+            businessPermissionRole = "Manager";
         }
 
         return BusinessPermissionRole.findOne({

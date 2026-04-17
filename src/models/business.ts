@@ -14,6 +14,11 @@ import { Invite } from "./invite.ts";
 import { Employee } from "./employee.ts";
 import { User } from "./user.ts";
 import { Logger } from "../classes/util/logger.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
+import { adminAuth, userAuth } from "../authentication.ts";
 
 export class Business extends Model<
     InferAttributes<Business>,
@@ -42,41 +47,59 @@ Business.init(
     },
 );
 
+const idResolver: BusinessResolver = async (req: Request) => {
+    let businessID = req.params?.id;
+
+    if (!businessID) businessID = req.body?.businessID;
+
+    try {
+        const numID = Number(businessID);
+
+        if (!numID || isNaN(numID)) return undefined;
+        else return numID;
+    } catch (error: any) {
+        Logger.error(`Error parsing businessID in request: ${error}`);
+        return undefined;
+    }
+};
+
 class BusinessRouter extends ModelRouter {
     public path(): string {
         return "/businesses";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", async (req, res) => this.createBusiness(req, res));
-        router.put("/", (req, res) => this.updateBusiness(req, res));
-        router.delete("/:id", (req, res) =>
+        router.post("/", businessAuth(idResolver), async (req, res) =>
+            this.createBusiness(req, res),
+        );
+        router.put("/", businessAuth(idResolver), (req, res) =>
+            this.updateBusiness(req, res),
+        );
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(Business, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(Business, req, res, "id"),
         );
-        router.get("/", (req, res) =>
+        router.get("/", adminAuth, (req, res) =>
             ScheduleDatabase.getAll(Business, req, res),
         );
-        router.get(
-            "/user/:id",
-            (req, res) =>
-                ScheduleDatabase.getAllWhere(Business, req, res, {
-                    include: [
-                        {
-                            model: Employee,
-                            required: true,
-                            include: [
-                                {
-                                    model: User,
-                                    required: true,
-                                    where: { id: req.params.id },
-                                },
-                            ],
-                        },
-                    ],
-                }),
+        router.get("/user/:id", userAuth, (req, res) =>
+            ScheduleDatabase.getAllWhere(Business, req, res, {
+                include: [
+                    {
+                        model: Employee,
+                        required: true,
+                        include: [
+                            {
+                                model: User,
+                                required: true,
+                                where: { id: req.params.id },
+                            },
+                        ],
+                    },
+                ],
+            }),
         );
     }
 
@@ -205,7 +228,10 @@ class BusinessRouter extends ModelRouter {
 
         sequelizeInstance
             .transaction((transaction: any) => {
-                return Business.create({ name: info.business.name }, { transaction })
+                return Business.create(
+                    { name: info.business.name },
+                    { transaction },
+                )
                     .then((business) => {
                         Logger.log(`Successfully created Business`);
 
