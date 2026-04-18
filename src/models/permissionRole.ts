@@ -48,13 +48,13 @@ class PermissionRoleRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", adminAuth, (req, res) =>
+        router.post("/", adminAuth(), (req, res) =>
             ScheduleDatabase.create(PermissionRole, req, res),
         );
-        router.put("/", adminAuth, (req, res) =>
+        router.put("/", adminAuth(), (req, res) =>
             ScheduleDatabase.update(PermissionRole, req, res, "id"),
         );
-        router.delete("/:id", adminAuth, (req, res) =>
+        router.delete("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.delete(PermissionRole, req, res, "id"),
         );
         router.get("/:id", (req, res) =>

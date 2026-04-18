@@ -62,15 +62,10 @@ const resolver: BusinessResolver = async (req: Request) => {
 
     if (!id) return undefined;
 
-    try {
-        const role = await Role.findOne({ where: { id } });
+    const role = await Role.findOne({ where: { id } });
 
-        if (!role) return undefined;
-        else return role.businessID;
-    } catch (error) {
-        Logger.error(`Error fetching ${Role.name}: ${error}`);
-        return undefined;
-    }
+    if (!role) return undefined;
+    else return role.businessID;
 };
 
 class RoleRouter extends ModelRouter {

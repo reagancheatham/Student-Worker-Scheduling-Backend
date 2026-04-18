@@ -204,16 +204,18 @@ class AuthenticationRouter extends ModelRouter {
     }
 }
 
-export async function adminAuth(
+export function adminAuth(): (
     req: Request,
     res: Response,
     next: NextFunction,
-) {
-    const user: User = (req as any).user;
-    const admin = await isAdmin(user);
+) => Promise<void> {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const user: User = (req as any).user;
+        const admin = await isAdmin(user);
 
-    if (admin) next();
-    else res.status(401).send({ valid: false });
+        if (admin) next();
+        else res.status(401).send({ valid: false });
+    };
 }
 
 export async function isAdmin(user: User): Promise<boolean> {
@@ -232,24 +234,26 @@ export async function isAdmin(user: User): Promise<boolean> {
     }
 }
 
-export async function userAuth(
+export function userAuth(): (
     req: Request,
     res: Response,
     next: NextFunction,
-) {
-    const user: User = (req as any).user;
+) => Promise<void> {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const user: User = (req as any).user;
 
-    try {
-        const id = Number(req.params?.id);
+        try {
+            const id = Number(req.params?.id);
 
-        if (!id || isNaN(id) || user.id !== id) {
-            Logger.error(`User authorization failed`);
-            res.status(401).send({ valid: false });
-            return;
-        } else next();
-    } catch (error: any) {
-        Logger.error(`Error parsing userID: ${error}`);
-    }
+            if (!id || isNaN(id) || user.id !== id) {
+                Logger.error(`User authorization failed`);
+                res.status(401).send({ valid: false });
+                return;
+            } else next();
+        } catch (error: any) {
+            Logger.error(`Error parsing userID: ${error}`);
+        }
+    };
 }
 
 export const authenticationRouter = new AuthenticationRouter();

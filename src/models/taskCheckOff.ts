@@ -6,11 +6,18 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Request, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Task } from "./task.ts";
 import { Employee } from "./employee.ts";
 import { User } from "./user.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
+import { Logger } from "../classes/util/logger.ts";
+import { TaskList } from "./taskList.ts";
+import { Shift } from "./shift.ts";
 
 export class TaskCheckOff extends Model<
     InferAttributes<TaskCheckOff>,
@@ -53,7 +60,60 @@ TaskCheckOff.init(
     },
 );
 
+const idResolver: BusinessResolver = async (req: Request) => {
+    let id = req.params?.id;
 
+    if (!id) id = req.body?.id;
+    if (!id) return undefined;
+
+    try {
+        const checkOff = TaskCheckOff.findOne({
+            where: { id },
+            include: [
+                {
+                    model: Task,
+                    include: [
+                        {
+                            model: TaskList,
+                            include: [
+                                {
+                                    model: Shift,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        return (checkOff as any)?.Task?.TaskList?.Shift?.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${TaskCheckOff.name}: ${error}`);
+        return undefined;
+    }
+};
+
+const taskIDResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params?.taskID;
+
+    if (!id) return undefined;
+
+    const task = Task.findOne({
+        where: { id },
+        include: [
+            {
+                model: TaskList,
+                include: [
+                    {
+                        model: Shift,
+                    },
+                ],
+            },
+        ],
+    });
+
+    return (task as any)?.TaskList.Shift?.businessID;
+};
 
 class TaskCheckOffRouter extends ModelRouter {
     public path(): string {
@@ -61,16 +121,16 @@ class TaskCheckOffRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(taskIDResolver), (req, res) =>
             ScheduleDatabase.create(TaskCheckOff, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth(taskIDResolver), (req, res) =>
             ScheduleDatabase.update(TaskCheckOff, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(TaskCheckOff, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.getWhere(
                 TaskCheckOff,
                 req,
@@ -84,7 +144,7 @@ class TaskCheckOffRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/task/:taskID", (req, res) =>
+        router.get("/task/:taskID", businessAuth(taskIDResolver), (req, res) =>
             ScheduleDatabase.getAllWhere(
                 TaskCheckOff,
                 req,

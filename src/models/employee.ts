@@ -3,7 +3,6 @@ import type {
     CreationOptional,
     InferAttributes,
     InferCreationAttributes,
-    Transaction,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.ts";
@@ -14,7 +13,7 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { Invite } from "./invite.ts";
 import { Logger } from "../classes/util/logger.ts";
-import { businessAuth } from "../authorization/businessAuthorization.ts";
+import { businessAuth, BusinessResolver } from "../authorization/businessAuthorization.ts";
 import { adminAuth } from "../authentication.ts";
 
 export class Employee extends Model<
@@ -74,6 +73,16 @@ Employee.init(
     },
 );
 
+const idResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    const employee = await Employee.findOne({ where: { id }});
+
+    return employee?.businessID;
+};
+
 class EmployeeRouter extends ModelRouter {
     public path(): string {
         return "/employees";
@@ -86,10 +95,10 @@ class EmployeeRouter extends ModelRouter {
         router.put("/", businessAuth(), (req: any, res: any) =>
             ScheduleDatabase.update(Employee, req, res, "id"),
         );
-        router.delete("/:id", businessAuth(), (req: any, res: any) =>
+        router.delete("/:id", businessAuth(idResolver), (req: any, res: any) =>
             ScheduleDatabase.delete(Employee, req, res, "id"),
         );
-        router.get("/:id", businessAuth(), (req: any, res: any) =>
+        router.get("/:id", businessAuth(idResolver), (req: any, res: any) =>
             ScheduleDatabase.getWhere(
                 Employee,
                 req,
@@ -110,10 +119,10 @@ class EmployeeRouter extends ModelRouter {
                     "businessID",
                 ),
         );
-        router.get("/owners", adminAuth, EmployeeRouter.getAllOwners);
+        router.get("/owners", adminAuth(), EmployeeRouter.getAllOwners);
         router.get(
             "/user/:userID/business/:businessID",
-            businessAuth,
+            businessAuth(),
             (req: any, res: any) =>
                 ScheduleDatabase.getWhere(
                     Employee,

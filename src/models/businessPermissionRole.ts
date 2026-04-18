@@ -42,13 +42,13 @@ class BusinessPermissionRoleRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", adminAuth, (req, res) =>
+        router.post("/", adminAuth(), (req, res) =>
             ScheduleDatabase.create(BusinessPermissionRole, req, res),
         );
-        router.put("/", adminAuth, (req, res) =>
+        router.put("/", adminAuth(), (req, res) =>
             ScheduleDatabase.update(BusinessPermissionRole, req, res, "id"),
         );
-        router.delete("/:id", adminAuth, (req, res) =>
+        router.delete("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.delete(BusinessPermissionRole, req, res, "id"),
         );
         router.get("/:id", (req, res) =>

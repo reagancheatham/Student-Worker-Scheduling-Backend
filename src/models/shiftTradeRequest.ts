@@ -11,6 +11,10 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -37,7 +41,7 @@ ShiftTradeRequest.init(
                 model: Shift,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         targetEmployeeID: {
             type: DataTypes.INTEGER,
@@ -46,7 +50,7 @@ ShiftTradeRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         employeeMessage: {
             type: DataTypes.STRING,
@@ -75,26 +79,54 @@ ShiftTradeRequest.init(
     },
 );
 
+const idResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    const tradeRequest = await ShiftTradeRequest.findOne({
+        where: { id },
+        include: Shift,
+    });
+
+    return (tradeRequest as any)?.Shift?.businessID;
+};
+
+const shiftIDResolver: BusinessResolver = async (req: Request) => {
+    let id = req.params?.shiftID;
+
+    if (!id) id = req.body?.shiftID;
+
+    if (!id) return undefined;
+
+    const shift = await Shift.findOne({ where: { id } });
+
+    return shift?.businessID;
+};
+
 class ShiftTradeRequestRouter extends ModelRouter {
     public path(): string {
         return "/shiftTradeRequests";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(shiftIDResolver), (req, res) =>
             ScheduleDatabase.create(ShiftTradeRequest, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth(shiftIDResolver), (req, res) =>
             ScheduleDatabase.update(ShiftTradeRequest, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(ShiftTradeRequest, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "id"),
         );
-        router.get("/shift/:shiftID", (req, res) =>
-            ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
+        router.get(
+            "/shift/:shiftID",
+            businessAuth(shiftIDResolver),
+            (req, res) =>
+                ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
     }
 

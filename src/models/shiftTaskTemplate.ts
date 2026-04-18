@@ -72,34 +72,29 @@ const idResolver: BusinessResolver = async (req: Request) => {
     const id = req.params?.id;
 
     if (!id) return undefined;
+    
+    const template = await ShiftTaskTemplate.findOne({
+        where: { id },
+        include: [
+            {
+                model: ShiftTaskListTemplate,
+                include: [
+                    {
+                        model: ScheduleShiftTemplate,
+                        include: [
+                            {
+                                model: ScheduleTemplate,
+                                attributes: ["businessID"],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    });
 
-    try {
-        const template = await ShiftTaskTemplate.findOne({
-            where: { id },
-            include: [
-                {
-                    model: ShiftTaskListTemplate,
-                    include: [
-                        {
-                            model: ScheduleShiftTemplate,
-                            include: [
-                                {
-                                    model: ScheduleTemplate,
-                                    attributes: ["businessID"],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        });
-
-        return (template as any)?.ShiftTaskListTemplate?.ScheduleShiftTemplate
-            ?.ScheduleTemplate?.businessID;
-    } catch (error: any) {
-        Logger.error(`Error fetching ${ShiftTaskTemplate.name}: ${error}`);
-        return undefined;
-    }
+    return (template as any)?.ShiftTaskListTemplate?.ScheduleShiftTemplate
+        ?.ScheduleTemplate?.businessID;
 };
 
 const shiftTaskListIDResolver: BusinessResolver = async (req: Request) => {

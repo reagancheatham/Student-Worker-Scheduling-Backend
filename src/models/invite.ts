@@ -172,17 +172,11 @@ const resolver: BusinessResolver = async (req: Request) => {
 
     if (!code) return undefined;
 
-    try {
-        const invite = await Invite.findOne({
-            where: { code },
-        });
+    const invite = await Invite.findOne({
+        where: { code },
+    });
 
-        if (!invite) return undefined;
-        else return invite.businessID;
-    } catch (error) {
-        Logger.error(`Error fetching ${Invite.name}: ${error}`);
-        return undefined;
-    }
+    return invite?.businessID;
 };
 
 class InviteRouter extends ModelRouter {
@@ -203,7 +197,7 @@ class InviteRouter extends ModelRouter {
         router.get("/:code", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.get(Invite, req, res, "code"),
         );
-        router.get("/", adminAuth, (req, res) =>
+        router.get("/", adminAuth(), (req, res) =>
             ScheduleDatabase.getAll(Invite, req, res),
         );
     }

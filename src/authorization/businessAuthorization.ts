@@ -50,16 +50,16 @@ export function businessAuth(
             return;
         }
 
-        const businessID = await resolver(req);
-
-        if (!businessID) {
-            Logger.error("No business ID included in request.");
-            res.status(401).send({ valid: false });
-
-            return;
-        }
-
         try {
+            const businessID = await resolver(req);
+
+            if (!businessID) {
+                Logger.error("No business ID included in request.");
+                res.status(401).send({ valid: false });
+
+                return;
+            }
+
             const membership = await Employee.findOne({
                 where: { userID: user.id, businessID },
             });
@@ -72,7 +72,7 @@ export function businessAuth(
                 return;
             }
         } catch (error) {
-            Logger.error(`Unauthorized to edit business.`);
+            Logger.error(`Unauthorized to edit business at path: ${req.path}.`);
             res.status(401).send({ valid: false });
         }
     };

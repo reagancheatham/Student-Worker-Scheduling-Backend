@@ -133,15 +133,10 @@ const employeeIDResolver: BusinessResolver = async (req: Request) => {
 
     if (!employeeID) return undefined;
 
-    try {
-        const employee = await Employee.findOne({ where: { id: employeeID } });
+    const employee = await Employee.findOne({ where: { id: employeeID } });
 
-        if (!employee) return undefined;
-        else return employee.businessID;
-    } catch (error: any) {
-        Logger.error(`Error fetching employee: ${error}`);
-        return undefined;
-    }
+    if (!employee) return undefined;
+    else return employee.businessID;
 };
 
 class ShiftRouter extends ModelRouter {

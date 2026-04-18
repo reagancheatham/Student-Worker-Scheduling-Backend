@@ -7,8 +7,12 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Request, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
 
 export class TaskListTemplate extends Model<
     InferAttributes<TaskListTemplate>,
@@ -33,7 +37,7 @@ TaskListTemplate.init(
                 model: Business,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,
@@ -52,40 +56,35 @@ TaskListTemplate.init(
     },
 );
 
+const idResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    const taskListTemplate = await TaskListTemplate.findOne({ where: { id } });
+
+    return taskListTemplate?.businessID;
+};
+
 class TaskListTemplateRouter extends ModelRouter {
     public path(): string {
         return "/taskListTemplates";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(), (req, res) =>
             ScheduleDatabase.create(TaskListTemplate, req, res),
         );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                TaskListTemplate,
-                req,
-                res,
-                "id",
-            ),
+        router.put("/", businessAuth(), (req, res) =>
+            ScheduleDatabase.update(TaskListTemplate, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(
-                TaskListTemplate,
-                req,
-                res,
-                "id",
-            ),
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
+            ScheduleDatabase.delete(TaskListTemplate, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(
-                TaskListTemplate,
-                req,
-                res,
-                "id",
-            ),
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
+            ScheduleDatabase.get(TaskListTemplate, req, res, "id"),
         );
-        router.get("/business/:businessID", (req, res) =>
+        router.get("/business/:businessID", businessAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(
                 TaskListTemplate,
                 req,

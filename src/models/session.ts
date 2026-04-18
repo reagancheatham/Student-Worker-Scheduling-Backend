@@ -57,19 +57,19 @@ class SessionRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", adminAuth, (req, res) =>
+        router.post("/", adminAuth(), (req, res) =>
             ScheduleDatabase.create(Session, req, res),
         );
-        router.put("/", adminAuth, (req, res) =>
+        router.put("/", adminAuth(), (req, res) =>
             ScheduleDatabase.update(Session, req, res, "id"),
         );
-        router.delete("/:id", adminAuth, (req, res) =>
+        router.delete("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.delete(Session, req, res, "id"),
         );
-        router.get("/:id", adminAuth, (req, res) =>
+        router.get("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.get(Session, req, res, "id"),
         );
-        router.get("/user/:userID", userAuth, (req, res) =>
+        router.get("/user/:userID", userAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(Session, req, res, {}, "userID"),
         );
     }

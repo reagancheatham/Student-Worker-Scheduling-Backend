@@ -52,15 +52,10 @@ const idResolver: BusinessResolver = async (req: Request) => {
 
     if (!businessID) businessID = req.body?.businessID;
 
-    try {
-        const numID = Number(businessID);
+    const numID = Number(businessID);
 
-        if (!numID || isNaN(numID)) return undefined;
-        else return numID;
-    } catch (error: any) {
-        Logger.error(`Error parsing businessID in request: ${error}`);
-        return undefined;
-    }
+    if (!numID || isNaN(numID)) return undefined;
+    else return numID;
 };
 
 class BusinessRouter extends ModelRouter {
@@ -69,22 +64,22 @@ class BusinessRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", businessAuth(idResolver), async (req, res) =>
+        router.post("/", adminAuth(), async (req, res) =>
             this.createBusiness(req, res),
         );
         router.put("/", businessAuth(idResolver), (req, res) =>
             this.updateBusiness(req, res),
         );
-        router.delete("/:id", businessAuth(idResolver), (req, res) =>
+        router.delete("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.delete(Business, req, res, "id"),
         );
         router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(Business, req, res, "id"),
         );
-        router.get("/", adminAuth, (req, res) =>
+        router.get("/", adminAuth(), (req, res) =>
             ScheduleDatabase.getAll(Business, req, res),
         );
-        router.get("/user/:id", userAuth, (req, res) =>
+        router.get("/user/:id", userAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(Business, req, res, {
                 include: [
                     {

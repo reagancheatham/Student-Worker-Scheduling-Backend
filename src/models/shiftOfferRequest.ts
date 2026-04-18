@@ -73,18 +73,13 @@ const offerRequestIDResolver: BusinessResolver = async (req: Request) => {
     if (!id) id = req.body.id;
     if (!id) return undefined;
 
-    try {
-        const offerRequest = await ShiftOfferRequest.findOne({
-            where: { id },
-            include: Shift,
-        });
+    const offerRequest = await ShiftOfferRequest.findOne({
+        where: { id },
+        include: Shift,
+    });
 
-        if (!offerRequest || !(offerRequest as any).Shift) return undefined;
-        else return (offerRequest as any).Shift.businessID;
-    } catch (error: any) {
-        Logger.error(`Error fetching ${ShiftOfferRequest.name}: ${error}`);
-        return undefined;
-    }
+    if (!offerRequest || !(offerRequest as any).Shift) return undefined;
+    else return (offerRequest as any).Shift.businessID;
 };
 
 const shiftIDResolver: BusinessResolver = async (req: Request) => {
@@ -92,15 +87,10 @@ const shiftIDResolver: BusinessResolver = async (req: Request) => {
 
     if (!id) return undefined;
 
-    try {
-        const shift = await Shift.findOne({ where: { id } });
+    const shift = await Shift.findOne({ where: { id } });
 
-        if (!shift) return undefined;
-        else return shift.businessID;
-    } catch (error: any) {
-        Logger.error(`Error fetching ${Shift.name}: ${error}`);
-        return undefined;
-    }
+    if (!shift) return undefined;
+    else return shift.businessID;
 };
 
 class ShiftOfferRequestRouter extends ModelRouter {
@@ -115,23 +105,30 @@ class ShiftOfferRequestRouter extends ModelRouter {
         router.put("/", businessAuth(offerRequestIDResolver), (req, res) =>
             ScheduleDatabase.update(ShiftOfferRequest, req, res, "id"),
         );
-        router.delete("/:id", businessAuth(offerRequestIDResolver), (req, res) =>
-            ScheduleDatabase.update(ShiftOfferRequest, req, res, "id"),
+        router.delete(
+            "/:id",
+            businessAuth(offerRequestIDResolver),
+            (req, res) =>
+                ScheduleDatabase.update(ShiftOfferRequest, req, res, "id"),
         );
         router.get("/:id", businessAuth(offerRequestIDResolver), (req, res) =>
             ScheduleDatabase.get(ShiftOfferRequest, req, res, "id"),
         );
-        router.get("/shift/:shiftID", businessAuth(shiftIDResolver), (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ShiftOfferRequest,
-                req,
-                res,
-                {},
-                "shiftID",
-            ),
+        router.get(
+            "/shift/:shiftID",
+            businessAuth(shiftIDResolver),
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(
+                    ShiftOfferRequest,
+                    req,
+                    res,
+                    {},
+                    "shiftID",
+                ),
         );
         router.get(
-            "/business/:businessID", businessAuth(),
+            "/business/:businessID",
+            businessAuth(),
             businessAuth(),
             this.getAllRequestsForBusiness,
         );
