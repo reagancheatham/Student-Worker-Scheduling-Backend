@@ -68,7 +68,41 @@ ShiftTaskTemplate.init(
     },
 );
 
-const resolver: BusinessResolver = async (req: Request) => {
+const idResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    try {
+        const template = await ShiftTaskTemplate.findOne({
+            where: { id },
+            include: [
+                {
+                    model: ShiftTaskListTemplate,
+                    include: [
+                        {
+                            model: ScheduleShiftTemplate,
+                            include: [
+                                {
+                                    model: ScheduleTemplate,
+                                    attributes: ["businessID"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        return (template as any)?.ShiftTaskListTemplate?.ScheduleShiftTemplate
+            ?.ScheduleTemplate?.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${ShiftTaskTemplate.name}: ${error}`);
+        return undefined;
+    }
+};
+
+const shiftTaskListIDResolver: BusinessResolver = async (req: Request) => {
     let shiftTaskListID = req.params?.shiftTaskListID;
 
     if (!shiftTaskListID) shiftTaskListID = req.body?.shiftTaskListID;
@@ -106,21 +140,21 @@ class ShiftTaskTemplateRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", businessAuth(resolver), (req, res) =>
+        router.post("/", businessAuth(shiftTaskListIDResolver), (req, res) =>
             ScheduleDatabase.create(ShiftTaskTemplate, req, res),
         );
-        router.put("/", businessAuth(resolver), (req, res) =>
+        router.put("/", businessAuth(shiftTaskListIDResolver), (req, res) =>
             ScheduleDatabase.update(ShiftTaskTemplate, req, res, "id"),
         );
-        router.delete("/:id", businessAuth(resolver), (req, res) =>
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(ShiftTaskTemplate, req, res, "id"),
         );
-        router.get("/:id", businessAuth(resolver), (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(ShiftTaskTemplate, req, res, "id"),
         );
         router.get(
             "/shiftTaskList/:shiftTaskListID",
-            businessAuth(resolver),
+            businessAuth(shiftTaskListIDResolver),
             (req, res) =>
                 ScheduleDatabase.getAllWhere(
                     ShiftTaskTemplate,

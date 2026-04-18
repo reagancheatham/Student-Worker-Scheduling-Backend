@@ -9,6 +9,7 @@ import { User } from "./user.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { adminAuth, userAuth } from "../authentication.ts";
 
 export class Session extends Model<
     InferAttributes<Session>,
@@ -56,19 +57,19 @@ class SessionRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", adminAuth, (req, res) =>
             ScheduleDatabase.create(Session, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", adminAuth, (req, res) =>
             ScheduleDatabase.update(Session, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", adminAuth, (req, res) =>
             ScheduleDatabase.delete(Session, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", adminAuth, (req, res) =>
             ScheduleDatabase.get(Session, req, res, "id"),
         );
-        router.get("/user/:userID", (req, res) =>
+        router.get("/user/:userID", userAuth, (req, res) =>
             ScheduleDatabase.getAllWhere(Session, req, res, {}, "userID"),
         );
     }

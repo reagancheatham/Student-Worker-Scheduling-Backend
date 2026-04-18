@@ -7,8 +7,13 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Request, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class Role extends Model<
     InferAttributes<Role>,
@@ -33,7 +38,7 @@ Role.init(
                 model: Business,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,
@@ -52,23 +57,41 @@ Role.init(
     },
 );
 
+const resolver: BusinessResolver = async (req: Request) => {
+    const id = req.params.id;
+
+    if (!id) return undefined;
+
+    try {
+        const role = await Role.findOne({ where: { id } });
+
+        if (!role) return undefined;
+        else return role.businessID;
+    } catch (error) {
+        Logger.error(`Error fetching ${Role.name}: ${error}`);
+        return undefined;
+    }
+};
+
 class RoleRouter extends ModelRouter {
     public path(): string {
         return "/roles";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) => ScheduleDatabase.create(Role, req, res));
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(Role, req, res, "businessID", "id"),
+        router.post("/", businessAuth(), (req, res) =>
+            ScheduleDatabase.create(Role, req, res),
         );
-        router.delete("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.delete(Role, req, res, "businessID", "id"),
+        router.put("/", businessAuth(), (req, res) =>
+            ScheduleDatabase.update(Role, req, res, "id"),
         );
-        router.get("/:businessID/:id", (req, res) =>
-            ScheduleDatabase.get(Role, req, res, "businessID", "id"),
+        router.delete("/:id", businessAuth(resolver), (req, res) =>
+            ScheduleDatabase.delete(Role, req, res, "id"),
         );
-        router.get("/:businessID", (req, res) =>
+        router.get("/:id", businessAuth(resolver), (req, res) =>
+            ScheduleDatabase.get(Role, req, res, "id"),
+        );
+        router.get("/business/:businessID", businessAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(Role, req, res, {}, "businessID"),
         );
     }

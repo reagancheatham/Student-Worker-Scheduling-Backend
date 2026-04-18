@@ -12,7 +12,10 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Business } from "./business.ts";
 import { EventColor } from "../classes/eventColor.ts";
 import { User } from "./user.ts";
-import { businessAuth } from "../authorization/businessAuthorization.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
 import { Logger } from "../classes/util/logger.ts";
 
 export class Shift extends Model<
@@ -109,6 +112,38 @@ type ShiftRangeParamsEmployee = {
     endTime: string;
 };
 
+const shiftIDResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params.id;
+
+    if (!id) return undefined;
+
+    try {
+        const shift = await Shift.findOne({ where: { id } });
+
+        if (!shift) return undefined;
+        else return shift.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching shift: ${error}`);
+        return undefined;
+    }
+};
+
+const employeeIDResolver: BusinessResolver = async (req: Request) => {
+    const employeeID = req.params.employeeID;
+
+    if (!employeeID) return undefined;
+
+    try {
+        const employee = await Employee.findOne({ where: { id: employeeID } });
+
+        if (!employee) return undefined;
+        else return employee.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching employee: ${error}`);
+        return undefined;
+    }
+};
+
 class ShiftRouter extends ModelRouter {
     public path(): string {
         return "/shifts";
@@ -121,7 +156,7 @@ class ShiftRouter extends ModelRouter {
         router.put("/", businessAuth(), (req, res) =>
             ScheduleDatabase.update(Shift, req, res, "id"),
         );
-        router.delete("/:id", businessAuth(), (req, res) =>
+        router.delete("/:id", businessAuth(shiftIDResolver), (req, res) =>
             ScheduleDatabase.delete(Shift, req, res, "id"),
         );
         router.get(
@@ -131,16 +166,16 @@ class ShiftRouter extends ModelRouter {
         );
         router.get(
             "/employee/:employeeID/startTime=:startTime/endTime=:endTime",
-            businessAuth(),
+            businessAuth(employeeIDResolver),
             (req: any, res) => this.getShiftsForEmployeeWithinRange(req, res),
         );
         router.get(
             "/employee/:employeeID/startTime=:startTime/endTime=:endTime/published",
-            businessAuth(),
+            businessAuth(employeeIDResolver),
             (req: any, res) =>
                 this.getShiftsForEmployeeWithinRange(req, res, true),
         );
-        router.get("/:id", businessAuth(), this.getShift);
+        router.get("/:id", businessAuth(shiftIDResolver), this.getShift);
         router.get(
             "/business/:businessID",
             businessAuth(),

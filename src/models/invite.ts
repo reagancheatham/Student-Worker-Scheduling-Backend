@@ -6,7 +6,7 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
+import { Request, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { CodeService } from "../classes/codeService.ts";
@@ -14,6 +14,11 @@ import { Employee } from "./employee.ts";
 import nodemailer from "nodemailer";
 import { Business } from "./business.ts";
 import { Logger } from "../classes/util/logger.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
+import { adminAuth } from "../authentication.ts";
 
 export class Invite extends Model<
     InferAttributes<Invite>,
@@ -45,7 +50,7 @@ export class Invite extends Model<
         )
             .then((result) => {
                 Logger.log("Successfully created invite");
-            
+
                 return {
                     invite: result,
                     code,
@@ -162,25 +167,43 @@ Invite.init(
     },
 );
 
+const resolver: BusinessResolver = async (req: Request) => {
+    let code = req.params?.code;
+
+    if (!code) return undefined;
+
+    try {
+        const invite = await Invite.findOne({
+            where: { code },
+        });
+
+        if (!invite) return undefined;
+        else return invite.businessID;
+    } catch (error) {
+        Logger.error(`Error fetching ${Invite.name}: ${error}`);
+        return undefined;
+    }
+};
+
 class InviteRouter extends ModelRouter {
     public path(): string {
         return "/invites";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(), (req, res) =>
             ScheduleDatabase.create(Invite, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth(), (req, res) =>
             ScheduleDatabase.update(Invite, req, res, "code"),
         );
-        router.delete("/:code", (req, res) =>
+        router.delete("/:code", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.delete(Invite, req, res, "code"),
         );
-        router.get("/:code", (req, res) =>
+        router.get("/:code", businessAuth(resolver), (req, res) =>
             ScheduleDatabase.get(Invite, req, res, "code"),
         );
-        router.get("/", (req, res) =>
+        router.get("/", adminAuth, (req, res) =>
             ScheduleDatabase.getAll(Invite, req, res),
         );
     }

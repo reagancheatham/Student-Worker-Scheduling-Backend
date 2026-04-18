@@ -101,17 +101,14 @@ class EmployeeRouter extends ModelRouter {
         router.get(
             "/business/:businessID",
             businessAuth(),
-            (req: any, res: any) => {
-                console.log("get all employees!");
-
-                return ScheduleDatabase.getAllWhere(
+            (req: any, res: any) =>
+                ScheduleDatabase.getAllWhere(
                     Employee,
                     req,
                     res,
                     { include: User },
                     "businessID",
-                );
-            },
+                ),
         );
         router.get("/owners", adminAuth, EmployeeRouter.getAllOwners);
         router.get(

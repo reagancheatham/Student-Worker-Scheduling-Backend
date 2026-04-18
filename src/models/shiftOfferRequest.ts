@@ -10,6 +10,10 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -63,37 +67,61 @@ ShiftOfferRequest.init(
     },
 );
 
+const offerRequestIDResolver: BusinessResolver = async (req: Request) => {
+    let id = req.params.id;
+
+    if (!id) id = req.body.id;
+    if (!id) return undefined;
+
+    try {
+        const offerRequest = await ShiftOfferRequest.findOne({
+            where: { id },
+            include: Shift,
+        });
+
+        if (!offerRequest || !(offerRequest as any).Shift) return undefined;
+        else return (offerRequest as any).Shift.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${ShiftOfferRequest.name}: ${error}`);
+        return undefined;
+    }
+};
+
+const shiftIDResolver: BusinessResolver = async (req: Request) => {
+    const id = req.params.shiftID;
+
+    if (!id) return undefined;
+
+    try {
+        const shift = await Shift.findOne({ where: { id } });
+
+        if (!shift) return undefined;
+        else return shift.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${Shift.name}: ${error}`);
+        return undefined;
+    }
+};
+
 class ShiftOfferRequestRouter extends ModelRouter {
     public path(): string {
         return "/shiftOfferRequests";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(offerRequestIDResolver), (req, res) =>
             ScheduleDatabase.create(ShiftOfferRequest, req, res),
         );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftOfferRequest,
-                req,
-                res,
-                "shiftID",
-                "id",
-            ),
+        router.put("/", businessAuth(offerRequestIDResolver), (req, res) =>
+            ScheduleDatabase.update(ShiftOfferRequest, req, res, "id"),
         );
-        router.delete("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftOfferRequest,
-                req,
-                res,
-                "shiftID",
-                "id",
-            ),
+        router.delete("/:id", businessAuth(offerRequestIDResolver), (req, res) =>
+            ScheduleDatabase.update(ShiftOfferRequest, req, res, "id"),
         );
-        router.get("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftOfferRequest, req, res, "shiftID", "id"),
+        router.get("/:id", businessAuth(offerRequestIDResolver), (req, res) =>
+            ScheduleDatabase.get(ShiftOfferRequest, req, res, "id"),
         );
-        router.get("/:shiftID", (req, res) =>
+        router.get("/shift/:shiftID", businessAuth(shiftIDResolver), (req, res) =>
             ScheduleDatabase.getAllWhere(
                 ShiftOfferRequest,
                 req,
@@ -102,7 +130,11 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 "shiftID",
             ),
         );
-        router.get("/business/:businessID", this.getAllRequestsForBusiness);
+        router.get(
+            "/business/:businessID", businessAuth(),
+            businessAuth(),
+            this.getAllRequestsForBusiness,
+        );
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {

@@ -8,6 +8,7 @@ import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { adminAuth } from "../authentication.ts";
 
 export class BusinessPermissionRole extends Model<
     InferAttributes<BusinessPermissionRole>,
@@ -41,13 +42,13 @@ class BusinessPermissionRoleRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", adminAuth, (req, res) =>
             ScheduleDatabase.create(BusinessPermissionRole, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", adminAuth, (req, res) =>
             ScheduleDatabase.update(BusinessPermissionRole, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", adminAuth, (req, res) =>
             ScheduleDatabase.delete(BusinessPermissionRole, req, res, "id"),
         );
         router.get("/:id", (req, res) =>

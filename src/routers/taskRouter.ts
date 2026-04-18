@@ -1,11 +1,64 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Task } from "../models/task.ts";
 import { TaskCheckOff } from "../models/taskCheckOff.ts";
 import { adminAuth } from "../authentication.ts";
+import {
+    businessAuth,
+    BusinessResolver,
+} from "../authorization/businessAuthorization.ts";
 import { Logger } from "../classes/util/logger.ts";
-import { businessAuth } from "../authorization/businessAuthorization.ts";
+import { TaskList } from "../models/taskList.ts";
+import { Shift } from "../models/shift.ts";
+
+const idResolver: BusinessResolver = async (req: Request) => {
+    let id = req.params?.id;
+
+    if (!id) id = req.body?.id;
+
+    if (!id) return undefined;
+
+    try {
+        const task = await Task.findOne({ where: { id } });
+
+        if (!task) return undefined;
+
+        const taskList = await TaskList.findOne({
+            where: { id: task.taskListID },
+        });
+
+        if (!taskList) return undefined;
+
+        const shift = await Shift.findOne({ where: { id: taskList.shiftID } });
+
+        return shift?.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${Task.name}: ${error}`);
+    }
+};
+
+const taskListIDResolver: BusinessResolver = async (req: Request) => {
+    let taskListID = req.params?.id;
+
+    if (!taskListID) taskListID = req.body?.id;
+
+    if (!taskListID) return undefined;
+
+    try {
+        const taskList = await TaskList.findOne({
+            where: { id: taskListID },
+        });
+
+        if (!taskList) return undefined;
+
+        const shift = await Shift.findOne({ where: { id: taskList.shiftID } });
+
+        return shift?.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${Task.name}: ${error}`);
+    }
+};
 
 // i've discovered that we need to move routers out of model files for certain things to work...
 class TaskRouter extends ModelRouter {
@@ -14,16 +67,16 @@ class TaskRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", adminAuth, (req, res) =>
+        router.post("/", businessAuth(taskListIDResolver), (req, res) =>
             ScheduleDatabase.create(Task, req, res),
         );
-        router.put("/", adminAuth, (req, res) =>
+        router.put("/", businessAuth(taskListIDResolver), (req, res) =>
             ScheduleDatabase.update(Task, req, res, "id"),
         );
-        router.delete("/:id", adminAuth, (req, res) =>
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(Task, req, res, "id"),
         );
-        router.get("/:id", adminAuth, (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.getWhere(
                 Task,
                 req,
@@ -32,14 +85,17 @@ class TaskRouter extends ModelRouter {
                 "id",
             ),
         );
-        router.get("/taskList/:taskListID", businessAuth(), (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                Task,
-                req,
-                res,
-                { include: TaskCheckOff },
-                "taskListID",
-            ),
+        router.get(
+            "/taskList/:taskListID",
+            businessAuth(taskListIDResolver),
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(
+                    Task,
+                    req,
+                    res,
+                    { include: TaskCheckOff },
+                    "taskListID",
+                ),
         );
     }
 

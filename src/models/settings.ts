@@ -5,6 +5,7 @@ import { Business } from "./business.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { businessAuth } from "../authorization/businessAuthorization.ts";
 
 export class Settings extends Model<
     InferAttributes<Settings>,
@@ -91,16 +92,16 @@ class SettingsRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth(), (req, res) =>
             ScheduleDatabase.create(Settings, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth(), (req, res) =>
             ScheduleDatabase.update(Settings, req, res, "businessID"),
         );
-        router.delete("/:businessID", (req, res) =>
+        router.delete("/:businessID", businessAuth(), (req, res) =>
             ScheduleDatabase.delete(Settings, req, res, "businessID"),
         );
-        router.get("/:businessID", (req, res) =>
+        router.get("/:businessID", businessAuth(), (req, res) =>
             ScheduleDatabase.get(Settings, req, res, "businessID"),
         );
     }
