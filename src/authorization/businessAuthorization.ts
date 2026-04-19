@@ -93,8 +93,9 @@ export function managerAuth(
                 return;
             }
 
-            const permissionRole = (employee as any)
-                .BusinessPermissionRole as BusinessPermissionRole;
+            const permissionRole = await BusinessPermissionRole.findOne({
+                where: { id: employee.businessPermissionRoleID },
+            });
 
             if (!permissionRole) {
                 Logger.error(
@@ -105,7 +106,11 @@ export function managerAuth(
                 return;
             }
 
-            if (permissionRole.name === "Manager") next();
+            if (
+                permissionRole.name === "Manager" ||
+                permissionRole.name === "Owner"
+            )
+                next();
             else {
                 Logger.error(
                     `User ${user.id} is not a manager for the target business!`,
