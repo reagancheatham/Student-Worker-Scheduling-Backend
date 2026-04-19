@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import {
     businessAuth,
-    BusinessResolver,
+    IDResolver,
 } from "../authorization/businessAuthorization.ts";
 import { ScheduleShiftTemplate } from "../models/scheduleShiftTemplate.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
@@ -11,38 +11,38 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { ShiftTaskListTemplate } from "../models/shiftTaskListTemplate.ts";
 import {
     ShiftTaskTemplate,
-    shiftTaskTemplateRouter,
 } from "../models/shiftTaskTemplate.ts";
+import { shiftTaskTemplateRouter } from "./shiftTaskTemplateRouter.ts";
 
-const idResolver: BusinessResolver = async (req: Request) => {
+const idResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
 
     if (!id) return undefined;
 
     try {
-        const taskList = await ShiftTaskListTemplate.findOne({ where: { id } });
-
-        if (!taskList) return undefined;
-
-        const shift = await ScheduleShiftTemplate.findOne({
-            where: { id: taskList.scheduleShiftID },
+        const taskList = await ShiftTaskListTemplate.findOne({
+            where: { id },
+            include: [
+                {
+                    model: ScheduleShiftTemplate,
+                    include: [
+                        {
+                            model: ScheduleTemplate,
+                            attributes: ["businessID"],
+                        },
+                    ],
+                },
+            ],
         });
 
-        if (!shift) return undefined;
-
-        const scheduleTemplateID = shift.scheduleTemplateID;
-        const schedule = await ScheduleTemplate.findOne({
-            where: { id: scheduleTemplateID },
-        });
-
-        return schedule?.businessID;
+        return (taskList as any)?.ScheduleShiftTemplate?.ScheduleTemplate?.businessID;
     } catch (error) {
         Logger.error(`Error fetching ${ScheduleTemplate.name}.`);
         return undefined;
     }
 };
 
-const scheduleShiftIDResolver: BusinessResolver = async (req: Request) => {
+const scheduleShiftIDResolver: IDResolver = async (req: Request) => {
     let scheduleShiftID = req.params?.scheduleShiftID;
 
     if (!scheduleShiftID) scheduleShiftID = req.body?.scheduleShiftID;
@@ -84,11 +84,8 @@ class ShiftTaskListTemplateRouter extends ModelRouter {
             businessAuth(scheduleShiftIDResolver),
             ShiftTaskListTemplateRouter.updateTaskList,
         );
-        router.delete(
-            "/:id",
-            businessAuth(idResolver),
-            (req, res) =>
-                ScheduleDatabase.delete(ShiftTaskListTemplate, req, res, "id"),
+        router.delete("/:id", businessAuth(idResolver), (req, res) =>
+            ScheduleDatabase.delete(ShiftTaskListTemplate, req, res, "id"),
         );
         router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(ShiftTaskListTemplate, req, res, "id"),

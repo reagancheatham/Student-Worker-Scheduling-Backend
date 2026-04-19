@@ -16,7 +16,8 @@ import { User } from "./user.ts";
 import { Logger } from "../classes/util/logger.ts";
 import {
     businessAuth,
-    BusinessResolver,
+    IDResolver,
+    managerAuth,
 } from "../authorization/businessAuthorization.ts";
 import { adminAuth, userAuth } from "../authentication.ts";
 
@@ -47,7 +48,7 @@ Business.init(
     },
 );
 
-const idResolver: BusinessResolver = async (req: Request) => {
+const idResolver: IDResolver = async (req: Request) => {
     let businessID = req.params?.id;
 
     if (!businessID) businessID = req.body?.businessID;
@@ -67,7 +68,7 @@ class BusinessRouter extends ModelRouter {
         router.post("/", adminAuth(), async (req, res) =>
             this.createBusiness(req, res),
         );
-        router.put("/", businessAuth(idResolver), (req, res) =>
+        router.put("/", managerAuth(idResolver), (req, res) =>
             this.updateBusiness(req, res),
         );
         router.delete("/:id", adminAuth(), (req, res) =>

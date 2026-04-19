@@ -5,55 +5,54 @@ import { Task } from "../models/task.ts";
 import { TaskCheckOff } from "../models/taskCheckOff.ts";
 import {
     businessAuth,
-    BusinessResolver,
+    IDResolver,
+    managerAuth,
 } from "../authorization/businessAuthorization.ts";
 import { Logger } from "../classes/util/logger.ts";
 import { TaskList } from "../models/taskList.ts";
 import { Shift } from "../models/shift.ts";
 
-const idResolver: BusinessResolver = async (req: Request) => {
+const idResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
 
     if (!id) id = req.body?.id;
-
     if (!id) return undefined;
 
     try {
-        const task = await Task.findOne({ where: { id } });
-
-        if (!task) return undefined;
-
-        const taskList = await TaskList.findOne({
-            where: { id: task.taskListID },
+        const task = await Task.findOne({
+            where: { id },
+            include: [
+                {
+                    model: TaskList,
+                    include: [
+                        {
+                            model: Shift,
+                            attributes: ["businessID"],
+                        },
+                    ],
+                },
+            ],
         });
 
-        if (!taskList) return undefined;
-
-        const shift = await Shift.findOne({ where: { id: taskList.shiftID } });
-
-        return shift?.businessID;
+        return (task as any)?.TaskList?.Shift?.businessID;
     } catch (error: any) {
         Logger.error(`Error fetching ${Task.name}: ${error}`);
     }
 };
 
-const taskListIDResolver: BusinessResolver = async (req: Request) => {
+const taskListIDResolver: IDResolver = async (req: Request) => {
     let taskListID = req.params?.id;
 
     if (!taskListID) taskListID = req.body?.id;
-
     if (!taskListID) return undefined;
 
     try {
         const taskList = await TaskList.findOne({
             where: { id: taskListID },
+            include: Shift,
         });
 
-        if (!taskList) return undefined;
-
-        const shift = await Shift.findOne({ where: { id: taskList.shiftID } });
-
-        return shift?.businessID;
+        return (taskList as any)?.Shift?.businessID;
     } catch (error: any) {
         Logger.error(`Error fetching ${Task.name}: ${error}`);
     }
@@ -66,13 +65,13 @@ class TaskRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", businessAuth(taskListIDResolver), (req, res) =>
+        router.post("/", managerAuth(taskListIDResolver), (req, res) =>
             ScheduleDatabase.create(Task, req, res),
         );
-        router.put("/", businessAuth(taskListIDResolver), (req, res) =>
+        router.put("/", managerAuth(taskListIDResolver), (req, res) =>
             ScheduleDatabase.update(Task, req, res, "id"),
         );
-        router.delete("/:id", businessAuth(idResolver), (req, res) =>
+        router.delete("/:id", managerAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(Task, req, res, "id"),
         );
         router.get("/:id", businessAuth(idResolver), (req, res) =>

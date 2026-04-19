@@ -5,20 +5,12 @@ import type {
     Transaction,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Request, Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { CodeService } from "../classes/codeService.ts";
 import { Employee } from "./employee.ts";
 import nodemailer from "nodemailer";
 import { Business } from "./business.ts";
 import { Logger } from "../classes/util/logger.ts";
-import {
-    businessAuth,
-    BusinessResolver,
-} from "../authorization/businessAuthorization.ts";
-import { adminAuth } from "../authentication.ts";
 
 export class Invite extends Model<
     InferAttributes<Invite>,
@@ -166,41 +158,3 @@ Invite.init(
         ],
     },
 );
-
-const resolver: BusinessResolver = async (req: Request) => {
-    let code = req.params?.code;
-
-    if (!code) return undefined;
-
-    const invite = await Invite.findOne({
-        where: { code },
-    });
-
-    return invite?.businessID;
-};
-
-class InviteRouter extends ModelRouter {
-    public path(): string {
-        return "/invites";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", businessAuth(), (req, res) =>
-            ScheduleDatabase.create(Invite, req, res),
-        );
-        router.put("/", businessAuth(), (req, res) =>
-            ScheduleDatabase.update(Invite, req, res, "code"),
-        );
-        router.delete("/:code", businessAuth(resolver), (req, res) =>
-            ScheduleDatabase.delete(Invite, req, res, "code"),
-        );
-        router.get("/:code", businessAuth(resolver), (req, res) =>
-            ScheduleDatabase.get(Invite, req, res, "code"),
-        );
-        router.get("/", adminAuth(), (req, res) =>
-            ScheduleDatabase.getAll(Invite, req, res),
-        );
-    }
-}
-
-export const inviteRouter = new InviteRouter();

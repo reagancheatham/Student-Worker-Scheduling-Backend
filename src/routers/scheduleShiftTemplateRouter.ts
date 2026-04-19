@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 import {
-    BusinessResolver,
-    businessAuth,
+    IDResolver,
+    managerAuth,
 } from "../authorization/businessAuthorization.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
@@ -11,36 +11,34 @@ import { ScheduleTemplate } from "../models/scheduleTemplate.ts";
 import { ShiftTaskListTemplate } from "../models/shiftTaskListTemplate.ts";
 import { ShiftTaskTemplate } from "../models/shiftTaskTemplate.ts";
 
-const idResolver: BusinessResolver = async (req: Request) => {
+const idResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
 
     if (!id) id = req.body?.id;
-
     if (!id) return undefined;
 
     try {
         const scheduleShiftTemplate = await ScheduleShiftTemplate.findOne({
             where: { id },
+            include: [
+                {
+                    model: ScheduleTemplate,
+                    attributes: ["businessID"],
+                },
+            ],
         });
 
-        if (!scheduleShiftTemplate) return undefined;
-
-        const scheduleTemplate = await ScheduleTemplate.findOne({
-            where: { id: scheduleShiftTemplate.scheduleTemplateID },
-        });
-
-        return scheduleTemplate?.businessID;
+        return (scheduleShiftTemplate as any)?.ScheduleTemplate?.businessID;
     } catch (error: any) {
         Logger.error(`Error fetching ${ScheduleShiftTemplate.name}: ${error}`);
         return undefined;
     }
 };
 
-const scheduleTemplateIDResolver: BusinessResolver = async (req: Request) => {
+const scheduleTemplateIDResolver: IDResolver = async (req: Request) => {
     let scheduleTemplateID = req.params?.scheduleTemplateID;
 
     if (!scheduleTemplateID) scheduleTemplateID = req.body?.scheduleTemplateID;
-
     if (!scheduleTemplateID) return undefined;
 
     try {
@@ -63,33 +61,27 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", businessAuth(scheduleTemplateIDResolver), (req, res) =>
+        router.post("/", managerAuth(scheduleTemplateIDResolver), (req, res) =>
             ScheduleDatabase.create(ScheduleShiftTemplate, req, res),
         );
-        router.put("/", businessAuth(scheduleTemplateIDResolver), (req, res) =>
+        router.put("/", managerAuth(scheduleTemplateIDResolver), (req, res) =>
             ScheduleDatabase.update(ScheduleShiftTemplate, req, res, "id"),
         );
-        router.delete(
-            "/:id",
-            businessAuth(idResolver),
-            (req, res) =>
-                ScheduleDatabase.delete(ScheduleShiftTemplate, req, res, "id"),
+        router.delete("/:id", managerAuth(idResolver), (req, res) =>
+            ScheduleDatabase.delete(ScheduleShiftTemplate, req, res, "id"),
         );
-        router.get(
-            "/:id",
-            businessAuth(idResolver),
-            (req, res) =>
-                ScheduleDatabase.getWhere(
-                    ScheduleShiftTemplate,
-                    req,
-                    res,
-                    { include: ShiftTaskListTemplate },
-                    "id",
-                ),
+        router.get("/:id", managerAuth(idResolver), (req, res) =>
+            ScheduleDatabase.getWhere(
+                ScheduleShiftTemplate,
+                req,
+                res,
+                { include: ShiftTaskListTemplate },
+                "id",
+            ),
         );
         router.get(
             "/template/:scheduleTemplateID",
-            businessAuth(scheduleTemplateIDResolver),
+            managerAuth(scheduleTemplateIDResolver),
             (req, res) =>
                 ScheduleDatabase.getAllWhere(
                     ScheduleShiftTemplate,

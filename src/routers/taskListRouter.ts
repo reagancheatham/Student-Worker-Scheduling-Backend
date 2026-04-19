@@ -10,11 +10,12 @@ import { User } from "../models/user.ts";
 import { Logger } from "../classes/util/logger.ts";
 import {
     businessAuth,
-    BusinessResolver,
+    IDResolver,
+    managerAuth,
 } from "../authorization/businessAuthorization.ts";
 import { Shift } from "../models/shift.ts";
 
-const idResolver: BusinessResolver = async (req: Request) => {
+const idResolver: IDResolver = async (req: Request) => {
     const id = req.params?.id;
 
     if (!id) return undefined;
@@ -33,7 +34,7 @@ const idResolver: BusinessResolver = async (req: Request) => {
     }
 };
 
-const shiftIDResolver: BusinessResolver = async (req: Request) => {
+const shiftIDResolver: IDResolver = async (req: Request) => {
     let shiftID = req.params?.shiftID;
 
     if (!shiftID) shiftID = req.body?.shiftID;
@@ -58,15 +59,15 @@ class TaskListRouter extends ModelRouter {
     protected buildRouter(router: Router): void {
         router.post(
             "/",
-            businessAuth(shiftIDResolver),
+            managerAuth(shiftIDResolver),
             TaskListRouter.createTaskList,
         );
         router.put(
             "/",
-            businessAuth(shiftIDResolver),
+            managerAuth(shiftIDResolver),
             TaskListRouter.updateTaskList,
         );
-        router.delete("/:id", businessAuth(idResolver), (req, res) =>
+        router.delete("/:id", managerAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(TaskList, req, res, "id"),
         );
         router.get("/:id", businessAuth(idResolver), (req, res) =>
