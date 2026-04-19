@@ -168,6 +168,17 @@ Employee.hasMany(Shift, {
     foreignKey: "employeeID",
 });
 
+Shift.belongsTo(Role, {
+    foreignKey: {
+        name: "targetRoleID",
+        allowNull: true,
+    },
+    onDelete: "SET NULL",
+});
+Role.hasMany(Shift, {
+    foreignKey: "targetRoleID",
+});
+
 Timesheet.belongsTo(Shift, {
     foreignKey: "shiftID",
 });

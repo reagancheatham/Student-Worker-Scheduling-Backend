@@ -1,4 +1,4 @@
-import { Model, DataTypes, Op } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import type {
     CreationOptional,
     InferAttributes,
@@ -8,6 +8,7 @@ import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
 import { Business } from "./business.ts";
 import { EventColor } from "../classes/eventColor.ts";
+import { Role } from "./role.ts";
 
 export class Shift extends Model<
     InferAttributes<Shift>,
@@ -16,6 +17,7 @@ export class Shift extends Model<
     declare id: CreationOptional<number>;
     declare businessID: number;
     declare employeeID: CreationOptional<number>;
+    declare targetRoleID: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
@@ -47,6 +49,14 @@ Shift.init(
                 key: "id",
             },
             onDelete: "SET NULL",
+        },
+        targetRoleID: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: Role,
+                key: "id",
+            },
         },
         name: {
             type: DataTypes.STRING,
