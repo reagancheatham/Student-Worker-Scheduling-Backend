@@ -8,6 +8,7 @@ import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.ts";
 import { EventColor } from "../classes/eventColor.ts";
 import { WeekDay } from "../classes/weekDay.ts";
+import { Employee } from "./employee.ts";
 
 export class ScheduleShiftTemplate extends Model<
     InferAttributes<ScheduleShiftTemplate>,
@@ -15,6 +16,7 @@ export class ScheduleShiftTemplate extends Model<
 > {
     declare id: CreationOptional<number>;
     declare scheduleTemplateID: number;
+    declare employeeID: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
@@ -37,6 +39,15 @@ ScheduleShiftTemplate.init(
                 key: "id",
             },
             onDelete: "CASCADE",
+        },
+        employeeID: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: Employee,
+                key: "id",
+            },
+            onDelete: "SET NULL"
         },
         name: {
             type: DataTypes.STRING,
