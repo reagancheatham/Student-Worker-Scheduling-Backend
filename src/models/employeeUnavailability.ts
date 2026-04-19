@@ -16,7 +16,6 @@ export class EmployeeUnavailability extends Model<
 > {
     declare id: CreationOptional<number>;
     declare employeeID: number;
-    declare name: string;
     declare startTime: Date;
     declare endTime: Date;
 }
@@ -36,10 +35,6 @@ EmployeeUnavailability.init(
                 key: "id",
             },
             onDelete: "CASCADE",
-        },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
         },
         startTime: {
             type: DataTypes.DATE,

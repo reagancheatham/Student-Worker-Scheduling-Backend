@@ -14,6 +14,7 @@ import { Request, Response } from "express";
 import { User } from "./user.ts";
 import { TimeOffRequestNotification } from "./timeOffRequestNotification.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { EmployeeUnavailability } from "./employeeUnavailability.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
@@ -24,7 +25,7 @@ export class TimeOffRequest extends Model<
     declare reason: string;
     declare startDate: Date;
     declare endDate: Date;
-    declare status: ApprovalStatus;
+    declare approvalStatus: ApprovalStatus;
 }
 
 TimeOffRequest.init(
@@ -55,7 +56,7 @@ TimeOffRequest.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        status: {
+        approvalStatus: {
             type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
             allowNull: false,
         },
@@ -71,13 +72,18 @@ TimeOffRequest.init(
                     "reason",
                     "startDate",
                     "endDate",
-                    "status",
+                    "approvalStatus",
                 ],
                 name: "timeOffRequestIndex",
             },
         ],
     },
 );
+TimeOffRequest.afterCreate(async (timeOffRequest) => {
+    await TimeOffRequestNotification.create({
+        timeOffRequestID: timeOffRequest.id,
+    });
+});
 
 class TimeOffRequestRouter extends ModelRouter {
     public path(): string {
@@ -110,6 +116,74 @@ class TimeOffRequestRouter extends ModelRouter {
             "/business/:businessID",
             TimeOffRequestRouter.getTimeOffRequestForBusiness,
         );
+        router.put("/approve", (req, res) =>
+            TimeOffRequestRouter.approveRequest(req, res),
+        );
+        router.put("/deny", (req, res) =>
+            TimeOffRequestRouter.denyRequest(req, res),
+        );
+    }
+
+    private static async approveRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+            console.log(id);
+
+            const timeOffRequest = await TimeOffRequest.findByPk(id, {
+                include: [{ model: Employee, required: true }],
+            });
+
+            if (!timeOffRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Time off request not found" });
+            }
+
+            await EmployeeUnavailability.create({
+                employeeID: timeOffRequest.employeeID,
+                startTime: timeOffRequest.startDate,
+                endTime: timeOffRequest.endDate,
+            });
+
+            await TimeOffRequestNotification.destroy({
+                where: { timeOffRequestID: id },
+            });
+
+            await timeOffRequest.destroy();
+
+            return res.status(200).json({ message: "Time off approved" });
+        } catch (error: any) {
+            console.error("Error approving Time off request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    private static async denyRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+
+            const shiftOfferRequest = await TimeOffRequest.findByPk(id);
+
+            if (!shiftOfferRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Time off request not found" });
+            }
+
+            await TimeOffRequest.update(
+                { approvalStatus: "Denied" },
+                { where: { id } },
+            );
+
+            await TimeOffRequestNotification.destroy({
+                where: { timeOffRequestID: id },
+            });
+
+            return res.status(200).json({ message: "Time off denied" });
+        } catch (error: any) {
+            console.error("Error denying Time off request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
     }
 
     private static async getTimeOffRequestForBusiness(

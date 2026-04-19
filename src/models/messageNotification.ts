@@ -1,11 +1,16 @@
 import { Model, DataTypes } from "sequelize";
-import type { CreationOptional, InferAttributes, InferCreationAttributes } from "sequelize";
+import type {
+    CreationOptional,
+    InferAttributes,
+    InferCreationAttributes,
+} from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Employee } from "./employee.ts";
 import { NotificationType } from "../classes/notificationType.ts";
+import { User } from "./user.ts";
 
 export class MessageNotification extends Model<
     InferAttributes<MessageNotification>,
@@ -35,10 +40,10 @@ MessageNotification.init(
         },
         employeeID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: Employee,
-                key: "id"
+                key: "id",
             },
             onDelete: "CASCADE",
         },
@@ -46,8 +51,7 @@ MessageNotification.init(
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false,
-        }
-
+        },
     },
     {
         sequelize: sequelizeInstance,
@@ -63,7 +67,7 @@ MessageNotification.init(
 
 class MessageNotificationRouter extends ModelRouter {
     public path(): string {
-        return "/messageNotification";
+        return "/messageNotifications";
     }
 
     protected buildRouter(router: Router): void {
@@ -76,8 +80,22 @@ class MessageNotificationRouter extends ModelRouter {
         router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(MessageNotification, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(MessageNotification, req, res, "id"),
+        router.get("/business/:businessID", (req, res) =>
+            ScheduleDatabase.getAllWhere(MessageNotification, req, res, {
+                include: [
+                    {
+                        model: Employee,
+                        required: false,
+                        where: { businessID: req.params.businessID },
+                        include: [
+                            {
+                                model: User,
+                                required: false,
+                            },
+                        ],
+                    },
+                ],
+            }),
         );
     }
 }

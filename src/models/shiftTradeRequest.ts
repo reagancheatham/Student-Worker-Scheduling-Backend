@@ -12,6 +12,8 @@ import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { ShiftTradeRequestNotification } from "./shiftTradeRequestNotification.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { User } from "./user.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -22,6 +24,7 @@ export class ShiftTradeRequest extends Model<
     declare targetEmployeeID: number;
     declare employeeMessage: string;
     declare timeSent: Date;
+    declare approvalStatus: ApprovalStatus;
 }
 
 ShiftTradeRequest.init(
@@ -38,7 +41,7 @@ ShiftTradeRequest.init(
                 model: Shift,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         targetEmployeeID: {
             type: DataTypes.INTEGER,
@@ -47,7 +50,7 @@ ShiftTradeRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         employeeMessage: {
             type: DataTypes.STRING,
@@ -57,6 +60,9 @@ ShiftTradeRequest.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        approvalStatus: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus))
+        }
     },
     {
         sequelize: sequelizeInstance,
@@ -75,6 +81,12 @@ ShiftTradeRequest.init(
         ],
     },
 );
+
+ShiftTradeRequest.afterCreate(async (shiftTradeRequest) => {
+    await ShiftTradeRequestNotification.create({
+        shiftTradeRequestID: shiftTradeRequest.id,
+    });
+});
 
 class ShiftTradeRequestRouter extends ModelRouter {
     public path(): string {
@@ -97,48 +109,111 @@ class ShiftTradeRequestRouter extends ModelRouter {
         router.get("/shift/:shiftID", (req, res) =>
             ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
-    }
-
-    private async getAllRequestsForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        await ShiftTradeRequest.findAll({
-            include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID },
-                },
-            ],
-        })
-            .then((results) => {
-                Logger.log(
-                    `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
-                );
-
-                res.status(200).send({ results });
-            })
-            .catch((error) => {
-                Logger.error(
-                    `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
-                );
-
-                res.status(500).send({ error });
-            });
-    }
-
-    private static async createShiftTradeRequest(req: Request, res: Response) {
-            let shiftTradeRequest = await ScheduleDatabase.create<ShiftTradeRequest>(
-                ShiftTradeRequest,
+        router.get("/business/:businessID", (req, res) =>
+            ScheduleDatabase.getAllWhere(
+                ShiftTradeRequestNotification,
                 req,
                 res,
-            );
-            if (shiftTradeRequest != null) {
-                ShiftTradeRequestNotification.create({
-                    shiftTradeRequestID: shiftTradeRequest.id,
-                });
+                {
+                    include: [
+                        {
+                            model: ShiftTradeRequest,
+                            required: true,
+                            include: [
+                                {
+                                    model: Shift,
+                                    required: true,
+                                    include: [
+                                        {
+                                            model: Employee,
+                                            required: true,
+                                            where: { businessID: "businessID" },
+                                            include: [
+                                                {
+                                                    model: User,
+                                                    required: true,
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ),
+        );
+        router.put("/approve", (req, res) =>
+            ShiftTradeRequestRouter.approveRequest(req, res),
+        );
+        router.put("/deny", (req, res) =>
+            ShiftTradeRequestRouter.denyRequest(req, res),
+        );
+    }
+
+    
+
+    private static async approveRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+
+            const shiftTradeRequest = await ShiftTradeRequest.findByPk(id, {
+                include: [{ model: Shift, required: true }],
+            });
+
+            if (!shiftTradeRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Shift trade request not found" });
             }
+
+            await Shift.update(
+                { employeeID: shiftTradeRequest.targetEmployeeID },
+                { where: { id: shiftTradeRequest.shiftID } },
+            );
+
+            await ShiftTradeRequestNotification.destroy({
+                where: { shiftTradeRequestID: id },
+            });
+
+            await shiftTradeRequest.destroy();
+
+            return res.status(200).json({ message: "Shift trade approved" });
+        } catch (error: any) {
+            console.error(
+                "Error approving shift trade request:",
+                error.message,
+            );
+            return res.status(500).json({ message: error.message });
         }
+    }
+
+    private static async denyRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+    
+            const shiftOfferRequest = await ShiftTradeRequest.findByPk(id);
+    
+            if (!shiftOfferRequest) {
+                return res.status(404).json({ message: "Shift trade request not found" });
+            }
+    
+            await ShiftTradeRequest.update(
+                { approvalStatus: "Denied" },
+                { where: { id } },
+            );
+    
+            await ShiftTradeRequestNotification.destroy({
+                where: { shiftTradeRequestID: id },
+            });
+    
+            return res.status(200).json({ message: "Shift trade denied" });
+        } catch (error: any) {
+            console.error("Error denying shift trade request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
+    }
+    
 }
 
 export const shiftTradeRequestRouter = new ShiftTradeRequestRouter();

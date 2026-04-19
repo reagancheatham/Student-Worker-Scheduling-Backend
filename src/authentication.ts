@@ -79,8 +79,6 @@ export class Authentication {
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
         if (user && process.env.AUTH_SECRET) {
-            if (code) Invite.handleInvite(user.email, code, user.id);
-
             const session = await Session.findOne({
                 where: {
                     userID: user.id,
@@ -92,7 +90,7 @@ export class Authentication {
                 res.status(200).send({
                     token: session.token,
                     valid: true,
-                    profilePicture: payload.picture, //??
+                    profilePicture: payload.picture,
                     user,
                 });
             } else {
@@ -120,16 +118,20 @@ export class Authentication {
                 });
             }
         } else {
-            await User.create({
-                studentID: 111111,
+            const newUser = await User.create({
+                studentID: 1,
                 permissionRoleID: 1,
                 firstName: payload.given_name || "",
                 lastName: payload.family_name || "",
                 email: payload.email || "",
-                phoneNumber: "000000",
+                phoneNumber: "",
             });
 
-            this.handleLogin(req, res, payload, code);
+            if (code) {
+                await Invite.handleInvite(newUser.email, code, newUser.id);
+            }
+
+            await this.handleLogin(req, res, payload, undefined);
         }
     }
 
@@ -199,8 +201,11 @@ class AuthenticationRouter extends ModelRouter {
     protected buildRouter(router: Router): void {
         router.post("/", Authentication.loginUser);
         router.post("/logout", Authentication.logoutUser);
-        router.post("/validate", Authentication.validateSession, (req, res) =>
-            res.status(200).send({ valid: true }),
+        router.get(
+            "/validate",
+            (req: Request, res: Response, next: NextFunction) => {
+                Authentication.validateSession(req, res, next).catch(next);
+            },
         );
     }
 }
