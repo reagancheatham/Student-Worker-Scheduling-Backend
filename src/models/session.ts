@@ -69,7 +69,7 @@ class SessionRouter extends ModelRouter {
             ScheduleDatabase.get(Session, req, res, "id"),
         );
         router.get("/user/:userID", (req, res) =>
-            ScheduleDatabase.getAllWhere(Session, req, res, ["userID"]),
+            ScheduleDatabase.getAllWhere(Session, req, res, {}, "userID"),
         );
     }
 }

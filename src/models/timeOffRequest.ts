@@ -13,6 +13,7 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Request, Response } from "express";
 import { User } from "./user.ts";
 import { TimeOffRequestNotification } from "./timeOffRequestNotification.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
@@ -97,9 +98,13 @@ class TimeOffRequestRouter extends ModelRouter {
             ScheduleDatabase.get(TimeOffRequest, req, res, "id"),
         );
         router.get("/employee/:employeeID", (req, res) =>
-            ScheduleDatabase.getAllWhere(TimeOffRequest, req, res, [
+            ScheduleDatabase.getAllWhere(
+                TimeOffRequest,
+                req,
+                res,
+                {},
                 "employeeID",
-            ]),
+            ),
         );
         router.get(
             "/business/:businessID",
@@ -113,7 +118,7 @@ class TimeOffRequestRouter extends ModelRouter {
     ) {
         const businessID = req.params["businessID"];
 
-        console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
+        Logger.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
 
         await TimeOffRequest.findAll({
             include: [
@@ -130,13 +135,11 @@ class TimeOffRequestRouter extends ModelRouter {
             ],
         })
             .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
+                Logger.log(`Found ${Employee.name}: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             })
             .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
+                Logger.error(`Error finding ${Employee.name}: ${error}`);
                 res.status(500).send({ error });
             });
     }

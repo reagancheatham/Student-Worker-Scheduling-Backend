@@ -12,6 +12,8 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Business } from "./business.ts";
 import { EventColor } from "../classes/eventColor.ts";
 import { User } from "./user.ts";
+import { businessAuth } from "../authentication.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class Shift extends Model<
     InferAttributes<Shift>,
@@ -24,6 +26,7 @@ export class Shift extends Model<
     declare startTime: Date;
     declare endTime: Date;
     declare color: EventColor;
+    declare published: boolean;
 }
 
 Shift.init(
@@ -40,7 +43,7 @@ Shift.init(
                 model: Business,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         employeeID: {
             type: DataTypes.INTEGER,
@@ -67,13 +70,23 @@ Shift.init(
             type: DataTypes.ENUM(...Object.values(EventColor)),
             allowNull: false,
         },
+        published: {
+            type: DataTypes.BOOLEAN,
+        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
         indexes: [
             {
-                fields: ["name", "startTime", "endTime", "businessID", "color"],
+                fields: [
+                    "name",
+                    "startTime",
+                    "endTime",
+                    "businessID",
+                    "color",
+                    "published",
+                ],
             },
         ],
     },
@@ -90,26 +103,48 @@ type ShiftRangeParams = {
     endTime: string;
 };
 
+type ShiftRangeParamsEmployee = {
+    employeeID: string;
+    startTime: string;
+    endTime: string;
+};
+
 class ShiftRouter extends ModelRouter {
     public path(): string {
         return "/shifts";
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
+        router.post("/", businessAuth, (req, res) =>
             ScheduleDatabase.create(Shift, req, res),
         );
-        router.put("/", (req, res) =>
+        router.put("/", businessAuth, (req, res) =>
             ScheduleDatabase.update(Shift, req, res, "id"),
         );
-        router.delete("/:id", (req, res) =>
+        router.delete("/:id", businessAuth, (req, res) =>
             ScheduleDatabase.delete(Shift, req, res, "id"),
         );
-        router.get("/:id", this.getShift);
-        router.get("/:businessID", this.getShiftsForBusiness);
         router.get(
-            "/:businessID/startTime=:startTime/endTime=:endTime",
-            (req, res) => this.getShiftsWithinRange(req, res),
+            "/business/:businessID/startTime=:startTime/endTime=:endTime",
+            businessAuth,
+            this.getShiftsForBusinessWithinRange,
+        );
+        router.get(
+            "/employee/:employeeID/startTime=:startTime/endTime=:endTime",
+            businessAuth,
+            (req: any, res) => this.getShiftsForEmployeeWithinRange(req, res),
+        );
+        router.get(
+            "/employee/:employeeID/startTime=:startTime/endTime=:endTime/published",
+            businessAuth,
+            (req: any, res) =>
+                this.getShiftsForEmployeeWithinRange(req, res, true),
+        );
+        router.get("/:id", businessAuth, this.getShift);
+        router.get(
+            "/business/:businessID",
+            businessAuth,
+            this.getShiftsForBusiness,
         );
     }
 
@@ -120,9 +155,7 @@ class ShiftRouter extends ModelRouter {
             id,
         };
 
-        console.log(
-            `Getting ${Shift.name} with info: ${JSON.stringify(where)}`,
-        );
+        Logger.log(`Getting ${Shift.name} with info: ${JSON.stringify(where)}`);
 
         await Shift.findOne({
             where,
@@ -134,11 +167,11 @@ class ShiftRouter extends ModelRouter {
             ],
         })
             .then((result) => {
-                console.log(`Found ${Shift.name}: ${JSON.stringify(result)}`);
+                Logger.log(`Found ${Shift.name}: ${JSON.stringify(result)}`);
                 res.status(200).send(result);
             })
             .catch((error) => {
-                console.error(`Error getting ${Shift.name}: ${error}`);
+                Logger.error(`Error getting ${Shift.name}: ${error}`);
                 res.status(500).send({ error });
             });
     }
@@ -153,7 +186,7 @@ class ShiftRouter extends ModelRouter {
             businessID,
         };
 
-        console.log(
+        Logger.log(
             `Getting ${Shift.name}s with info: ${JSON.stringify(where)}`,
         );
 
@@ -165,16 +198,16 @@ class ShiftRouter extends ModelRouter {
             },
         })
             .then((results) => {
-                console.log(`Found ${results.length} ${Shift.name}s`);
+                Logger.log(`Found ${results.length} ${Shift.name}s`);
                 res.status(200).send(results);
             })
             .catch((error) => {
-                console.error(`Error getting ${Shift.name}s: ${error}`);
+                Logger.error(`Error getting ${Shift.name}s: ${error}`);
                 res.status(500).send({ error });
             });
     }
 
-    private async getShiftsWithinRange(
+    private async getShiftsForBusinessWithinRange(
         req: Request<ShiftRangeParams>,
         res: Response,
     ) {
@@ -200,11 +233,49 @@ class ShiftRouter extends ModelRouter {
             },
         })
             .then((result) => {
-                console.log(`Found ${result.length} ${Shift.name}s`);
+                Logger.log(`Found ${result.length} ${Shift.name}s`);
                 res.status(200).send(result);
             })
             .catch((error) => {
-                console.error(`Error getting all ${Shift.name}s: ${error}`);
+                Logger.error(`Error getting all ${Shift.name}s: ${error}`);
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getShiftsForEmployeeWithinRange(
+        req: Request<ShiftRangeParamsEmployee>,
+        res: Response,
+        published: boolean = false,
+    ) {
+        const employeeID = Number(req.params.employeeID);
+        const startTime = new Date(req.params.startTime);
+        const endTime = new Date(req.params.endTime);
+
+        const where: any = {
+            employeeID,
+            startTime: {
+                [Op.gte]: startTime,
+            },
+            endTime: {
+                [Op.lte]: endTime,
+            },
+        };
+
+        if (published) where.published = true;
+
+        await Shift.findAll({
+            where,
+            include: {
+                model: Employee,
+                include: [User],
+            },
+        })
+            .then((result) => {
+                Logger.log(`Found ${result.length} ${Shift.name}s`);
+                res.status(200).send(result);
+            })
+            .catch((error) => {
+                Logger.error(`Error getting all ${Shift.name}s: ${error}`);
                 res.status(500).send({ error });
             });
     }

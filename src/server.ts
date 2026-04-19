@@ -5,22 +5,13 @@ import { defaultCorsConfig } from "./config/corsConfig.ts";
 import "./models/database.ts";
 import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./router.ts";
+import { Logger } from "./classes/util/logger.ts";
+import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 
 const app = express();
 
-sequelizeInstance
-    .sync({ alter: true })
-    .then(() => {
-        console.log("Database tables created successfully!");
-    })
-    .catch((err) => {
-        console.error("Unable to create database tables:", err);
-    });
-
-const result = dotenv.config();
-console.log("DOTENV RESULT:", result);
-console.log("CWD:", process.cwd());
-console.log("PORT FROM ENV:", process.env.PORT);
+initializeSequelize(sequelizeInstance);
+dotenv.config();
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())
@@ -29,5 +20,5 @@ app.use(cors(defaultCorsConfig))
 
 const port = process.env.PORT;
 app.listen(port, () => {
-    console.log(`Server is listening on port ${port}.`);
+    Logger.log(`Server is listening on port ${port}.`);
 });

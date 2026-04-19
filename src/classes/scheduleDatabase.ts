@@ -1,27 +1,34 @@
-import { Attributes, Model, ModelStatic } from "sequelize";
+import {
+    Attributes,
+    FindOptions,
+    Includeable,
+    Model,
+    ModelStatic,
+} from "sequelize";
 import type { Request, Response } from "express";
+import { Logger } from "./util/logger.ts";
 
 export class ScheduleDatabase {
     public static async create<M extends Model>(
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-    ): Promise<M | void> {
+    ): Promise<M | undefined> {
         const info = req.body;
 
         if (info === null) {
-            console.error(`Error creating ${model.name}: info is null`);
-            return Promise.resolve();
+            Logger.error(`Error creating ${model.name}: info is null`);
+            return Promise.resolve(undefined);
         }
 
-        console.log(
+        Logger.log(
             `Creating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
         try {
             const data = await model.create(info);
 
-            console.log(`Successfully created ${model.name}`);
+            Logger.log(`Successfully created ${model.name}`);
             res.status(200).send(data);
 
             return data;
@@ -33,7 +40,7 @@ export class ScheduleDatabase {
                 });
             }
 
-            console.error(`Error creating ${model.name}: ${error}`);
+            Logger.error(`Error creating ${model.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -43,15 +50,15 @@ export class ScheduleDatabase {
         req: Request,
         res: Response,
         ...keys: (keyof Attributes<M>)[]
-    ) {
+    ): Promise<void> {
         const info = req.body;
 
         if (!info) {
-            console.error(`Error updating ${model.name}: info is null`);
+            Logger.error(`Error updating ${model.name}: info is null`);
             return Promise.resolve();
         }
 
-        console.log(
+        Logger.log(
             `Updating ${model.name} with info: ${JSON.stringify(info)}`,
         );
 
@@ -60,27 +67,26 @@ export class ScheduleDatabase {
             where[key as string] = info[key as string];
         });
 
-        await model
-            .update(info, { where })
-            .then((result) => {
-                if (result[0] === 0)
-                    console.log(`Could not find a ${model.name} to update`);
-                else console.log(`Updated ${result[0]} ${model.name}s`);
+        try {
+            const result = await model.update(info, { where });
 
-                res.status(404).send({ affectedCount: result[0] });
-            })
-            .catch((error) => {
-                if (error.name === "SequelizeUniqueConstraintError") {
-                    const fields = error.errors.map((error: any) => error.path);
+            if (result[0] === 0)
+                Logger.log(`Could not find a ${model.name} to update`);
+            else Logger.log(`Updated ${result[0]} ${model.name}s`);
 
-                    return res.status(409).send({
-                        message: `${fields.join(", ")} must be unique`,
-                    });
-                }
+            res.status(200).send({ affectedCount: result[0] });
+        } catch (error: any) {
+            if (error.name === "SequelizeUniqueConstraintError") {
+                const fields = error.errors.map((error: any) => error.path);
 
-                console.error(`Error updating ${model.name}: ${error}`);
-                res.status(500).send({ error });
-            });
+                res.status(409).send({
+                    message: `${fields.join(", ")} must be unique`,
+                });
+            }
+
+            Logger.error(`Error updating ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 
     public static async delete<M extends Model>(
@@ -88,25 +94,25 @@ export class ScheduleDatabase {
         req: Request,
         res: Response,
         ...keys: (keyof Attributes<M>)[]
-    ) {
+    ): Promise<void> {
         const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
+        Logger.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
 
         await model
             .destroy({
                 where,
             })
             .then(() => {
-                console.log(`Successfully deleted ${model.name}`);
+                Logger.log(`Successfully deleted ${model.name}`);
                 res.status(200).send({});
             })
             .catch((error) => {
-                console.error(`Error deleting ${model.name}: ${error}`);
+                Logger.error(`Error deleting ${model.name}: ${error}`);
                 res.status(500).send({ error });
             });
     }
@@ -116,75 +122,111 @@ export class ScheduleDatabase {
         req: Request,
         res: Response,
         ...keys: (keyof Attributes<M>)[]
-    ) {
+    ): Promise<M | undefined> {
         const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(
+        Logger.log(
             `Getting ${model.name} with info: ${JSON.stringify(where)}`,
         );
 
-        await model
-            .findOne({ where })
-            .then((result) => {
-                console.log(`Found ${model.name}: ${JSON.stringify(result)}`);
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error getting ${model.name}: ${error}`);
-                res.status(500).send({ error });
-            });
+        try {
+            const result = await model.findOne({ where });
+
+            Logger.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+            res.status(200).send(result);
+
+            if (result) return result;
+        } catch (error: any) {
+            Logger.error(`Error getting ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
+    }
+
+    public static async getWhere<M extends Model>(
+        model: ModelStatic<M>,
+        req: Request,
+        res: Response,
+        options: FindOptions<Attributes<M>>,
+        ...keys: (keyof Attributes<M>)[]
+    ): Promise<M | undefined> {
+        const where: any = {};
+
+        keys.forEach((key) => {
+            where[key as string] = req.params[key as string];
+        });
+
+        options.where = where;
+
+        Logger.log(
+            `Getting ${model.name} with info: ${JSON.stringify(options)}`,
+        );
+
+        try {
+            const result = await model.findOne(options);
+
+            Logger.log(`Found ${model.name}: ${JSON.stringify(result)}`);
+            res.status(200).send(result);
+
+            if (result) return result;
+        } catch (error: any) {
+            Logger.error(`Error getting ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 
     public static async getAll<M extends Model>(
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-    ) {
-        await model
-            .findAll()
-            .then((result) => {
-                console.log(`Found ${result.length} ${model.name}s`);
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error getting ${model.name}s: ${error}`);
-                res.status(500).send({ error });
-            });
+        include?: Includeable,
+    ): Promise<M[] | undefined> {
+        if (!include) include = {};
+
+        try {
+            const result = await model.findAll();
+
+            Logger.log(`Found ${result.length} ${model.name}s`);
+            res.status(200).send(result);
+
+            return result;
+        } catch (error: any) {
+            Logger.error(`Error getting ${model.name}s: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 
     public static async getAllWhere<M extends Model>(
         model: ModelStatic<M>,
         req: Request,
         res: Response,
-        keys: (keyof Attributes<M>)[] = [],
-        options: any = {},
-    ) {
+        options: FindOptions<Attributes<M>>,
+        ...keys: (keyof Attributes<M>)[]
+    ): Promise<M[] | undefined> {
         const where: any = {};
 
         keys.forEach((key) => {
             where[key as string] = req.params[key as string];
         });
 
-        console.log(
-            `Getting ${model.name} with info: ${JSON.stringify(where)}`,
-        );
+        options.where = where;
 
-        await model
-            .findAll({
-                where,
-                ...options,
-            })
-            .then((result) => {
-                console.log(`Found ${result.length} ${model.name}s`);
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error getting all ${model.name}s: ${error}`);
-                res.status(500).send({ error });
-            });
+        Logger.log(`Getting ${model.name} with info: `, options);
+
+        try {
+            const result = await model.findAll(options);
+            Logger.log(`Found ${result.length} ${model.name}s`);
+            Logger.log("result: " + JSON.stringify(result));
+
+            res.status(200).send(result);
+
+            return result;
+        } catch (error: any) {
+            Logger.error(`Error getting all ${model.name}s: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 }

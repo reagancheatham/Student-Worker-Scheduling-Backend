@@ -3,6 +3,7 @@ import type {
     CreationOptional,
     InferAttributes,
     InferCreationAttributes,
+    Transaction,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Business } from "./business.ts";
@@ -11,6 +12,8 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
+import { Invite } from "./invite.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 export class Employee extends Model<
     InferAttributes<Employee>,
@@ -36,7 +39,7 @@ Employee.init(
                 model: Business,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         userID: {
             type: DataTypes.INTEGER,
@@ -76,8 +79,8 @@ class EmployeeRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(Employee, req, res),
+        router.post("/business/:businessID", (req, res) =>
+            EmployeeRouter.createEmployee(req, res),
         );
         router.put("/", (req, res) =>
             ScheduleDatabase.update(Employee, req, res, "id"),
@@ -85,70 +88,121 @@ class EmployeeRouter extends ModelRouter {
         router.delete("/:id", (req, res) =>
             ScheduleDatabase.delete(Employee, req, res, "id"),
         );
-        router.get("/business/:businessID", this.getEmployeesForBusiness);
-        router.get("/owners", this.getAllOwners);
-        router.get("/:id", this.getEmployee);
+        router.get("/business/:businessID", (req, res) =>
+            ScheduleDatabase.getAllWhere(
+                Employee,
+                req,
+                res,
+                { include: User },
+                "businessID",
+            ),
+        );
+        router.get("/owners", EmployeeRouter.getAllOwners);
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.getWhere(
+                Employee,
+                req,
+                res,
+                { include: User },
+                "id",
+            ),
+        );
+        router.get("/user/:userID/business/:businessID", (req, res) =>
+            ScheduleDatabase.getWhere(
+                Employee,
+                req,
+                res,
+                { include: User },
+                "userID",
+                "businessID",
+            ),
+        );
     }
 
-    private async getEmployee(req: Request, res: Response) {
-        const id = req.params["id"];
-
-        console.log(`Getting ${Employee.name} with id: ${id}`);
-
-        await Employee.findOne({ where: { id }, include: User })
-            .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-
-    private async getEmployeesForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
-
-        await Employee.findAll({ where: { businessID }, include: User })
-            .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-
-    private async getAllOwners(req: Request, res: Response) {
-        console.log(`Getting all Owners`);
+    private static async getAllOwners(req: Request, res: Response) {
+        Logger.log(`Getting all Owners`);
 
         await Employee.findAll({
             include: [
                 {
                     model: BusinessPermissionRole,
+                    attributes: [],
                     where: { name: "Owner" },
+                    required: true,
                 },
                 Business,
                 User,
             ],
         })
             .then((result) => {
-                console.log(
+                Logger.log(
                     `Found ${Employee.name}: ${JSON.stringify(result)}`,
                 );
                 res.status(200).send(result);
             })
             .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
+                Logger.error(`Error finding ${Employee.name}: ${error}`);
                 res.status(500).send({ error });
             });
+    }
+
+    private static async createEmployee(req: Request, res: Response) {
+        let email = req.body.email;
+        let businessID = req.params.businessID;
+        let isManager = req.body.isManager;
+
+        let businessPermissionRole = "Employee";
+
+        if (isManager) {
+            businessPermissionRole = "Manager"
+        }
+
+        return BusinessPermissionRole.findOne({
+            where: { name: businessPermissionRole },
+        }).then(async (role) => {
+            if (!role) {
+                throw new Error("Employee role not found");
+            }
+            try {
+                let business = await Business.findOne({
+                    where: { id: businessID },
+                });
+                let employee = await Employee.findOne({
+                    where: { businessID: businessID },
+                    include: {
+                        model: User,
+                        where: { email: email },
+                    },
+                });
+                if (business == null) {
+                    res.status(500).send({ err: "Business not found!" });
+                    return;
+                }
+                if (employee) {
+                    Logger.log(employee);
+                    res.status(500).send({
+                        err: "Employee already exists in business!",
+                    });
+                    return;
+                }
+                let newInvite = await Invite.createInvite(
+                    email,
+                    business,
+                    role.id,
+                );
+                if (newInvite) {
+                    Invite.sendInviteEmail(
+                        newInvite.email,
+                        newInvite.code,
+                        newInvite.businessName,
+                    );
+                }
+                res.status(200).send({ body: "Successfully sent invite!" });
+                return;
+            } catch (err) {
+                res.status(500).send({ err });
+            }
+        });
     }
 }
 

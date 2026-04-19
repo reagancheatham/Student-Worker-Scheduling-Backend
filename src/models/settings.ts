@@ -11,6 +11,14 @@ export class Settings extends Model<
     InferCreationAttributes<Settings>
 > {
     declare businessID: number;
+    declare doubleTaskSignOff: boolean;
+    declare employeeSignOff: boolean;
+    declare allowClockInOut: boolean;
+    declare clockInThreshold: number;
+    declare onTimeThreshold: number;
+    declare automaticShiftTrades: boolean;
+    declare enableOpenShift: boolean;
+    declare enableShiftTrades: boolean;
 }
 
 Settings.init(
@@ -23,6 +31,46 @@ Settings.init(
                 key: "id",
             },
             onDelete: "CASCADE"
+        },
+        doubleTaskSignOff: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        employeeSignOff: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        allowClockInOut: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
+        clockInThreshold: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 5,
+        },
+        onTimeThreshold: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 15,
+        },
+        automaticShiftTrades: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        enableOpenShift: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        enableShiftTrades: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
     },
     {

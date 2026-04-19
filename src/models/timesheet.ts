@@ -43,11 +43,11 @@ Timesheet.init(
         },
         clockOut: {
             type: DataTypes.DATE,
-            allowNull: false,
+            allowNull: true,
         },
         status: {
             type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
-            allowNull: false,
+            allowNull: true,
         },
     },
     {
