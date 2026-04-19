@@ -6,10 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Shift } from "./shift.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Request, Response, Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { Logger } from "../classes/util/logger.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -62,76 +58,3 @@ ShiftOfferRequest.init(
         ],
     },
 );
-
-class ShiftOfferRequestRouter extends ModelRouter {
-    public path(): string {
-        return "/shiftOfferRequests";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(ShiftOfferRequest, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftOfferRequest,
-                req,
-                res,
-                "shiftID",
-                "id",
-            ),
-        );
-        router.delete("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftOfferRequest,
-                req,
-                res,
-                "shiftID",
-                "id",
-            ),
-        );
-        router.get("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftOfferRequest, req, res, "shiftID", "id"),
-        );
-        router.get("/:shiftID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ShiftOfferRequest,
-                req,
-                res,
-                {},
-                "shiftID",
-            ),
-        );
-        router.get("/business/:businessID", this.getAllRequestsForBusiness);
-    }
-
-    private async getAllRequestsForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        await ShiftOfferRequest.findAll({
-            include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID },
-                },
-            ],
-        })
-            .then((results) => {
-                Logger.log(
-                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
-                );
-
-                res.status(200).send({ results });
-            })
-            .catch((error) => {
-                Logger.error(
-                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
-                );
-
-                res.status(500).send({ error });
-            });
-    }
-}
-
-export const shiftOfferRequestRouter = new ShiftOfferRequestRouter();

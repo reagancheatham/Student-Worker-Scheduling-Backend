@@ -6,9 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { TaskListTemplate } from "./taskListTemplate.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class TaskTemplate extends Model<
     InferAttributes<TaskTemplate>,
@@ -54,41 +51,3 @@ TaskTemplate.init(
         ],
     },
 );
-
-class TaskTemplateRouter extends ModelRouter {
-    public path(): string {
-        return "/taskTemplates";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(TaskTemplate, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                TaskTemplate,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(
-                TaskTemplate,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(
-                TaskTemplate,
-                req,
-                res,
-                "id",
-            ),
-        );
-    }
-}
-
-export const taskTemplateRouter = new TaskTemplateRouter();

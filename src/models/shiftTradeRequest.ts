@@ -7,10 +7,6 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Shift } from "./shift.ts";
 import { Employee } from "./employee.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Request, Response, Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { Logger } from "../classes/util/logger.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -37,7 +33,7 @@ ShiftTradeRequest.init(
                 model: Shift,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         targetEmployeeID: {
             type: DataTypes.INTEGER,
@@ -46,7 +42,7 @@ ShiftTradeRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         employeeMessage: {
             type: DataTypes.STRING,
@@ -74,57 +70,3 @@ ShiftTradeRequest.init(
         ],
     },
 );
-
-class ShiftTradeRequestRouter extends ModelRouter {
-    public path(): string {
-        return "/shiftTradeRequests";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(ShiftTradeRequest, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(ShiftTradeRequest, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(ShiftTradeRequest, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftTradeRequest, req, res, "id"),
-        );
-        router.get("/shift/:shiftID", (req, res) =>
-            ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
-        );
-    }
-
-    private async getAllRequestsForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        await ShiftTradeRequest.findAll({
-            include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID },
-                },
-            ],
-        })
-            .then((results) => {
-                Logger.log(
-                    `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
-                );
-
-                res.status(200).send({ results });
-            })
-            .catch((error) => {
-                Logger.error(
-                    `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
-                );
-
-                res.status(500).send({ error });
-            });
-    }
-}
-
-export const shiftTradeRequestRouter = new ShiftTradeRequestRouter();
