@@ -128,7 +128,12 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             });
         } catch (error) {
             console.error(`Error importing student schedules: ${error}`);
-            res.status(500).send({ message: "Failed to import student schedules", error });
+            const message = error instanceof Error ? error.message : "Failed to import student schedules";
+            const statusCode = message.includes("Student schedule API returned an unsuccessful response")
+                ? 502
+                : 400;
+
+            res.status(statusCode).send({ message, error });
         }
     }
 
@@ -172,7 +177,12 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             });
         } catch (error) {
             console.error(`Error importing student schedule for employee ${employeeID}: ${error}`);
-            res.status(500).send({ message: "Failed to import student schedule", error });
+            const message = error instanceof Error ? error.message : "Failed to import student schedule";
+            const statusCode = message.includes("Student schedule API returned an unsuccessful response")
+                ? 502
+                : 400;
+
+            res.status(statusCode).send({ message, error });
         }
     }
 

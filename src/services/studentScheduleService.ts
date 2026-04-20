@@ -35,6 +35,7 @@ type StudentCourse = {
 
 type StudentScheduleResponse = {
     Success?: string | boolean;
+    Message?: string;
     Courses?: StudentCourse[];
 };
 
@@ -69,7 +70,10 @@ export class StudentScheduleService {
         const payload = (await response.json()) as StudentScheduleResponse;
 
         if (!this.isSuccess(payload.Success)) {
-            return [];
+            throw new Error(
+                payload.Message ??
+                    "Student schedule API returned an unsuccessful response",
+            );
         }
 
         const courses = payload.Courses ?? [];
