@@ -21,7 +21,7 @@ app.use(cors(defaultCorsConfig))
     .use(express.urlencoded({ extended: true }))
     .use("/workerscheduling-t6", router);
 
-const port = process.env.NODE_PORT;
+const port = Number(process.env.NODE_PORT) || 3136;
 app.listen(port, () => {
     Logger.log(`Server is listening on port ${port}.`);
 });

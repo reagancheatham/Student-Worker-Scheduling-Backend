@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { Router } from "express";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
+import { EmployeeUnavailability } from "../models/employeeUnavailability";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
 import { EmployeeUnavailabilitySyncService } from "../services/employeeUnavailabilitySyncService.ts";
@@ -48,6 +48,7 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             let blocksInserted = 0;
             let blocksUpdated = 0;
             let blocksRemoved = 0;
+            const employeeErrors: Array<{ employeeID: number; message: string }> = [];
 
             for (const employee of employees) {
                 const user = (employee as Employee & { User?: User }).User;
@@ -56,14 +57,30 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                     continue;
                 }
 
-                const importResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
-                    employee.id,
-                    {
-                        studentID: user.studentID,
-                        email: user.email,
-                    },
-                    termCode,
-                );
+                let importResult = null;
+
+                try {
+                    importResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
+                        employee.id,
+                        {
+                            studentID: user.studentID,
+                            email: user.email,
+                        },
+                        termCode,
+                    );
+                } catch (error) {
+                    const message =
+                        error instanceof Error
+                            ? error.message
+                            : "Failed to import student schedule";
+
+                    employeeErrors.push({
+                        employeeID: employee.id,
+                        message,
+                    });
+                    employeesSkipped += 1;
+                    continue;
+                }
 
                 if (!importResult) {
                     employeesSkipped += 1;
@@ -87,11 +104,14 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                 blocksInserted,
                 blocksUpdated,
                 blocksRemoved,
+                employeeErrors,
             });
         } catch (error) {
             console.error(`Error importing student schedules: ${error}`);
             const message = error instanceof Error ? error.message : "Failed to import student schedules";
-            const statusCode = message.includes("Student schedule API returned an unsuccessful response")
+            const statusCode =
+                message.includes("Student schedule API returned an unsuccessful response") ||
+                message.includes("Student schedule API error")
                 ? 502
                 : 400;
 
@@ -155,7 +175,9 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
         } catch (error) {
             console.error(`Error importing student schedule for employee ${employeeID}: ${error}`);
             const message = error instanceof Error ? error.message : "Failed to import student schedule";
-            const statusCode = message.includes("Student schedule API returned an unsuccessful response")
+            const statusCode =
+                message.includes("Student schedule API returned an unsuccessful response") ||
+                message.includes("Student schedule API error")
                 ? 502
                 : 400;
 
