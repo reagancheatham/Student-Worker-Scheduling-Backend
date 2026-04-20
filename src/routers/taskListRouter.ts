@@ -8,6 +8,48 @@ import { taskRouter } from "./taskRouter.ts";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
 import { Logger } from "../classes/util/logger.ts";
+import {
+    businessAuth,
+    IDResolver,
+    managerAuth,
+} from "../authorization/businessAuthorization.ts";
+import { Shift } from "../models/shift.ts";
+
+const idResolver: IDResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    try {
+        const taskList = await TaskList.findOne({ where: { id } });
+
+        if (!taskList) return undefined;
+
+        const shift = await Shift.findOne({ where: { id: taskList.shiftID } });
+
+        return shift?.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${TaskList.name}: ${error}`);
+        return undefined;
+    }
+};
+
+const shiftIDResolver: IDResolver = async (req: Request) => {
+    let shiftID = req.params?.shiftID;
+
+    if (!shiftID) shiftID = req.body?.shiftID;
+
+    if (!shiftID) return undefined;
+
+    try {
+        const shift = await Shift.findOne({ where: { id: shiftID } });
+
+        return shift?.businessID;
+    } catch (error) {
+        Logger.error(`Error fetching ${Shift.name}.`);
+        return undefined;
+    }
+};
 
 class TaskListRouter extends ModelRouter {
     public path(): string {
@@ -15,15 +57,27 @@ class TaskListRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", TaskListRouter.createTaskList);
-        router.put("/", TaskListRouter.updateTaskList);
-        router.delete("/:id", (req, res) =>
+        router.post(
+            "/",
+            managerAuth(shiftIDResolver),
+            TaskListRouter.createTaskList,
+        );
+        router.put(
+            "/",
+            managerAuth(shiftIDResolver),
+            TaskListRouter.updateTaskList,
+        );
+        router.delete("/:id", managerAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(TaskList, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(TaskList, req, res, "id"),
         );
-        router.get("/shift/:shiftID", TaskListRouter.getOrCreateForShift);
+        router.get(
+            "/shift/:shiftID",
+            businessAuth(shiftIDResolver),
+            TaskListRouter.getOrCreateForShift,
+        );
     }
 
     private static async createTaskList(req: Request, res: Response) {
@@ -91,7 +145,7 @@ class TaskListRouter extends ModelRouter {
 
     private static async updateTaskListTasks(tasks: Task[]) {
         // No tasks to update, just leave
-        if (!tasks || tasks.length == 0) return Promise.resolve();
+        if (!tasks || tasks.length === 0) return Promise.resolve();
 
         Logger.log(`Updating ${TaskList.name} tasks`);
 

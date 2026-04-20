@@ -5,9 +5,6 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class PermissionRole extends Model<
     InferAttributes<PermissionRole>,
@@ -40,29 +37,3 @@ PermissionRole.init(
         ],
     },
 );
-
-class PermissionRoleRouter extends ModelRouter {
-    public path(): string {
-        return "/permissionRoles";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(PermissionRole, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(PermissionRole, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(PermissionRole, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(PermissionRole, req, res, "id"),
-        );
-        router.get("/", (req, res) =>
-            ScheduleDatabase.getAll(PermissionRole, req, res),
-        );
-    }
-}
-
-export const permissionRoleRouter = new PermissionRoleRouter();

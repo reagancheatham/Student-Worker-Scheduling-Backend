@@ -21,9 +21,7 @@ export class ScheduleDatabase {
             return Promise.resolve(undefined);
         }
 
-        Logger.log(
-            `Creating ${model.name} with info: ${JSON.stringify(info)}`,
-        );
+        Logger.log(`Creating ${model.name} with info: ${JSON.stringify(info)}`);
 
         try {
             const data = await model.create(info);
@@ -58,9 +56,7 @@ export class ScheduleDatabase {
             return Promise.resolve();
         }
 
-        Logger.log(
-            `Updating ${model.name} with info: ${JSON.stringify(info)}`,
-        );
+        Logger.log(`Updating ${model.name} with info: ${JSON.stringify(info)}`);
 
         const where: any = {};
         keys.forEach((key) => {
@@ -68,13 +64,15 @@ export class ScheduleDatabase {
         });
 
         try {
-            const result = await model.update(info, { where });
+            const result = await model.update(info, { where, returning: true });
 
-            if (result[0] === 0)
+            if (result[0] === 0 || result[0] === undefined) {
                 Logger.log(`Could not find a ${model.name} to update`);
-            else Logger.log(`Updated ${result[0]} ${model.name}s`);
-
-            res.status(200).send({ affectedCount: result[0] });
+                res.status(200).send(req.body);
+            } else {
+                Logger.log(`Updated ${result[0]} ${model.name}s`);
+                res.status(200).send(result[1][0]);
+            }
         } catch (error: any) {
             if (error.name === "SequelizeUniqueConstraintError") {
                 const fields = error.errors.map((error: any) => error.path);
@@ -103,6 +101,15 @@ export class ScheduleDatabase {
 
         Logger.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
 
+        try {
+            await model.destroy({ where });
+
+            Logger.log(`Successfully deleted ${model.name}`);
+            res.status(200).send({});
+        } catch (error: any) {
+            Logger.error(`Error deleting ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
         await model
             .destroy({
                 where,
@@ -129,9 +136,7 @@ export class ScheduleDatabase {
             where[key as string] = req.params[key as string];
         });
 
-        Logger.log(
-            `Getting ${model.name} with info: ${JSON.stringify(where)}`,
-        );
+        Logger.log(`Getting ${model.name} with info: ${JSON.stringify(where)}`);
 
         try {
             const result = await model.findOne({ where });
@@ -219,7 +224,6 @@ export class ScheduleDatabase {
         try {
             const result = await model.findAll(options);
             Logger.log(`Found ${result.length} ${model.name}s`);
-            Logger.log("result: " + JSON.stringify(result));
 
             res.status(200).send(result);
 

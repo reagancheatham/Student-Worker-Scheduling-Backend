@@ -12,6 +12,8 @@ import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
 import { User } from "./user.ts";
+import { ShiftTradeRequestNotification } from "./shiftTradeRequestNotification.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -22,7 +24,7 @@ export class ShiftTradeRequest extends Model<
     declare targetEmployeeID: number;
     declare employeeMessage: string;
     declare timeSent: Date;
-    declare status: string;
+    declare approvalStatus: ApprovalStatus;
 }
 
 ShiftTradeRequest.init(
@@ -58,9 +60,8 @@ ShiftTradeRequest.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
-        status: {
-            type: DataTypes.ENUM("Unsubmitted", "Pending", "Approved", "Denied"),
-            allowNull: true,
+        approvalStatus: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
         },
     },
     {
@@ -80,6 +81,12 @@ ShiftTradeRequest.init(
         ],
     },
 );
+
+ShiftTradeRequest.afterCreate(async (shiftTradeRequest) => {
+    await ShiftTradeRequestNotification.create({
+        shiftTradeRequestID: shiftTradeRequest.id,
+    });
+});
 
 class ShiftTradeRequestRouter extends ModelRouter {
     public path(): string {

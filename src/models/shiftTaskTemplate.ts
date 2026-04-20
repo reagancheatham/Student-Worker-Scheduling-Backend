@@ -6,9 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ShiftTaskListTemplate } from "./shiftTaskListTemplate.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class ShiftTaskTemplate extends Model<
     InferAttributes<ShiftTaskTemplate>,
@@ -16,6 +13,7 @@ export class ShiftTaskTemplate extends Model<
 > {
     declare id: CreationOptional<number>;
     declare shiftTaskListID: number;
+    declare listOrder: number;
     declare name: string;
     declare description: string;
 }
@@ -34,7 +32,11 @@ ShiftTaskTemplate.init(
                 model: ShiftTaskListTemplate,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
+        },
+        listOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
@@ -55,35 +57,3 @@ ShiftTaskTemplate.init(
         ],
     },
 );
-
-class ShiftTaskTemplateRouter extends ModelRouter {
-    public path(): string {
-        return "/shiftTaskTemplates";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(ShiftTaskTemplate, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(ShiftTaskTemplate, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(ShiftTaskTemplate, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftTaskTemplate, req, res, "id"),
-        );
-        router.get("/shiftTaskList/:shiftTaskListID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ShiftTaskTemplate,
-                req,
-                res,
-                {},
-                "shiftTaskListID",
-            ),
-        );
-    }
-}
-
-export const shiftTaskTemplateRouter = new ShiftTaskTemplateRouter();

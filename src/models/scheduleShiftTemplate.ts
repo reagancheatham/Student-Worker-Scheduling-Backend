@@ -6,9 +6,9 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ScheduleTemplate } from "./scheduleTemplate.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
+import { EventColor } from "../classes/eventColor.ts";
+import { WeekDay } from "../classes/weekDay.ts";
+import { Employee } from "./employee.ts";
 
 export class ScheduleShiftTemplate extends Model<
     InferAttributes<ScheduleShiftTemplate>,
@@ -16,9 +16,12 @@ export class ScheduleShiftTemplate extends Model<
 > {
     declare id: CreationOptional<number>;
     declare scheduleTemplateID: number;
+    declare employeeID: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
+    declare color: EventColor;
+    declare weekDay: WeekDay;
 }
 
 ScheduleShiftTemplate.init(
@@ -35,7 +38,16 @@ ScheduleShiftTemplate.init(
                 model: ScheduleTemplate,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
+        },
+        employeeID: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: Employee,
+                key: "id",
+            },
+            onDelete: "SET NULL"
         },
         name: {
             type: DataTypes.STRING,
@@ -49,14 +61,22 @@ ScheduleShiftTemplate.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        color: {
+            type: DataTypes.ENUM(...Object.values(EventColor)),
+            allowNull: false,
+        },
+        weekDay: {
+            type: DataTypes.ENUM(...Object.values(WeekDay)),
+            allowNull: false,
+        },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
         indexes: [
             {
-                unique: true,
-                fields: ["scheduleTemplateID", "name"],
+                unique: false,
+                fields: ["scheduleTemplateID", "name", "color"],
             },
         ],
         validate: {
@@ -68,53 +88,3 @@ ScheduleShiftTemplate.init(
         },
     },
 );
-
-class ScheduleShiftTemplateRouter extends ModelRouter {
-    public path(): string {
-        return "/scheduleShiftTemplates";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(ScheduleShiftTemplate, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                ScheduleShiftTemplate,
-                req,
-                res,
-                "scheduleTemplateID",
-                "id",
-            ),
-        );
-        router.delete("/:scheduleTemplateID/:id", (req, res) =>
-            ScheduleDatabase.delete(
-                ScheduleShiftTemplate,
-                req,
-                res,
-                "scheduleTemplateID",
-                "id",
-            ),
-        );
-        router.get("/:scheduleTemplateID/:id", (req, res) =>
-            ScheduleDatabase.get(
-                ScheduleShiftTemplate,
-                req,
-                res,
-                "scheduleTemplateID",
-                "id",
-            ),
-        );
-        router.get("/:scheduleTemplateID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ScheduleShiftTemplate,
-                req,
-                res,
-                {},
-                "scheduleTemplateID",
-            ),
-        );
-    }
-}
-
-export const scheduleShiftTemplateRouter = new ScheduleShiftTemplateRouter();

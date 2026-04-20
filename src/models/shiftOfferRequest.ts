@@ -12,6 +12,7 @@ import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
 import { Employee } from "./employee.ts";
 import { User } from "./user.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -22,7 +23,7 @@ export class ShiftOfferRequest extends Model<
     declare employeeMessage: string;
     declare claimingEmployeeID: number;
     declare timeSent: Date;
-    declare status: string;
+    declare approvalStatus: ApprovalStatus;
 }
 
 ShiftOfferRequest.init(
@@ -53,9 +54,10 @@ ShiftOfferRequest.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
-        status: {
-            type: DataTypes.ENUM("Unsubmitted", "Pending", "Approved", "Denied"),
-            allowNull: true,
+        approvalStatus: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
+            allowNull: false,
+            defaultValue: ApprovalStatus.Pending,
         },
     },
     {

@@ -5,7 +5,6 @@ import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
-import { Employee } from "./models/employee.ts";
 import { PermissionRole } from "./models/permissionRole.ts";
 import { Logger } from "./classes/util/logger.ts";
 
@@ -18,17 +17,22 @@ export class Authentication {
         const googleToken = req.body.credential;
         const code: string | undefined = req.body.code;
 
-        const client = new OAuth2Client(googleClientID);
-        const ticket = await client.verifyIdToken({
-            idToken: googleToken,
-            audience: googleClientID,
-        });
-        const payload = ticket.getPayload();
+        try {
+            const client = new OAuth2Client(googleClientID);
+            const ticket = await client.verifyIdToken({
+                idToken: googleToken,
+                audience: googleClientID,
+            });
+            const payload = ticket.getPayload();
 
-        if (payload == null) {
-            Logger.error(`Could not verify user token`);
+            if (payload == null) {
+                Logger.error(`Could not verify user token`);
+                res.status(500).send({ valid: false });
+            } else Authentication.handleLogin(req, res, payload, code);
+        } catch (error: any) {
+            Logger.error(`Error fetching JWT payload: ${error}`);
             res.status(500).send({ valid: false });
-        } else Authentication.handleLogin(req, res, payload, code);
+        }
     }
 
     public static async logoutUser(req: Request, res: Response) {
@@ -68,68 +72,79 @@ export class Authentication {
         payload: TokenPayload,
         code: string | undefined,
     ) {
-        const user = await User.findOne({
+        if (!process.env.AUTH_SECRET) {
+            Logger.error("Invalid/missing auth secret in environment!");
+            res.status(500).send({ message: "Invalid auth secret!" });
+
+            return;
+        }
+
+        let user = await User.findOne({
             where: {
                 email: payload.email,
             },
         });
 
-        Logger.log("Found User");
-
-        const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
-
-        if (user && process.env.AUTH_SECRET) {
-            if (code) Invite.handleInvite(user.email, code, user.id);
-
-            const session = await Session.findOne({
-                where: {
-                    userID: user.id,
-                },
-            });
-
-            if (session) {
-                Logger.log(`Found Existing Session`);
-                res.status(200).send({
-                    token: session.token,
-                    valid: true,
-                    profilePicture: payload.picture, //??
-                    user,
-                });
-            } else {
-                const token = jwt.sign(
-                    { id: user.email },
-                    process.env.AUTH_SECRET,
-                    {
-                        expiresIn: EXPIRATION_WINDOW,
-                    },
-                );
-
-                await Session.create({
-                    userID: user.id,
-                    token: token,
-                    expirationTime: expirationTime,
-                });
-
-                Logger.log(`Created New Session`);
-
-                res.status(200).send({
-                    token: token,
-                    valid: true,
-                    profilePicture: payload.picture,
-                    user,
-                });
-            }
-        } else {
-            await User.create({
-                studentID: 111111,
+        if (!user)
+            user = await User.create({
+                studentID: 1,
                 permissionRoleID: 1,
                 firstName: payload.given_name || "",
                 lastName: payload.family_name || "",
                 email: payload.email || "",
-                phoneNumber: "000000",
+                phoneNumber: "",
             });
 
-            this.handleLogin(req, res, payload, code);
+        if (!user) {
+            Logger.error("Failed to create user!");
+            res.status(500).send({ message: "Failed to create user!" });
+
+            return;
+        }
+
+        if (code) await Invite.handleInvite(user.email, code, user.id);
+
+        Logger.log("Found User");
+
+        const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
+
+        const session = await Session.findOne({
+            where: {
+                userID: user.id,
+            },
+        });
+
+        if (session) {
+            Logger.log(`Found Existing Session`);
+            res.status(200).send({
+                token: session.token,
+                valid: true,
+                profilePicture: payload.picture,
+                user,
+            });
+        } else {
+            const token = jwt.sign(
+                { id: user.email },
+                process.env.AUTH_SECRET,
+                {
+                    expiresIn: EXPIRATION_WINDOW,
+                },
+            );
+
+            await Session.create({
+                userID: user.id,
+                token: token,
+                expirationTime: expirationTime,
+            });
+
+            Logger.log(`Created New Session`);
+
+            res.status(200).send({
+                token: token,
+                valid: true,
+                profilePicture: payload.picture,
+                user,
+            });
         }
     }
 
@@ -154,7 +169,7 @@ export class Authentication {
                     return res.status(401).send({ valid: false });
                 }
 
-                Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
+                Logger.log(`Found session: ${JSON.stringify(result)}`);
                 (req as any).user = (result as any).User;
 
                 return next();
@@ -163,7 +178,9 @@ export class Authentication {
                 res.status(401).send({ valid: false, error });
             }
         } else {
-            Logger.error(`Unauthorized: No authentication header.`);
+            Logger.error(
+                `Unauthorized: No authentication header for route: ${req.path}`,
+            );
             res.status(401).send({ valid: false });
         }
     }
@@ -205,66 +222,21 @@ class AuthenticationRouter extends ModelRouter {
     }
 }
 
-export async function adminAuth(
+export function adminAuth(): (
     req: Request,
     res: Response,
     next: NextFunction,
-) {
-    const user: User = (req as any).user;
-    const admin = await isAdmin(user);
+) => Promise<void> {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const user: User = (req as any).user;
+        const admin = await isAdmin(user);
 
-    if (admin) next();
-    else res.status(401).send({ valid: false });
+        if (admin) next();
+        else res.status(401).send({ valid: false });
+    };
 }
 
-export async function businessAuth(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) {
-    const user: User = (req as any).user;
-    const admin = await isAdmin(user);
-
-    if (admin) {
-        next();
-        return;
-    }
-
-    const businessID = getBusinessID(req);
-
-    if (!user) {
-        Logger.error("No valid user in request.");
-        res.status(401).send({ valid: false });
-
-        return;
-    }
-
-    if (!businessID) {
-        Logger.error("No business ID included in request.");
-        res.status(401).send({ valid: false });
-
-        return;
-    }
-
-    try {
-        const membership = await Employee.findOne({
-            where: { userID: user.id, businessID },
-        });
-
-        if (membership) next();
-        else {
-            Logger.error("Request not made from employee!");
-            res.status(401).send({ valid: false });
-
-            return;
-        }
-    } catch (error) {
-        Logger.error(`Unauthorized to edit business.`);
-        res.status(401).send({ valid: false });
-    }
-}
-
-async function isAdmin(user: User): Promise<boolean> {
+export async function isAdmin(user: User): Promise<boolean> {
     if (!user) return false;
 
     try {
@@ -280,8 +252,33 @@ async function isAdmin(user: User): Promise<boolean> {
     }
 }
 
-function getBusinessID(req: Request): number | undefined {
-    return req.params?.businessID || req.body?.businessID;
+export function userAuth(): (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => Promise<void> {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const user: User = (req as any).user;
+
+        const admin = await isAdmin(user);
+
+        if (admin) {
+            next();
+            return;
+        }
+
+        try {
+            const id = Number(req.params?.id);
+
+            if (!id || isNaN(id) || user.id !== id) {
+                Logger.error(`User authorization failed`);
+                res.status(401).send({ valid: false });
+                return;
+            } else next();
+        } catch (error: any) {
+            Logger.error(`Error parsing userID: ${error}`);
+        }
+    };
 }
 
 export const authenticationRouter = new AuthenticationRouter();
