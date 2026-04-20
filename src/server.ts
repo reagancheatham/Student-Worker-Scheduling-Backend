@@ -7,10 +7,8 @@ import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./router.ts";
 import { Logger } from "./classes/util/logger.ts";
 import { initializeSequelize } from "./config/sequelizeInitializer.ts";
-import path from "path";
 
 const app = express();
-const distPath = path.join(process.cwd(), "dist");
 
 initializeSequelize(sequelizeInstance);
 dotenv.config();
@@ -18,13 +16,7 @@ dotenv.config();
 app.use(cors(defaultCorsConfig))
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use(express.static(distPath))
-    .use("/workerscheduling-t6", router)
-    .use((req, res, next) => {
-        if (req.path.startsWith("/workerscheduling-t6")) return next();
-
-        res.sendFile(path.join(distPath, "index.html"));
-    });
+    .use("/workerscheduling-t6", router);
 
 const port = process.env.NODE_PORT;
 app.listen(port, () => {
