@@ -5,7 +5,6 @@ import { User } from "./models/user.ts";
 import jwt from "jsonwebtoken";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
-import { Employee } from "./models/employee.ts";
 import { PermissionRole } from "./models/permissionRole.ts";
 import { Logger } from "./classes/util/logger.ts";
 
@@ -156,7 +155,7 @@ export class Authentication {
                     return res.status(401).send({ valid: false });
                 }
 
-                Logger.log(`Found ${token}: ${JSON.stringify(result)}`);
+                Logger.log(`Found session: ${JSON.stringify(result)}`);
                 (req as any).user = (result as any).User;
 
                 return next();
@@ -210,66 +209,21 @@ class AuthenticationRouter extends ModelRouter {
     }
 }
 
-export async function adminAuth(
+export function adminAuth(): (
     req: Request,
     res: Response,
     next: NextFunction,
-) {
-    const user: User = (req as any).user;
-    const admin = await isAdmin(user);
+) => Promise<void> {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const user: User = (req as any).user;
+        const admin = await isAdmin(user);
 
-    if (admin) next();
-    else res.status(401).send({ valid: false });
+        if (admin) next();
+        else res.status(401).send({ valid: false });
+    };
 }
 
-export async function businessAuth(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) {
-    const user: User = (req as any).user;
-    const admin = await isAdmin(user);
-
-    if (admin) {
-        next();
-        return;
-    }
-
-    const businessID = getBusinessID(req);
-
-    if (!user) {
-        Logger.error("No valid user in request.");
-        res.status(401).send({ valid: false });
-
-        return;
-    }
-
-    if (!businessID) {
-        Logger.error("No business ID included in request.");
-        res.status(401).send({ valid: false });
-
-        return;
-    }
-
-    try {
-        const membership = await Employee.findOne({
-            where: { userID: user.id, businessID },
-        });
-
-        if (membership) next();
-        else {
-            Logger.error("Request not made from employee!");
-            res.status(401).send({ valid: false });
-
-            return;
-        }
-    } catch (error) {
-        Logger.error(`Unauthorized to edit business.`);
-        res.status(401).send({ valid: false });
-    }
-}
-
-async function isAdmin(user: User): Promise<boolean> {
+export async function isAdmin(user: User): Promise<boolean> {
     if (!user) return false;
 
     try {
@@ -285,8 +239,26 @@ async function isAdmin(user: User): Promise<boolean> {
     }
 }
 
-function getBusinessID(req: Request): number | undefined {
-    return req.params?.businessID || req.body?.businessID;
+export function userAuth(): (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => Promise<void> {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const user: User = (req as any).user;
+
+        try {
+            const id = Number(req.params?.id);
+
+            if (!id || isNaN(id) || user.id !== id) {
+                Logger.error(`User authorization failed`);
+                res.status(401).send({ valid: false });
+                return;
+            } else next();
+        } catch (error: any) {
+            Logger.error(`Error parsing userID: ${error}`);
+        }
+    };
 }
 
 export const authenticationRouter = new AuthenticationRouter();

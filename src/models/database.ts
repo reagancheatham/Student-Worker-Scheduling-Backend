@@ -115,8 +115,19 @@ ScheduleTemplate.hasMany(ScheduleShiftTemplate, {
     foreignKey: "scheduleTemplateID",
 });
 
+ScheduleShiftTemplate.belongsTo(Employee, {
+    foreignKey: "employeeID",
+});
+Employee.hasMany(ScheduleShiftTemplate, {
+    foreignKey: "employeeID",
+});
+
 ShiftTaskListTemplate.belongsTo(ScheduleShiftTemplate, {
-    foreignKey: "scheduleShiftID",
+    foreignKey: {
+        name: "scheduleShiftID",
+        allowNull: true,
+    },
+    onDelete: "SET NULL",
 });
 ScheduleShiftTemplate.hasOne(ShiftTaskListTemplate, {
     foreignKey: "scheduleShiftID",
@@ -159,6 +170,17 @@ Shift.belongsTo(Employee, {
 });
 Employee.hasMany(Shift, {
     foreignKey: "employeeID",
+});
+
+Shift.belongsTo(Role, {
+    foreignKey: {
+        name: "targetRoleID",
+        allowNull: true,
+    },
+    onDelete: "SET NULL",
+});
+Role.hasMany(Shift, {
+    foreignKey: "targetRoleID",
 });
 
 Timesheet.belongsTo(Shift, {

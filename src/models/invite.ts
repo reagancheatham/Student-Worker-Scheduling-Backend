@@ -5,9 +5,6 @@ import type {
     Transaction,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { BusinessPermissionRole } from "./businessPermissionRole.ts";
 import { CodeService } from "../classes/codeService.ts";
 import { Employee } from "./employee.ts";
@@ -45,7 +42,7 @@ export class Invite extends Model<
         )
             .then((result) => {
                 Logger.log("Successfully created invite");
-            
+
                 return {
                     invite: result,
                     code,
@@ -161,29 +158,3 @@ Invite.init(
         ],
     },
 );
-
-class InviteRouter extends ModelRouter {
-    public path(): string {
-        return "/invites";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(Invite, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(Invite, req, res, "code"),
-        );
-        router.delete("/:code", (req, res) =>
-            ScheduleDatabase.delete(Invite, req, res, "code"),
-        );
-        router.get("/:code", (req, res) =>
-            ScheduleDatabase.get(Invite, req, res, "code"),
-        );
-        router.get("/", (req, res) =>
-            ScheduleDatabase.getAll(Invite, req, res),
-        );
-    }
-}
-
-export const inviteRouter = new InviteRouter();
