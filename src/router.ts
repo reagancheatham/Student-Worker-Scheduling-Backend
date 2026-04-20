@@ -67,10 +67,6 @@ const modelRouters: ModelRouter[] = [
     timeOffRequestNotificationRouter,
 ];
 
-router.use((req: Request, res: Response, next: NextFunction) => {
-    Logger.error(req.path);
-    next();
-});
 router.use(authenticationRouter.path(), authenticationRouter.router());
 router.use(Authentication.validateSession);
 

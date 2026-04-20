@@ -101,6 +101,15 @@ export class ScheduleDatabase {
 
         Logger.log(`Deleting ${model.name}: ${JSON.stringify(where)}`);
 
+        try {
+            await model.destroy({ where });
+
+            Logger.log(`Successfully deleted ${model.name}`);
+            res.status(200).send({});
+        } catch (error: any) {
+            Logger.error(`Error deleting ${model.name}: ${error}`);
+            res.status(500).send({ error });
+        }
         await model
             .destroy({
                 where,
