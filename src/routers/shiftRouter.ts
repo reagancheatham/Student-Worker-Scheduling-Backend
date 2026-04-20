@@ -1,17 +1,17 @@
 import { Request, Response, Router } from "express";
 import { Op } from "sequelize";
-import { IDResolver, managerAuth, businessAuth } from "../authorization/businessAuthorization.ts";
+import {
+    IDResolver,
+    managerAuth,
+    businessAuth,
+} from "../authorization/businessAuthorization.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
 import { Employee } from "../models/employee.ts";
 import { Shift } from "../models/shift.ts";
 import { User } from "../models/user.ts";
-
-type ShiftParams = {
-    businessID: string;
-    id: string;
-};
+import { Role } from "../models/role.ts";
 
 type ShiftRangeParams = {
     businessID: string;
@@ -83,71 +83,40 @@ class ShiftRouter extends ModelRouter {
             (req: any, res) =>
                 this.getShiftsForEmployeeWithinRange(req, res, true),
         );
-        router.get("/:id", businessAuth(shiftIDResolver), this.getShift);
-        router.get(
-            "/business/:businessID",
-            businessAuth(),
-            this.getShiftsForBusiness,
-        );
-    }
-
-    private async getShift(req: Request<ShiftParams>, res: Response) {
-        const id = Number(req.params.id);
-
-        const where: any = {
-            id,
-        };
-
-        Logger.log(`Getting ${Shift.name} with info: ${JSON.stringify(where)}`);
-
-        await Shift.findOne({
-            where,
-            include: [
+        router.get("/:id", businessAuth(shiftIDResolver), (req, res) =>
+            ScheduleDatabase.getWhere(
+                Shift,
+                req,
+                res,
                 {
-                    model: Employee,
-                    include: [User],
+                    include: [
+                        {
+                            model: Employee,
+                            include: [User, Role],
+                        },
+                        Role,
+                    ],
                 },
-            ],
-        })
-            .then((result) => {
-                Logger.log(`Found ${Shift.name}: ${JSON.stringify(result)}`);
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                Logger.error(`Error getting ${Shift.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-
-    private async getShiftsForBusiness(
-        req: Request<{ businessID: string }>,
-        res: Response,
-    ) {
-        const businessID = Number(req.params.businessID);
-
-        const where: any = {
-            businessID,
-        };
-
-        Logger.log(
-            `Getting ${Shift.name}s with info: ${JSON.stringify(where)}`,
+                "id",
+            ),
         );
-
-        await Shift.findAll({
-            where,
-            include: {
-                model: Employee,
-                include: [User],
-            },
-        })
-            .then((results) => {
-                Logger.log(`Found ${results.length} ${Shift.name}s`);
-                res.status(200).send(results);
-            })
-            .catch((error) => {
-                Logger.error(`Error getting ${Shift.name}s: ${error}`);
-                res.status(500).send({ error });
-            });
+        router.get("/business/:businessID", businessAuth(), (req, res) =>
+            ScheduleDatabase.getAllWhere(
+                Shift,
+                req,
+                res,
+                {
+                    include: [
+                        {
+                            model: Employee,
+                            include: [User, Role],
+                        },
+                        Role,
+                    ],
+                },
+                "businessID",
+            ),
+        );
     }
 
     private async getShiftsForBusinessWithinRange(
@@ -170,10 +139,13 @@ class ShiftRouter extends ModelRouter {
 
         await Shift.findAll({
             where,
-            include: {
-                model: Employee,
-                include: [User],
-            },
+            include: [
+                {
+                    model: Employee,
+                    include: [User, Role],
+                },
+                Role,
+            ],
         })
             .then((result) => {
                 Logger.log(`Found ${result.length} ${Shift.name}s`);
@@ -208,10 +180,13 @@ class ShiftRouter extends ModelRouter {
 
         await Shift.findAll({
             where,
-            include: {
-                model: Employee,
-                include: [User],
-            },
+            include: [
+                {
+                    model: Employee,
+                    include: [User, Role],
+                },
+                Role,
+            ],
         })
             .then((result) => {
                 Logger.log(`Found ${result.length} ${Shift.name}s`);

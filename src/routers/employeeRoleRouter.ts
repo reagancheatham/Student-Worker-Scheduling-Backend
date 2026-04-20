@@ -10,8 +10,9 @@ import { EmployeeRole } from "../models/employeeRole.ts";
 import { Employee } from "../models/employee.ts";
 
 const roleResolver: IDResolver = async (req: Request) => {
-    const id = req.body?.roleID;
+    let id = req.body?.roleID;
 
+    if (!id) id = req.params?.roleID;
     if (!id) return undefined;
 
     const role = await Role.findOne({ where: { id } });
@@ -41,7 +42,7 @@ const employeeResolver: IDResolver = async (req: Request) => {
 
 class EmployeeRoleRouter extends ModelRouter {
     public path(): string {
-        return "/roles";
+        return "/employeeRoles";
     }
 
     protected buildRouter(router: Router): void {
@@ -53,6 +54,18 @@ class EmployeeRoleRouter extends ModelRouter {
         );
         router.delete("/:id", managerAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(EmployeeRole, req, res, "id"),
+        );
+        router.delete(
+            "/employee/:employeeID/role/:roleID",
+            managerAuth(employeeResolver),
+            (req, res) =>
+                ScheduleDatabase.delete(
+                    EmployeeRole,
+                    req,
+                    res,
+                    "employeeID",
+                    "roleID",
+                ),
         );
         router.get("/:id", managerAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(EmployeeRole, req, res, "id"),
@@ -68,6 +81,9 @@ class EmployeeRoleRouter extends ModelRouter {
                     {},
                     "employeeID",
                 ),
+        );
+        router.get("/role/:roleID", managerAuth(roleResolver), (req, res) =>
+            ScheduleDatabase.getAllWhere(EmployeeRole, req, res, {}, "roleID"),
         );
     }
 }
