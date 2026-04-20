@@ -1,63 +1,68 @@
 name: AWS DEPLOY TO STAGING
 
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - dev
-  workflow_dispatch:
+    pull_request:
+        types: [closed]
+        branches:
+            - dev
+    workflow_dispatch:
 
 jobs:
-  aws-deploy:
-    runs-on: ubuntu-latest
-    env:
-      DB_HOST: ${{ secrets.AWS_DB_HOST }}
-      DB_NAME: ${{ secrets.AWS_DB_NAME }}
-      DB_USER: ${{ secrets.AWS_DB_USER }}
-      DB_PW: ${{ secrets.AWS_DB_PW}}
-      AUTHENTICATION_CLIENT_ID: ${{secrets.AUTHENTICATION_CLIENT_ID}}
-      AUTH_SECRET: ${{secrets.AUTH_SECRET}}
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: dev
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-      - run: npm install
-
-      - run: |
-          touch .env
-          echo DB_HOST = "$DB_HOST" >> .env
-          echo DB_NAME = "$DB_NAME" >> .env
-          echo DB_USER = "$DB_USER" >> .env
-          echo DB_PW = "$DB_PW" >> .env
-          echo AUTHENTICATION_CLIENT_ID = "$AUTHENTICATION_CLIENT_ID" >> .env
-          echo AUTH_SECRET = "$AUTH_SECRET" >> .env
-
-      - run: npm run bundle
-
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@v2.1.1
+    aws-deploy:
+        runs-on: ubuntu-latest
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-rltgoDzvO --delete"
-          SOURCE: "deploy/"
-          REMOTE_HOST: "workerscheduling.eaglesoftwareteam.com"
-          REMOTE_USER: ubuntu
-          TARGET: "nodeapps/sev2026/t6"
-      - name: Execute SSH commmands on remote server
-        uses: JimCronqvist/action-ssh@master
-        env:
-          NAME: "Root"
-        with:
-          hosts: "ubuntu@workerscheduling.eaglesoftwareteam.com"
-          privateKey: ${{ secrets.SERVER_SSH_KEY }}
-          debug: false
-          command: |
-            cd nodeapps/sev2026/t6
-            npm install
-            sudo systemctl stop workerScheduling-t6-backend
-            sudo cp workerScheduling-t6-backend.service /lib/systemd/system/workerScheduling-t6-backend.service
-            sudo systemctl daemon-reload
-            sudo systemctl start workerScheduling-t6-backend
+            NODE_PORT: ${{ secrets.NODE_PORT }}
+            DB_PORT: ${{ secrets.DB_PORT }}
+            DB_HOST: ${{ secrets.DB_HOST }}
+            DB_NAME: ${{ secrets.DB_NAME }}
+            DB_USER: ${{ secrets.DB_USER }}
+            DB_PW: ${{ secrets.DB_PW}}
+            AUTHENTICATION_CLIENT_ID: ${{secrets.AUTHENTICATION_CLIENT_ID}}
+            AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+            FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+            NODE_EMAIL: ${{ secrets.NODE_EMAIL }}
+            NODE_EMAIL_PASSWORD: ${{ secrets.NODE_EMAIL_PASSWORD }}
+        steps:
+            - uses: actions/checkout@v5
+              with:
+                  ref: dev
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 24
+            - run: npm install
+
+            - run: |
+                  touch .env
+                  echo DB_HOST = "$DB_HOST" >> .env
+                  echo DB_NAME = "$DB_NAME" >> .env
+                  echo DB_USER = "$DB_USER" >> .env
+                  echo DB_PW = "$DB_PW" >> .env
+                  echo AUTHENTICATION_CLIENT_ID = "$AUTHENTICATION_CLIENT_ID" >> .env
+                  echo AUTH_SECRET = "$AUTH_SECRET" >> .env
+
+            - run: npm run bundle
+
+            - name: Deploy to Server
+              uses: easingthemes/ssh-deploy@v2.1.1
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+                  ARGS: "-rltgoDzvO --delete"
+                  SOURCE: "deploy/"
+                  REMOTE_HOST: "workerscheduling.eaglesoftwareteam.com"
+                  REMOTE_USER: ubuntu
+                  TARGET: "nodeapps/sev2026/t6"
+            - name: Execute SSH commmands on remote server
+              uses: JimCronqvist/action-ssh@master
+              env:
+                  NAME: "Root"
+              with:
+                  hosts: "ubuntu@workerscheduling.eaglesoftwareteam.com"
+                  privateKey: ${{ secrets.SERVER_SSH_KEY }}
+                  debug: false
+                  command: |
+                      cd nodeapps/sev2026/t6
+                      npm install
+                      sudo systemctl stop workerScheduling-t6-backend
+                      sudo cp workerScheduling-t6-backend.service /lib/systemd/system/workerScheduling-t6-backend.service
+                      sudo systemctl daemon-reload
+                      sudo systemctl start workerScheduling-t6-backend
