@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes, Op } from "sequelize";
 import type {
     CreationOptional,
     InferAttributes,
@@ -21,6 +21,7 @@ export class EmployeeUnavailability extends Model<
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
+    declare term: CreationOptional<string | null>;
 }
 
 EmployeeUnavailability.init(
@@ -50,6 +51,10 @@ EmployeeUnavailability.init(
         endTime: {
             type: DataTypes.DATE,
             allowNull: false,
+        },
+        term: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
     },
     {
@@ -103,6 +108,8 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             let employeesSkipped = 0;
             let blocksPrepared = 0;
             let blocksInserted = 0;
+            let blocksUpdated = 0;
+            let blocksRemoved = 0;
 
             for (const employee of employees) {
                 const importResult = await this.importForEmployee(employee, termCode);
@@ -115,6 +122,8 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                 employeesProcessed += 1;
                 blocksPrepared += importResult.blocksPrepared;
                 blocksInserted += importResult.blocksInserted;
+                blocksUpdated += importResult.blocksUpdated;
+                blocksRemoved += importResult.blocksRemoved;
             }
 
             res.status(200).send({
@@ -125,6 +134,8 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                 employeesSkipped,
                 blocksPrepared,
                 blocksInserted,
+                blocksUpdated,
+                blocksRemoved,
             });
         } catch (error) {
             console.error(`Error importing student schedules: ${error}`);
@@ -174,6 +185,8 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                 termCode,
                 blocksPrepared: importResult.blocksPrepared,
                 blocksInserted: importResult.blocksInserted,
+                blocksUpdated: importResult.blocksUpdated,
+                blocksRemoved: importResult.blocksRemoved,
             });
         } catch (error) {
             console.error(`Error importing student schedule for employee ${employeeID}: ${error}`);
@@ -189,7 +202,12 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
     private async importForEmployee(
         employee: Employee,
         termCode: string,
-    ): Promise<{ blocksPrepared: number; blocksInserted: number } | null> {
+    ): Promise<{
+        blocksPrepared: number;
+        blocksInserted: number;
+        blocksUpdated: number;
+        blocksRemoved: number;
+    } | null> {
         const user = (employee as Employee & { User?: User }).User;
         const userID = this.resolveStudentApiUserID(user);
 
@@ -203,15 +221,87 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             termCode,
         );
 
-        if (blocks.length === 0) {
-            return { blocksPrepared: 0, blocksInserted: 0 };
-        }
-
-        const inserted = await EmployeeUnavailability.bulkCreate(blocks, {
-            ignoreDuplicates: true,
+        const existingBlocks = await EmployeeUnavailability.findAll({
+            where: {
+                employeeID: employee.id,
+                term: termCode,
+            },
         });
 
-        return { blocksPrepared: blocks.length, blocksInserted: inserted.length };
+        const signatureForRange = (start: Date, end: Date): string =>
+            `${start.toISOString()}|${end.toISOString()}`;
+
+        const existingByRange = new Map<string, EmployeeUnavailability>();
+        for (const existingBlock of existingBlocks) {
+            existingByRange.set(
+                signatureForRange(existingBlock.startTime, existingBlock.endTime),
+                existingBlock,
+            );
+        }
+
+        const blocksToInsert: Pick<
+            EmployeeUnavailability,
+            "employeeID" | "name" | "startTime" | "endTime" | "term"
+        >[] = [];
+        const blockNamesToUpdate: Array<{ id: number; name: string }> = [];
+        const incomingRanges = new Set<string>();
+
+        for (const block of blocks) {
+            const rangeSignature = signatureForRange(block.startTime, block.endTime);
+            incomingRanges.add(rangeSignature);
+
+            const existingBlock = existingByRange.get(rangeSignature);
+
+            if (!existingBlock) {
+                blocksToInsert.push(block);
+                continue;
+            }
+
+            if (existingBlock.name !== block.name) {
+                blockNamesToUpdate.push({
+                    id: existingBlock.id,
+                    name: block.name,
+                });
+            }
+        }
+
+        const blockIDsToDelete = existingBlocks
+            .filter((existingBlock) => !incomingRanges.has(signatureForRange(existingBlock.startTime, existingBlock.endTime)))
+            .map((existingBlock) => existingBlock.id);
+
+        if (blockIDsToDelete.length > 0) {
+            await EmployeeUnavailability.destroy({
+                where: {
+                    id: {
+                        [Op.in]: blockIDsToDelete,
+                    },
+                },
+            });
+        }
+
+        if (blocksToInsert.length > 0) {
+            await EmployeeUnavailability.bulkCreate(blocksToInsert, {
+                ignoreDuplicates: true,
+            });
+        }
+
+        for (const blockNameUpdate of blockNamesToUpdate) {
+            await EmployeeUnavailability.update(
+                { name: blockNameUpdate.name },
+                {
+                    where: {
+                        id: blockNameUpdate.id,
+                    },
+                },
+            );
+        }
+
+        return {
+            blocksPrepared: blocks.length,
+            blocksInserted: blocksToInsert.length,
+            blocksUpdated: blockNamesToUpdate.length,
+            blocksRemoved: blockIDsToDelete.length,
+        };
     }
 
     private resolveStudentApiUserID(user?: User): string | null {

@@ -41,7 +41,7 @@ type StudentScheduleResponse = {
 
 type UnavailabilityPayload = Pick<
     EmployeeUnavailability,
-    "employeeID" | "name" | "startTime" | "endTime"
+    "employeeID" | "name" | "startTime" | "endTime" | "term"
 >;
 
 export class StudentScheduleService {
@@ -123,6 +123,7 @@ export class StudentScheduleService {
                         name: course.CourseID || course.CourseName || "Class",
                         startTime: startDateTime,
                         endTime: endDateTime,
+                        term: termCode,
                     });
                 }
             }
@@ -213,7 +214,7 @@ export class StudentScheduleService {
         const unique = new Map<string, UnavailabilityPayload>();
 
         for (const block of blocks) {
-            const key = `${block.employeeID}|${block.startTime.toISOString()}|${block.endTime.toISOString()}`;
+            const key = `${block.employeeID}|${block.term ?? ""}|${block.startTime.toISOString()}|${block.endTime.toISOString()}`;
             if (!unique.has(key)) unique.set(key, block);
         }
 
