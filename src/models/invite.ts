@@ -97,7 +97,7 @@ export class Invite extends Model<
             },
         });
 
-        const inviteLink = `http://${process.env.FRONTEND_URL}/login/${code}`;
+        const inviteLink = `http://${process.env.FRONTEND_URL}/#/login/${code}`;
 
         return transporter
             .sendMail({
