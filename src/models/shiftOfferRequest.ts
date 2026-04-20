@@ -84,23 +84,21 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 ShiftOfferRequest,
                 req,
                 res,
-                "shiftID",
                 "id",
             ),
         );
-        router.delete("/:shiftID/:id", (req, res) =>
+        router.delete("/:id", (req, res) =>
             ScheduleDatabase.update(
                 ShiftOfferRequest,
                 req,
                 res,
-                "shiftID",
                 "id",
             ),
         );
-        router.get("/:shiftID/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftOfferRequest, req, res, "shiftID", "id"),
+        router.get("/:id", (req, res) =>
+            ScheduleDatabase.get(ShiftOfferRequest, req, res, "id"),
         );
-        router.get("/:shiftID", (req, res) =>
+        router.get("/shift/:shiftID", (req, res) =>
             ScheduleDatabase.getAllWhere(
                 ShiftOfferRequest,
                 req,
