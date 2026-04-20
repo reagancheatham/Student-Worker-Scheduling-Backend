@@ -9,6 +9,7 @@ import { ScheduleTemplate } from "./scheduleTemplate.ts";
 import { EventColor } from "../classes/eventColor.ts";
 import { WeekDay } from "../classes/weekDay.ts";
 import { Employee } from "./employee.ts";
+import { Role } from "./role.ts";
 
 export class ScheduleShiftTemplate extends Model<
     InferAttributes<ScheduleShiftTemplate>,
@@ -17,6 +18,7 @@ export class ScheduleShiftTemplate extends Model<
     declare id: CreationOptional<number>;
     declare scheduleTemplateID: number;
     declare employeeID: CreationOptional<number>;
+    declare targetRoleID: CreationOptional<number>;
     declare name: string;
     declare startTime: Date;
     declare endTime: Date;
@@ -47,7 +49,16 @@ ScheduleShiftTemplate.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "SET NULL"
+            onDelete: "SET NULL",
+        },
+        targetRoleID: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: Role,
+                key: "id",
+            },
+            onDelete: "SET NULL",
         },
         name: {
             type: DataTypes.STRING,
