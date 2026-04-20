@@ -59,7 +59,7 @@ ShiftTradeRequest.init(
             allowNull: false,
         },
         status: {
-            type: DataTypes.ENUM("Pending", "Approved", "Denied"),
+            type: DataTypes.ENUM("Unsubmitted", "Pending", "Approved", "Denied"),
             allowNull: true,
         },
     },
@@ -113,7 +113,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
         const businessID = req.params["businessID"];
 
         await ShiftTradeRequest.findAll({
-            where: { status: null },
+            where: { status: "Unsubmitted" },
             include: [
                 {
                     model: Shift,
