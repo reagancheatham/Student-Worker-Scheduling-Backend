@@ -25,6 +25,7 @@ import { taskListTemplateRouter } from "./routers/taskListTemplateRouter.ts";
 import { taskTemplateRouter } from "./routers/taskTemplateRouter.ts";
 import { timeOffRequestRouter } from "./routers/timeOffRequestRouter.ts";
 import { timesheetRouter } from "./routers/timesheetRouter.ts";
+import { employeeRoleRouter } from "./routers/employeeRoleRouter.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
@@ -35,6 +36,7 @@ const modelRouters: ModelRouter[] = [
     inviteRouter,
     businessRouter,
     employeeRouter,
+    employeeRoleRouter,
     employeeUnavailabilityRouter,
     roleRouter,
     scheduleShiftTemplateRouter,

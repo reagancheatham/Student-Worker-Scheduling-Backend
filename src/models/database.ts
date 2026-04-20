@@ -22,6 +22,7 @@ import { TaskTemplate } from "./taskTemplate.ts";
 import { TimeOffRequest } from "./timeOffRequest.ts";
 import { Timesheet } from "./timesheet.ts";
 import { User } from "./user.ts";
+import { EmployeeRole } from "./employeeRole.ts";
 
 Session.belongsTo(User, {
     foreignKey: "userID",
@@ -67,6 +68,17 @@ Employee.belongsTo(Business, {
 });
 Business.hasMany(Employee, {
     foreignKey: "businessID",
+});
+
+Employee.belongsToMany(Role, {
+    through: EmployeeRole,
+    foreignKey: "employeeID",
+    otherKey: "roleID",
+});
+Role.belongsToMany(Employee, {
+    through: EmployeeRole,
+    foreignKey: "roleID",
+    otherKey: "employeeID",
 });
 
 Settings.belongsTo(Business, {

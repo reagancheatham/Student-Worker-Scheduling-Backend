@@ -11,8 +11,7 @@ const resolver: IDResolver = async (req: Request) => {
 
     const role = await Role.findOne({ where: { id } });
 
-    if (!role) return undefined;
-    else return role.businessID;
+    return role?.businessID;
 };
 
 class RoleRouter extends ModelRouter {
