@@ -127,7 +127,7 @@ class TimeOffRequestRouter extends ModelRouter {
     private static async approveRequest(req: Request, res: Response) {
         try {
             const { id } = req.body;
-            console.log(id);
+            Logger.log(id);
 
             const timeOffRequest = await TimeOffRequest.findByPk(id, {
                 include: [{ model: Employee, required: true }],
@@ -153,7 +153,7 @@ class TimeOffRequestRouter extends ModelRouter {
 
             return res.status(200).json({ message: "Time off approved" });
         } catch (error: any) {
-            console.error("Error approving Time off request:", error.message);
+            Logger.error("Error approving Time off request:", error.message);
             return res.status(500).json({ message: error.message });
         }
     }
@@ -181,7 +181,7 @@ class TimeOffRequestRouter extends ModelRouter {
 
             return res.status(200).json({ message: "Time off denied" });
         } catch (error: any) {
-            console.error("Error denying Time off request:", error.message);
+            Logger.error("Error denying Time off request:", error.message);
             return res.status(500).json({ message: error.message });
         }
     }

@@ -37,6 +37,9 @@ User.hasMany(Session, {
 PermissionRole.hasOne(User, {
     foreignKey: "permissionRoleID",
 });
+User.belongsTo(PermissionRole, {
+    foreignKey: "permissionRoleID",
+});
 
 BusinessPermissionRole.hasMany(Employee, {
     foreignKey: "businessPermissionRoleID",

@@ -5,13 +5,6 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router, Request, Response } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { Shift } from "./shift.ts";
-import { Employee } from "./employee.ts";
-import { User } from "./user.ts";
-import { ShiftTradeRequest } from "./shiftTradeRequest.ts";
 
 export class ShiftTradeRequestNotification extends Model<
     InferAttributes<ShiftTradeRequestNotification>,
@@ -56,75 +49,3 @@ ShiftTradeRequestNotification.init(
         ],
     },
 );
-
-class ShiftTradeRequestNotificationRouter extends ModelRouter {
-    public path(): string {
-        return "/shiftTradeRequestNotifications";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(ShiftTradeRequestNotification, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftTradeRequestNotification,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(
-                ShiftTradeRequestNotification,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(ShiftTradeRequestNotification, req, res, "id"),
-        );
-        router.get("/business/:businessID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ShiftTradeRequestNotification,
-                req,
-                res,
-                [],
-                {
-                    include: [
-                        {
-                            model: ShiftTradeRequest,
-                            required: true,
-                            include: [
-                                {
-                                    model: Shift,
-                                    required: true,
-                                    include: [
-                                        {
-                                            model: Employee,
-                                            as: "Employee",
-                                            required: true,
-                                            include: [
-                                                { model: User, required: true },
-                                            ],
-                                        },
-                                    ],
-                                },
-                                {
-                                    model: Employee,
-                                    as: "TargetEmployee",
-                                    required: true,
-                                    include: [{ model: User, required: true }],
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ),
-        );
-    }
-}
-
-export const shiftTradeRequestNotificationRouter =
-    new ShiftTradeRequestNotificationRouter();

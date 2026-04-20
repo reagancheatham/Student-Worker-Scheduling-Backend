@@ -101,34 +101,6 @@ class ShiftTradeRequestRouter extends ModelRouter {
                 ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
     }
-
-    private async getAllRequestsForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        await ShiftTradeRequest.findAll({
-            include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID },
-                },
-            ],
-        })
-            .then((results) => {
-                Logger.log(
-                    `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
-                );
-
-                res.status(200).send({ results });
-            })
-            .catch((error) => {
-                Logger.error(
-                    `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
-                );
-
-                res.status(500).send({ error });
-            });
-    }
 }
 
 export const shiftTradeRequestRouter = new ShiftTradeRequestRouter();

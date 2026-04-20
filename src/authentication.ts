@@ -200,11 +200,8 @@ class AuthenticationRouter extends ModelRouter {
     protected buildRouter(router: Router): void {
         router.post("/", Authentication.loginUser);
         router.post("/logout", Authentication.logoutUser);
-        router.get(
-            "/validate",
-            (req: Request, res: Response, next: NextFunction) => {
-                Authentication.validateSession(req, res, next).catch(next);
-            },
+        router.post("/validate", Authentication.validateSession, (req, res) =>
+            res.status(200).send({ valid: true }),
         );
     }
 }
@@ -246,6 +243,13 @@ export function userAuth(): (
 ) => Promise<void> {
     return async (req: Request, res: Response, next: NextFunction) => {
         const user: User = (req as any).user;
+
+        const admin = await isAdmin(user);
+
+        if (admin) {
+            next();
+            return;
+        }
 
         try {
             const id = Number(req.params?.id);

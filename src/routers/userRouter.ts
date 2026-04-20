@@ -3,6 +3,10 @@ import { adminAuth, userAuth } from "../authentication.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { User } from "../models/user.ts";
+import { Business } from "../models/business.ts";
+import { BusinessPermissionRole } from "../models/businessPermissionRole.ts";
+import { Employee } from "../models/employee.ts";
+import { PermissionRole } from "../models/permissionRole.ts";
 
 class UserRouter extends ModelRouter {
     public path(): string {
@@ -22,7 +26,26 @@ class UserRouter extends ModelRouter {
         router.get("/:id", (req, res) =>
             ScheduleDatabase.get(User, req, res, "id"),
         );
-        router.get("/", (req, res) => ScheduleDatabase.getAll(User, req, res));
+        router.get("/", (req, res) =>
+            ScheduleDatabase.getAllWhere(User, req, res, {
+                include: [
+                    {
+                        model: Employee,
+                        include: [
+                            Business,
+                            {
+                                model: BusinessPermissionRole,
+                                attributes: ["id", "name"],
+                            },
+                        ],
+                    },
+                    {
+                        model: PermissionRole,
+                        attributes: ["id", "name"],
+                    },
+                ],
+            }),
+        );
     }
 }
 

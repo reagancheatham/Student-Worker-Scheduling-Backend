@@ -136,7 +136,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
     private static async approveRequest(req: Request, res: Response) {
         try {
             const { id } = req.body;
-            console.log(id);
+            Logger.log(id);
 
             const shiftOfferRequest = await ShiftOfferRequest.findByPk(id, {
                 include: [{ model: Shift, required: true }],
@@ -161,7 +161,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
 
             return res.status(200).json({ message: "Shift offer approved" });
         } catch (error: any) {
-            console.error(
+            Logger.error(
                 "Error approving shift offer request:",
                 error.message,
             );
@@ -192,7 +192,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
 
             return res.status(200).json({ message: "Shift offer denied" });
         } catch (error: any) {
-            console.error("Error denying shift offer request:", error.message);
+            Logger.error("Error denying shift offer request:", error.message);
             return res.status(500).json({ message: error.message });
         }
     }

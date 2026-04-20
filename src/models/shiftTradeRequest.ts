@@ -180,7 +180,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
 
             return res.status(200).json({ message: "Shift trade approved" });
         } catch (error: any) {
-            console.error(
+            Logger.error(
                 "Error approving shift trade request:",
                 error.message,
             );
@@ -209,7 +209,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
     
             return res.status(200).json({ message: "Shift trade denied" });
         } catch (error: any) {
-            console.error("Error denying shift trade request:", error.message);
+            Logger.error("Error denying shift trade request:", error.message);
             return res.status(500).json({ message: error.message });
         }
     }

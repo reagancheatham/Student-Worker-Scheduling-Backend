@@ -26,6 +26,7 @@ class EmployeeRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
+        router.get("/owners", adminAuth(), EmployeeRouter.getAllOwners);
         router.post("/", managerAuth(), (req: any, res: any) =>
             EmployeeRouter.createEmployee(req, res),
         );
@@ -56,7 +57,6 @@ class EmployeeRouter extends ModelRouter {
                     "businessID",
                 ),
         );
-        router.get("/owners", adminAuth(), EmployeeRouter.getAllOwners);
         router.get(
             "/user/:userID/business/:businessID",
             businessAuth(),

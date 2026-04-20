@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Response, Request, Router, NextFunction } from "express";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { businessRouter } from "./models/business.ts";
 import { scheduleShiftTemplateRouter } from "./routers/scheduleShiftTemplateRouter.ts";
@@ -25,6 +25,7 @@ import { taskListTemplateRouter } from "./routers/taskListTemplateRouter.ts";
 import { taskTemplateRouter } from "./routers/taskTemplateRouter.ts";
 import { timeOffRequestRouter } from "./routers/timeOffRequestRouter.ts";
 import { timesheetRouter } from "./routers/timesheetRouter.ts";
+import { Logger } from "./classes/util/logger.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
@@ -54,12 +55,12 @@ const modelRouters: ModelRouter[] = [
     timesheetRouter,
     authenticationRouter,
     inviteRouter,
-    messageNotificationRouter,
-    timeOffRequestNotificationRouter,
-    shiftTradeRequestNotificationRouter,
-    shiftOfferRequestNotificationRouter,
 ];
 
+router.use((req: Request, res: Response, next: NextFunction) => {
+    Logger.error(req.path);
+    next();
+});
 router.use(authenticationRouter.path(), authenticationRouter.router());
 router.use(Authentication.validateSession);
 
