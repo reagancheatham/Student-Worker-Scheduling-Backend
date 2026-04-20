@@ -1,4 +1,3 @@
-import fetch, { Headers, Request, Response, Blob } from "node-fetch";
 import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
@@ -9,20 +8,10 @@ import { router } from "./router.ts";
 import { Logger } from "./classes/util/logger.ts";
 import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 
-console.log({
-    node: process.version,
-});
-
-global.fetch = fetch as any;
-global.Headers = Headers as any;
-global.Request = Request as any;
-global.Response = Response as any;
-global.Blob = Blob as any;
-
 const app = express();
 
 initializeSequelize(sequelizeInstance);
-dotenv.config({ debug: true });
+dotenv.config();
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())
