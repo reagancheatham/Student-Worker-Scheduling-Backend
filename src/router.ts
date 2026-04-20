@@ -30,6 +30,7 @@ import { messageNotificationRouter } from "./routers/messageNotificationRouter.t
 import { shiftOfferRequestNotificationRouter } from "./routers/shiftOfferRequestNotificationRouter.ts";
 import { shiftTradeRequestNotificationRouter } from "./routers/shiftTradeRequestNotificationRouter.ts";
 import { timeOffRequestNotificationRouter } from "./routers/timeOffRequestNotificationRouter.ts";
+import { employeeRoleRouter } from "./routers/employeeRoleRouter.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
@@ -40,6 +41,7 @@ const modelRouters: ModelRouter[] = [
     inviteRouter,
     businessRouter,
     employeeRouter,
+    employeeRoleRouter,
     employeeUnavailabilityRouter,
     roleRouter,
     scheduleShiftTemplateRouter,

@@ -1,6 +1,10 @@
 import { Request, Response, Router } from "express";
 import { adminAuth } from "../authentication.ts";
-import { IDResolver, managerAuth, businessAuth } from "../authorization/businessAuthorization.ts";
+import {
+    IDResolver,
+    managerAuth,
+    businessAuth,
+} from "../authorization/businessAuthorization.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
@@ -9,13 +13,14 @@ import { BusinessPermissionRole } from "../models/businessPermissionRole.ts";
 import { Employee } from "../models/employee.ts";
 import { Invite } from "../models/invite.ts";
 import { User } from "../models/user.ts";
+import { Role } from "../models/role.ts";
 
 const idResolver: IDResolver = async (req: Request) => {
     const id = req.params?.id;
 
     if (!id) return undefined;
 
-    const employee = await Employee.findOne({ where: { id }});
+    const employee = await Employee.findOne({ where: { id } });
 
     return employee?.businessID;
 };
@@ -41,7 +46,15 @@ class EmployeeRouter extends ModelRouter {
                 Employee,
                 req,
                 res,
-                { include: User },
+                {
+                    include: [
+                        User,
+                        {
+                            model: Role,
+                            through: { attributes: [] },
+                        },
+                    ],
+                },
                 "id",
             ),
         );
@@ -53,7 +66,15 @@ class EmployeeRouter extends ModelRouter {
                     Employee,
                     req,
                     res,
-                    { include: User },
+                    {
+                        include: [
+                            User,
+                            {
+                                model: Role,
+                                through: { attributes: [] },
+                            },
+                        ],
+                    },
                     "businessID",
                 ),
         );
@@ -65,7 +86,15 @@ class EmployeeRouter extends ModelRouter {
                     Employee,
                     req,
                     res,
-                    { include: User },
+                    {
+                        include: [
+                            User,
+                            {
+                                model: Role,
+                                through: { attributes: [] },
+                            },
+                        ],
+                    },
                     "userID",
                     "businessID",
                 ),
@@ -85,6 +114,10 @@ class EmployeeRouter extends ModelRouter {
                 },
                 Business,
                 User,
+                {
+                    model: Role,
+                    through: { attributes: [] },
+                },
             ],
         })
             .then((result) => {
@@ -111,36 +144,45 @@ class EmployeeRouter extends ModelRouter {
         return BusinessPermissionRole.findOne({
             where: { name: businessPermissionRole },
         }).then(async (role) => {
-            if (!role) {
-                throw new Error("Employee role not found");
-            }
+            if (!role) throw new Error("Employee role not found");
+
             try {
-                let business = await Business.findOne({
+                const business = await Business.findOne({
                     where: { id: businessID },
                 });
-                let employee = await Employee.findOne({
+
+                const employee = await Employee.findOne({
                     where: { businessID: businessID },
-                    include: {
-                        model: User,
-                        where: { email: email },
-                    },
+                    include: [
+                        {
+                            model: User,
+                            where: { email: email },
+                        },
+                        {
+                            model: Role,
+                            through: { attributes: [] },
+                        },
+                    ],
                 });
-                if (business == null) {
+
+                if (!business) {
                     res.status(500).send({ err: "Business not found!" });
                     return;
                 }
+
                 if (employee) {
-                    Logger.log(employee);
                     res.status(500).send({
                         err: "Employee already exists in business!",
                     });
                     return;
                 }
-                let newInvite = await Invite.createInvite(
+
+                const newInvite = await Invite.createInvite(
                     email,
                     business,
                     role.id,
                 );
+
                 if (newInvite) {
                     Invite.sendInviteEmail(
                         newInvite.email,

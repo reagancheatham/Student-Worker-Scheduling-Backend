@@ -164,7 +164,9 @@ export class Authentication {
                 res.status(401).send({ valid: false, error });
             }
         } else {
-            Logger.error(`Unauthorized: No authentication header.`);
+            Logger.error(
+                `Unauthorized: No authentication header for route: ${req.path}`,
+            );
             res.status(401).send({ valid: false });
         }
     }
