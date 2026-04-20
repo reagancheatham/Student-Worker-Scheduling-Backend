@@ -7,11 +7,7 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
 import { ApprovalStatus } from "../classes/approvalStatus.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { Request, Response } from "express";
-import { User } from "./user.ts";
+import { TimeOffRequestNotification } from "./timeOffRequestNotification.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
@@ -22,7 +18,7 @@ export class TimeOffRequest extends Model<
     declare reason: string;
     declare startDate: Date;
     declare endDate: Date;
-    declare status: ApprovalStatus;
+    declare approvalStatus: ApprovalStatus;
 }
 
 TimeOffRequest.init(
@@ -39,7 +35,7 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         startDate: {
             type: DataTypes.DATE,
@@ -53,7 +49,7 @@ TimeOffRequest.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        status: {
+        approvalStatus: {
             type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
             allowNull: false,
         },
@@ -69,74 +65,15 @@ TimeOffRequest.init(
                     "reason",
                     "startDate",
                     "endDate",
-                    "status",
+                    "approvalStatus",
                 ],
                 name: "timeOffRequestIndex",
             },
         ],
     },
 );
-
-class TimeOffRequestRouter extends ModelRouter {
-    public path(): string {
-        return "/timeOffRequests";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(TimeOffRequest, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(TimeOffRequest, req, res, "id"),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(TimeOffRequest, req, res, "id"),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(TimeOffRequest, req, res, "id"),
-        );
-        router.get("/employee/:employeeID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                TimeOffRequest,
-                req,
-                res,
-                {},
-                "employeeID",
-            ),
-        );
-        router.get("/business/:businessID", this.getTimeOffRequestForBusiness);
-    }
-
-    private async getTimeOffRequestForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        console.log(`Getting ${Employee.name}s with businessID: ${businessID}`);
-
-        await TimeOffRequest.findAll({
-            include: [
-                {
-                    model: Employee,
-                    required: true,
-                    where: { businessID },
-                    include: [
-                        {
-                            model: User,
-                        },
-                    ],
-                },
-            ],
-        })
-            .then((result) => {
-                console.log(
-                    `Found ${Employee.name}: ${JSON.stringify(result)}`,
-                );
-                res.status(200).send(result);
-            })
-            .catch((error) => {
-                console.error(`Error finding ${Employee.name}: ${error}`);
-                res.status(500).send({ error });
-            });
-    }
-}
-
-export const timeOffRequestRouter = new TimeOffRequestRouter();
+TimeOffRequest.afterCreate(async (timeOffRequest) => {
+    await TimeOffRequestNotification.create({
+        timeOffRequestID: timeOffRequest.id,
+    });
+});

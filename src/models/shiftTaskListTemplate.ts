@@ -6,9 +6,6 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { ScheduleShiftTemplate } from "./scheduleShiftTemplate.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 
 export class ShiftTaskListTemplate extends Model<
     InferAttributes<ShiftTaskListTemplate>,
@@ -33,7 +30,7 @@ ShiftTaskListTemplate.init(
                 model: ScheduleShiftTemplate,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         name: {
             type: DataTypes.STRING,
@@ -51,50 +48,3 @@ ShiftTaskListTemplate.init(
         ],
     },
 );
-
-class ShiftTaskListTemplateRouter extends ModelRouter {
-    public path(): string {
-        return "/shiftTaskListTemplates";
-    }
-
-    protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(ShiftTaskListTemplate, req, res),
-        );
-        router.put("/", (req, res) =>
-            ScheduleDatabase.update(
-                ShiftTaskListTemplate,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.delete("/:id", (req, res) =>
-            ScheduleDatabase.delete(
-                ShiftTaskListTemplate,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.get("/:id", (req, res) =>
-            ScheduleDatabase.get(
-                ShiftTaskListTemplate,
-                req,
-                res,
-                "id",
-            ),
-        );
-        router.get("/scheduleShiftTemplate/:scheduleShiftID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                ShiftTaskListTemplate,
-                req,
-                res,
-                {},
-                "scheduleShiftID",
-            ),
-        );
-    }
-}
-
-export const shiftTaskListTemplateRouter = new ShiftTaskListTemplateRouter();

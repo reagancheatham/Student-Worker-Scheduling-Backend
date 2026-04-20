@@ -1,43 +1,51 @@
-import { Router } from "express";
+import { Response, Request, Router, NextFunction } from "express";
 import { ModelRouter } from "./classes/databaseModel.ts";
 import { businessRouter } from "./models/business.ts";
-import { employeeRouter } from "./models/employee.ts";
-import { userRouter } from "./models/user.ts";
-import { businessPermissionRoleRouter } from "./models/businessPermissionRole.ts";
-import { employeeUnavailabilityRouter } from "./models/employeeUnavailability.ts";
-import { permissionRoleRouter } from "./models/permissionRole.ts";
-import { roleRouter } from "./models/role.ts";
-import { scheduleShiftTemplateRouter } from "./models/scheduleShiftTemplate.ts";
-import { scheduleTemplateRouter } from "./models/scheduleTemplate.ts";
-import { sessionRouter } from "./models/session.ts";
-import { settingsRouter } from "./models/settings.ts";
-import { shiftRouter } from "./models/shift.ts";
-import { shiftOfferRequestRouter } from "./models/shiftOfferRequest.ts";
-import { shiftTaskListTemplateRouter } from "./models/shiftTaskListTemplate.ts";
-import { shiftTaskTemplateRouter } from "./models/shiftTaskTemplate.ts";
-import { shiftTradeRequestRouter } from "./models/shiftTradeRequest.ts";
-import { taskRouter } from "./routers/taskRouter.ts"
-import { taskCheckOffRouter } from "./models/taskCheckOff.ts";
+import { scheduleShiftTemplateRouter } from "./routers/scheduleShiftTemplateRouter.ts";
+import { shiftTaskListTemplateRouter } from "./routers/shiftTaskListTemplateRouter.ts";
+import { taskRouter } from "./routers/taskRouter.ts";
 import { taskListRouter } from "./routers/taskListRouter.ts";
-import { taskListTemplateRouter } from "./models/taskListTemplate.ts";
-import { taskTemplateRouter } from "./models/taskTemplate.ts";
-import { timeOffRequestRouter } from "./models/timeOffRequest.ts";
-import { timesheetRouter } from "./models/timesheet.ts";
 import { Authentication, authenticationRouter } from "./authentication.ts";
-import { inviteRouter } from "./models/invite.ts";
+import { userRouter } from "./routers/userRouter.ts";
+import { businessPermissionRoleRouter } from "./routers/businessPermissionRoleRouter.ts";
+import { permissionRoleRouter } from "./routers/permissionRoleRouter.ts";
+import { sessionRouter } from "./routers/sessionRouter.ts";
+import { inviteRouter } from "./routers/inviteRouter.ts";
+import { employeeRouter } from "./routers/employeeRouter.ts";
+import { employeeUnavailabilityRouter } from "./routers/employeeUnavailabilityRouter.ts";
+import { roleRouter } from "./routers/roleRouter.ts";
+import { scheduleTemplateRouter } from "./routers/scheduleTemplateRouter.ts";
+import { settingsRouter } from "./routers/settingsRouter.ts";
+import { shiftOfferRequestRouter } from "./routers/shiftOfferRequestRouter.ts";
+import { shiftRouter } from "./routers/shiftRouter.ts";
+import { shiftTaskTemplateRouter } from "./routers/shiftTaskTemplateRouter.ts";
+import { shiftTradeRequestRouter } from "./routers/shiftTradeRequestRouter.ts";
+import { taskCheckOffRouter } from "./routers/taskCheckOffRouter.ts";
+import { taskListTemplateRouter } from "./routers/taskListTemplateRouter.ts";
+import { taskTemplateRouter } from "./routers/taskTemplateRouter.ts";
+import { timeOffRequestRouter } from "./routers/timeOffRequestRouter.ts";
+import { timesheetRouter } from "./routers/timesheetRouter.ts";
+import { Logger } from "./classes/util/logger.ts";
+import { messageNotificationRouter } from "./routers/messageNotificationRouter.ts";
+import { shiftOfferRequestNotificationRouter } from "./routers/shiftOfferRequestNotificationRouter.ts";
+import { shiftTradeRequestNotificationRouter } from "./routers/shiftTradeRequestNotificationRouter.ts";
+import { timeOffRequestNotificationRouter } from "./routers/timeOffRequestNotificationRouter.ts";
+import { employeeRoleRouter } from "./routers/employeeRoleRouter.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
     userRouter,
-    businessRouter,
     businessPermissionRoleRouter,
-    employeeRouter,
-    employeeUnavailabilityRouter,
     permissionRoleRouter,
+    sessionRouter,
+    inviteRouter,
+    businessRouter,
+    employeeRouter,
+    employeeRoleRouter,
+    employeeUnavailabilityRouter,
     roleRouter,
     scheduleShiftTemplateRouter,
     scheduleTemplateRouter,
-    sessionRouter,
     settingsRouter,
     shiftRouter,
     shiftOfferRequestRouter,
@@ -51,7 +59,12 @@ const modelRouters: ModelRouter[] = [
     taskTemplateRouter,
     timeOffRequestRouter,
     timesheetRouter,
+    authenticationRouter,
     inviteRouter,
+    messageNotificationRouter,
+    shiftOfferRequestNotificationRouter,
+    shiftTradeRequestNotificationRouter,
+    timeOffRequestNotificationRouter,
 ];
 
 router.use(authenticationRouter.path(), authenticationRouter.router());

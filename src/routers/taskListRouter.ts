@@ -7,6 +7,49 @@ import { TaskCheckOff } from "../models/taskCheckOff.ts";
 import { taskRouter } from "./taskRouter.ts";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
+import { Logger } from "../classes/util/logger.ts";
+import {
+    businessAuth,
+    IDResolver,
+    managerAuth,
+} from "../authorization/businessAuthorization.ts";
+import { Shift } from "../models/shift.ts";
+
+const idResolver: IDResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    try {
+        const taskList = await TaskList.findOne({ where: { id } });
+
+        if (!taskList) return undefined;
+
+        const shift = await Shift.findOne({ where: { id: taskList.shiftID } });
+
+        return shift?.businessID;
+    } catch (error: any) {
+        Logger.error(`Error fetching ${TaskList.name}: ${error}`);
+        return undefined;
+    }
+};
+
+const shiftIDResolver: IDResolver = async (req: Request) => {
+    let shiftID = req.params?.shiftID;
+
+    if (!shiftID) shiftID = req.body?.shiftID;
+
+    if (!shiftID) return undefined;
+
+    try {
+        const shift = await Shift.findOne({ where: { id: shiftID } });
+
+        return shift?.businessID;
+    } catch (error) {
+        Logger.error(`Error fetching ${Shift.name}.`);
+        return undefined;
+    }
+};
 
 class TaskListRouter extends ModelRouter {
     public path(): string {
@@ -14,26 +57,38 @@ class TaskListRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", TaskListRouter.createTaskList);
-        router.put("/", TaskListRouter.updateTaskList);
-        router.delete("/:id", (req, res) =>
+        router.post(
+            "/",
+            managerAuth(shiftIDResolver),
+            TaskListRouter.createTaskList,
+        );
+        router.put(
+            "/",
+            managerAuth(shiftIDResolver),
+            TaskListRouter.updateTaskList,
+        );
+        router.delete("/:id", managerAuth(idResolver), (req, res) =>
             ScheduleDatabase.delete(TaskList, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", businessAuth(idResolver), (req, res) =>
             ScheduleDatabase.get(TaskList, req, res, "id"),
         );
-        router.get("/shift/:shiftID", TaskListRouter.getOrCreateForShift);
+        router.get(
+            "/shift/:shiftID",
+            businessAuth(shiftIDResolver),
+            TaskListRouter.getOrCreateForShift,
+        );
     }
 
     private static async createTaskList(req: Request, res: Response) {
         const info = req.body;
 
         if (!info) {
-            console.error(`Error updating ${TaskList.name}: info is null`);
+            Logger.error(`Error updating ${TaskList.name}: info is null`);
             return Promise.resolve();
         }
 
-        console.log(
+        Logger.log(
             `Creating ${TaskList.name} with info: ${JSON.stringify(info)}`,
         );
 
@@ -48,7 +103,7 @@ class TaskListRouter extends ModelRouter {
             await TaskListRouter.updateTaskListTasks(tasks);
             res.status(200).send(list);
         } catch (error) {
-            console.error(`Error creating ${TaskList.name}: ${error}`);
+            Logger.error(`Error creating ${TaskList.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
@@ -57,11 +112,11 @@ class TaskListRouter extends ModelRouter {
         const info = req.body;
 
         if (!info) {
-            console.error(`Error updating ${TaskList.name}: info is null`);
+            Logger.error(`Error updating ${TaskList.name}: info is null`);
             return Promise.resolve();
         }
 
-        console.log(
+        Logger.log(
             `Updating ${TaskList.name} with info: ${JSON.stringify(info)}`,
         );
 
@@ -76,23 +131,23 @@ class TaskListRouter extends ModelRouter {
             });
 
             if (result[0] === 0)
-                console.log(`Could not find a ${TaskList.name} to update`);
-            else console.log(`Updated ${result[0]} ${TaskList.name}s`);
+                Logger.log(`Could not find a ${TaskList.name} to update`);
+            else Logger.log(`Updated ${result[0]} ${TaskList.name}s`);
 
             await TaskListRouter.updateTaskListTasks(tasks);
 
             res.status(200).send({ affectedCount: result[0] });
         } catch (error) {
-            console.error(`Error updating ${TaskList.name}: ${error}`);
+            Logger.error(`Error updating ${TaskList.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
 
     private static async updateTaskListTasks(tasks: Task[]) {
         // No tasks to update, just leave
-        if (!tasks || tasks.length == 0) return Promise.resolve();
+        if (!tasks || tasks.length === 0) return Promise.resolve();
 
-        console.log(`Updating ${TaskList.name} tasks`);
+        Logger.log(`Updating ${TaskList.name} tasks`);
 
         const promises = tasks.map(async (task, index) => {
             await taskRouter.createOrUpdateTask(task, index);
@@ -128,11 +183,11 @@ class TaskListRouter extends ModelRouter {
             });
 
             const taskList = response[0];
-            console.log(`Successfully found/created ${TaskList.name}`);
+            Logger.log(`Successfully found/created ${TaskList.name}`);
 
             res.status(200).send(taskList);
         } catch (error) {
-            console.error(`Error creating ${TaskList.name}: ${error}`);
+            Logger.error(`Error creating ${TaskList.name}: ${error}`);
             res.status(500).send({ error });
         }
     }
