@@ -78,7 +78,22 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                 ScheduleShiftTemplate,
                 req,
                 res,
-                { include: [ShiftTaskListTemplate, Employee, Role] },
+                {
+                    include: [
+                        ShiftTaskListTemplate,
+                        {
+                            model: Employee,
+                            include: [
+                                User,
+                                {
+                                    model: Role,
+                                    through: { attributes: [] },
+                                },
+                            ],
+                        },
+                        Role,
+                    ],
+                },
                 "id",
             ),
         );
@@ -98,7 +113,13 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                             },
                             {
                                 model: Employee,
-                                include: [User],
+                                include: [
+                                    User,
+                                    {
+                                        model: Role,
+                                        through: { attributes: [] },
+                                    },
+                                ],
                             },
                             Role,
                         ],
