@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "tsx watch src/server.ts",
-    "bundle": "mkdir deploy && cp -r src src/server.ts package.json package-lock.json workerScheduling-t6-backend.service .env deploy"
+    "bundle": "mkdir deploy && cp -r src src/server.ts package.json package-lock.json workerscheduling-t6-backend.service .env deploy"
   },
   "type": "module",
   "dependencies": {
