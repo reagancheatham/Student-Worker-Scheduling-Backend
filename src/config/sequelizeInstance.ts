@@ -4,7 +4,7 @@ import { Logger } from "../classes/util/logger.ts";
 
 export const sequelizeInstance = new Sequelize({
     dialect: "mysql",
-    host: "localhost",
+    host: databaseConfig.DB_HOST,
     port: Number(databaseConfig.DB_PORT),
     username: databaseConfig.DB_USER,
     password: databaseConfig.DB_PASSWORD,
