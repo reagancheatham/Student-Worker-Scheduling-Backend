@@ -11,7 +11,7 @@ import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 const app = express();
 
 initializeSequelize(sequelizeInstance);
-dotenv.config();
+dotenv.config({ debug: true });
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())
