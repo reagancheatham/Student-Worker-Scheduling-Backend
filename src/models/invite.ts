@@ -67,7 +67,9 @@ export class Invite extends Model<
                     Logger.log("Could not find valid invite");
                     return;
                 }
+
                 Logger.log("Found invite");
+
                 Employee.create({
                     businessID: result.businessID,
                     userID: userID,
