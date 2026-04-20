@@ -1,4 +1,4 @@
-import { Model, DataTypes, Op } from "sequelize";
+import { Model, DataTypes } from "sequelize";
 import type {
     CreationOptional,
     InferAttributes,
@@ -10,7 +10,7 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { Request, Response, Router } from "express";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { User } from "./user.ts";
-import { StudentScheduleService } from "../services/studentScheduleService.ts";
+import { EmployeeUnavailabilitySyncService } from "../services/employeeUnavailabilitySyncService.ts";
 
 export class EmployeeUnavailability extends Model<
     InferAttributes<EmployeeUnavailability>,
@@ -209,113 +209,20 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
         blocksRemoved: number;
     } | null> {
         const user = (employee as Employee & { User?: User }).User;
-        const userID = this.resolveStudentApiUserID(user);
-
-        if (!user || !userID) {
+        if (!user) {
             return null;
         }
 
-        const blocks = await StudentScheduleService.loadEmployeeUnavailabilityFromSchedule(
+        const syncResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
             employee.id,
-            userID,
+            {
+                studentID: user.studentID,
+                email: user.email,
+            },
             termCode,
         );
 
-        const existingBlocks = await EmployeeUnavailability.findAll({
-            where: {
-                employeeID: employee.id,
-                term: termCode,
-            },
-        });
-
-        const signatureForRange = (start: Date, end: Date): string =>
-            `${start.toISOString()}|${end.toISOString()}`;
-
-        const existingByRange = new Map<string, EmployeeUnavailability>();
-        for (const existingBlock of existingBlocks) {
-            existingByRange.set(
-                signatureForRange(existingBlock.startTime, existingBlock.endTime),
-                existingBlock,
-            );
-        }
-
-        const blocksToInsert: Pick<
-            EmployeeUnavailability,
-            "employeeID" | "name" | "startTime" | "endTime" | "term"
-        >[] = [];
-        const blockNamesToUpdate: Array<{ id: number; name: string }> = [];
-        const incomingRanges = new Set<string>();
-
-        for (const block of blocks) {
-            const rangeSignature = signatureForRange(block.startTime, block.endTime);
-            incomingRanges.add(rangeSignature);
-
-            const existingBlock = existingByRange.get(rangeSignature);
-
-            if (!existingBlock) {
-                blocksToInsert.push(block);
-                continue;
-            }
-
-            if (existingBlock.name !== block.name) {
-                blockNamesToUpdate.push({
-                    id: existingBlock.id,
-                    name: block.name,
-                });
-            }
-        }
-
-        const blockIDsToDelete = existingBlocks
-            .filter((existingBlock) => !incomingRanges.has(signatureForRange(existingBlock.startTime, existingBlock.endTime)))
-            .map((existingBlock) => existingBlock.id);
-
-        if (blockIDsToDelete.length > 0) {
-            await EmployeeUnavailability.destroy({
-                where: {
-                    id: {
-                        [Op.in]: blockIDsToDelete,
-                    },
-                },
-            });
-        }
-
-        if (blocksToInsert.length > 0) {
-            await EmployeeUnavailability.bulkCreate(blocksToInsert, {
-                ignoreDuplicates: true,
-            });
-        }
-
-        for (const blockNameUpdate of blockNamesToUpdate) {
-            await EmployeeUnavailability.update(
-                { name: blockNameUpdate.name },
-                {
-                    where: {
-                        id: blockNameUpdate.id,
-                    },
-                },
-            );
-        }
-
-        return {
-            blocksPrepared: blocks.length,
-            blocksInserted: blocksToInsert.length,
-            blocksUpdated: blockNamesToUpdate.length,
-            blocksRemoved: blockIDsToDelete.length,
-        };
-    }
-
-    private resolveStudentApiUserID(user?: User): string | null {
-        if (!user) return null;
-
-        if (Number.isInteger(user.studentID) && user.studentID > 0 && user.studentID !== 111111) {
-            return String(user.studentID);
-        }
-
-        if (typeof user.email === "string" && user.email.trim().length > 0) {
-            return user.email.trim();
-        }
-
-        return null;
+        return syncResult;
     }
 }
 

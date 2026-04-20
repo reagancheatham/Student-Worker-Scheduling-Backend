@@ -5,6 +5,7 @@ import { defaultCorsConfig } from "./config/corsConfig.ts";
 import "./models/database.ts";
 import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./router.ts";
+import { DailyStudentScheduleRefreshService } from "./services/dailyStudentScheduleRefreshService.ts";
 
 const app = express();
 
@@ -21,6 +22,8 @@ const result = dotenv.config();
 console.log("DOTENV RESULT:", result);
 console.log("CWD:", process.cwd());
 console.log("PORT FROM ENV:", process.env.PORT);
+
+DailyStudentScheduleRefreshService.start();
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())
