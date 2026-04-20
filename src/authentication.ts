@@ -17,17 +17,22 @@ export class Authentication {
         const googleToken = req.body.credential;
         const code: string | undefined = req.body.code;
 
-        const client = new OAuth2Client(googleClientID);
-        const ticket = await client.verifyIdToken({
-            idToken: googleToken,
-            audience: googleClientID,
-        });
-        const payload = ticket.getPayload();
+        try {
+            const client = new OAuth2Client(googleClientID);
+            const ticket = await client.verifyIdToken({
+                idToken: googleToken,
+                audience: googleClientID,
+            });
+            const payload = ticket.getPayload();
 
-        if (payload == null) {
-            Logger.error(`Could not verify user token`);
+            if (payload == null) {
+                Logger.error(`Could not verify user token`);
+                res.status(500).send({ valid: false });
+            } else Authentication.handleLogin(req, res, payload, code);
+        } catch (error: any) {
+            Logger.error(`Error fetching JWT payload: ${error}`);
             res.status(500).send({ valid: false });
-        } else Authentication.handleLogin(req, res, payload, code);
+        }
     }
 
     public static async logoutUser(req: Request, res: Response) {

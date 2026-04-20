@@ -1,3 +1,4 @@
+import fetch, { Headers, Request, Response } from "node-fetch";
 import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
@@ -7,6 +8,11 @@ import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./router.ts";
 import { Logger } from "./classes/util/logger.ts";
 import { initializeSequelize } from "./config/sequelizeInitializer.ts";
+
+global.fetch = fetch as any;
+global.Headers = Headers as any;
+global.Request = Request as any;
+global.Response = Response as any;
 
 const app = express();
 
