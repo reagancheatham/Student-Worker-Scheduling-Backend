@@ -20,7 +20,9 @@ app.use(cors(defaultCorsConfig))
     .use(express.urlencoded({ extended: true }))
     .use(express.static(distPath))
     .use("/workerscheduling-t6", router)
-    .get("*", (req, res) => {
+    .use((req, res, next) => {
+        if (req.path.startsWith("/workerscheduling-t6")) return next();
+
         res.sendFile(path.join(distPath, "index.html"));
     });
 
