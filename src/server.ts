@@ -10,6 +10,7 @@ import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 import path from "path";
 
 const app = express();
+const distPath = path.join(process.cwd(), "dist");
 
 initializeSequelize(sequelizeInstance);
 dotenv.config();
@@ -17,10 +18,10 @@ dotenv.config();
 app.use(cors(defaultCorsConfig))
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use(express.static(path.join(__dirname, "dist")))
+    .use(express.static(distPath))
     .use("/workerscheduling-t6", router)
     .get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "dist", "index.html"));
+        res.sendFile(path.join(distPath, "index.html"));
     });
 
 const port = process.env.NODE_PORT;
