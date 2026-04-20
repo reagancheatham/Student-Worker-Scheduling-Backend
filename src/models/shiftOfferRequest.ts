@@ -120,7 +120,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
         const businessID = req.params["businessID"];
 
         await ShiftOfferRequest.findAll({
-            where: { status: "Unsubmitted" },
+            where: { approvalStatus: "Unsubmitted" },
             include: [
                 {
                     model: Shift,
@@ -166,7 +166,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
         const businessID = req.params["businessID"];
 
         await ShiftOfferRequest.findAll({
-            where: { status: "Pending" },
+            where: { approvalStatus: "Pending" },
             include: [
                 {
                     model: Shift,
