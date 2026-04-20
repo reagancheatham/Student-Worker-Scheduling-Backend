@@ -1,5 +1,9 @@
 import { Request, Response, Router } from "express";
-import { IDResolver, userBusinessAuth, businessAuth } from "../authorization/businessAuthorization.ts";
+import {
+    IDResolver,
+    userBusinessAuth,
+    businessAuth,
+} from "../authorization/businessAuthorization.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Logger } from "../classes/util/logger.ts";
@@ -7,6 +11,7 @@ import { Employee } from "../models/employee.ts";
 import { Shift } from "../models/shift.ts";
 import { ShiftOfferRequest } from "../models/shiftOfferRequest.ts";
 import { User } from "../models/user.ts";
+import { ShiftOfferRequestNotification } from "../models/shiftOfferRequestNotification.ts";
 
 const offerRequestIDResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
@@ -98,6 +103,87 @@ class ShiftOfferRequestRouter extends ModelRouter {
             businessAuth(),
             this.getAllRequestsForBusiness,
         );
+        router.put("/approve", userBusinessAuth(offerRequestIDResolver, userIDResolver), (req, res) =>
+            ShiftOfferRequestRouter.approveRequest(req, res),
+        );
+        router.put("/deny", userBusinessAuth(offerRequestIDResolver, userIDResolver), (req, res) =>
+            ShiftOfferRequestRouter.denyRequest(req, res),
+        );
+    }
+
+    private static async createShiftOfferRequest(req: Request, res: Response) {
+        const shiftOfferRequest =
+            await ScheduleDatabase.create<ShiftOfferRequest>(
+                ShiftOfferRequest,
+                req,
+                res,
+            );
+        if (shiftOfferRequest != null) {
+            await ShiftOfferRequestNotification.create({
+                shiftOfferRequestID: shiftOfferRequest.id,
+            });
+        }
+    }
+
+    private static async approveRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+            Logger.log(id);
+
+            const shiftOfferRequest = await ShiftOfferRequest.findByPk(id, {
+                include: [{ model: Shift, required: true }],
+            });
+
+            if (!shiftOfferRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Shift offer request not found" });
+            }
+
+            await Shift.update(
+                { employeeID: null as any },
+                { where: { id: shiftOfferRequest.shiftID } },
+            );
+
+            await ShiftOfferRequestNotification.destroy({
+                where: { shiftOfferRequestID: id },
+            });
+
+            await shiftOfferRequest.destroy();
+
+            return res.status(200).json({ message: "Shift offer approved" });
+        } catch (error: any) {
+            Logger.error("Error approving shift offer request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    private static async denyRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+
+            const shiftOfferRequest = await ShiftOfferRequest.findByPk(id);
+
+            if (!shiftOfferRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Shift offer request not found" });
+            }
+
+            await ShiftOfferRequest.update(
+                { approvalStatus: "Denied" },
+                { where: { id } },
+            );
+
+            await ShiftOfferRequestNotification.destroy({
+                where: { shiftOfferRequestID: id },
+            });
+
+            return res.status(200).json({ message: "Shift offer denied" });
+        } catch (error: any) {
+            Logger.error("Error denying shift offer request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
     }
 
     private async getAllRequestsForBusiness(req: Request, res: Response) {

@@ -5,50 +5,46 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Employee } from "./employee.ts";
 
-export class EmployeeUnavailability extends Model<
-    InferAttributes<EmployeeUnavailability>,
-    InferCreationAttributes<EmployeeUnavailability>
+export class ShiftTradeRequestNotification extends Model<
+    InferAttributes<ShiftTradeRequestNotification>,
+    InferCreationAttributes<ShiftTradeRequestNotification>
 > {
     declare id: CreationOptional<number>;
-    declare employeeID: number;
-    declare startTime: Date;
-    declare endTime: Date;
+    declare shiftTradeRequestID: number;
+    declare dismissed: CreationOptional<boolean>;
 }
 
-EmployeeUnavailability.init(
+ShiftTradeRequestNotification.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        employeeID: {
+        shiftTradeRequestID: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: Employee,
+                model: "ShiftTradeRequests",
                 key: "id",
             },
             onDelete: "CASCADE",
         },
-        startTime: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
-        endTime: {
-            type: DataTypes.DATE,
+        dismissed: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
             allowNull: false,
         },
     },
     {
         sequelize: sequelizeInstance,
-        timestamps: false,
+        timestamps: true,
         indexes: [
             {
                 unique: true,
-                fields: ["employeeID", "startTime", "endTime"],
+                fields: ["id", "shiftTradeRequestID", "dismissed"],
+                name: "shiftTradeRequestNotificationIndex",
             },
         ],
     },

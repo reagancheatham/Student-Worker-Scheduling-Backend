@@ -204,7 +204,7 @@ class ShiftTaskListTemplateRouter extends ModelRouter {
                 `Successfully found/created ${ShiftTaskListTemplate.name}`,
             );
 
-            console.log("LIST TEMPLATE: " + JSON.stringify(response));
+            Logger.log("LIST TEMPLATE: " + JSON.stringify(response));
 
             res.status(200).send(taskList);
         } catch (error) {

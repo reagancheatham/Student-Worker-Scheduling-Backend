@@ -7,6 +7,7 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Employee } from "./employee.ts";
 import { ApprovalStatus } from "../classes/approvalStatus.ts";
+import { TimeOffRequestNotification } from "./timeOffRequestNotification.ts";
 
 export class TimeOffRequest extends Model<
     InferAttributes<TimeOffRequest>,
@@ -17,7 +18,7 @@ export class TimeOffRequest extends Model<
     declare reason: string;
     declare startDate: Date;
     declare endDate: Date;
-    declare status: ApprovalStatus;
+    declare approvalStatus: ApprovalStatus;
 }
 
 TimeOffRequest.init(
@@ -34,7 +35,7 @@ TimeOffRequest.init(
                 model: Employee,
                 key: "id",
             },
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         },
         startDate: {
             type: DataTypes.DATE,
@@ -48,7 +49,7 @@ TimeOffRequest.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        status: {
+        approvalStatus: {
             type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
             allowNull: false,
         },
@@ -64,10 +65,15 @@ TimeOffRequest.init(
                     "reason",
                     "startDate",
                     "endDate",
-                    "status",
+                    "approvalStatus",
                 ],
                 name: "timeOffRequestIndex",
             },
         ],
     },
 );
+TimeOffRequest.afterCreate(async (timeOffRequest) => {
+    await TimeOffRequestNotification.create({
+        timeOffRequestID: timeOffRequest.id,
+    });
+});

@@ -7,6 +7,8 @@ import type {
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Shift } from "./shift.ts";
 import { Employee } from "./employee.ts";
+import { ShiftTradeRequestNotification } from "./shiftTradeRequestNotification.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 export class ShiftTradeRequest extends Model<
     InferAttributes<ShiftTradeRequest>,
@@ -17,6 +19,7 @@ export class ShiftTradeRequest extends Model<
     declare targetEmployeeID: number;
     declare employeeMessage: string;
     declare timeSent: Date;
+    declare approvalStatus: ApprovalStatus;
 }
 
 ShiftTradeRequest.init(
@@ -52,6 +55,9 @@ ShiftTradeRequest.init(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        approvalStatus: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
+        },
     },
     {
         sequelize: sequelizeInstance,
@@ -70,3 +76,9 @@ ShiftTradeRequest.init(
         ],
     },
 );
+
+ShiftTradeRequest.afterCreate(async (shiftTradeRequest) => {
+    await ShiftTradeRequestNotification.create({
+        shiftTradeRequestID: shiftTradeRequest.id,
+    });
+});

@@ -1,9 +1,14 @@
 import { Request, Router } from "express";
 import { adminAuth } from "../authentication.ts";
-import { IDResolver, managerAuth } from "../authorization/businessAuthorization.ts";
+import {
+    IDResolver,
+    managerAuth,
+} from "../authorization/businessAuthorization.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { Invite } from "../models/invite.ts";
+import { BusinessPermissionRole } from "../models/businessPermissionRole.ts";
+import { Business } from "../models/business.ts";
 
 const resolver: IDResolver = async (req: Request) => {
     let code = req.params?.code;
@@ -36,7 +41,12 @@ class InviteRouter extends ModelRouter {
             ScheduleDatabase.get(Invite, req, res, "code"),
         );
         router.get("/", adminAuth(), (req, res) =>
-            ScheduleDatabase.getAll(Invite, req, res),
+            ScheduleDatabase.getAllWhere(Invite, req, res, {
+                include: [
+                    Business,
+                    BusinessPermissionRole,
+                ],
+            }),
         );
     }
 }

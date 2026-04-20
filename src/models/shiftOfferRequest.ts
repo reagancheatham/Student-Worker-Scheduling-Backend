@@ -6,6 +6,7 @@ import type {
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
 import { Shift } from "./shift.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 export class ShiftOfferRequest extends Model<
     InferAttributes<ShiftOfferRequest>,
@@ -16,6 +17,7 @@ export class ShiftOfferRequest extends Model<
     declare employeeMessage: string;
     declare claimingEmployeeID: number;
     declare timeSent: Date;
+    declare approvalStatus: ApprovalStatus;
 }
 
 ShiftOfferRequest.init(
@@ -45,6 +47,11 @@ ShiftOfferRequest.init(
         timeSent: {
             type: DataTypes.DATE,
             allowNull: false,
+        },
+        approvalStatus: {
+            type: DataTypes.ENUM(...Object.values(ApprovalStatus)),
+            allowNull: false,
+            defaultValue: ApprovalStatus.Pending,
         },
     },
     {

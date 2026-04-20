@@ -81,6 +81,13 @@ export function managerAuth(
             return;
         }
 
+        const admin = await isAdmin(user);
+
+        if (admin) {
+            next();
+            return;
+        }
+
         try {
             const employee = await getEmployeeFromResolver(user, req, resolver);
 
