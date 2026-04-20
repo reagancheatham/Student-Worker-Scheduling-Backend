@@ -5,6 +5,8 @@ import { Logger } from "../classes/util/logger.ts";
 import { Employee } from "../models/employee.ts";
 import { TimeOffRequest } from "../models/timeOffRequest.ts";
 import { User } from "../models/user.ts";
+import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
+import { TimeOffRequestNotification } from "../models/timeOffRequestNotification.ts";
 
 class TimeOffRequestRouter extends ModelRouter {
     public path(): string {
@@ -34,6 +36,74 @@ class TimeOffRequestRouter extends ModelRouter {
             ),
         );
         router.get("/business/:businessID", this.getTimeOffRequestForBusiness);
+        router.put("/approve", (req, res) =>
+            TimeOffRequestRouter.approveRequest(req, res),
+        );
+        router.put("/deny", (req, res) =>
+            TimeOffRequestRouter.denyRequest(req, res),
+        );
+    }
+
+    private static async approveRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+            Logger.log(id);
+
+            const timeOffRequest = await TimeOffRequest.findByPk(id, {
+                include: [{ model: Employee, required: true }],
+            });
+
+            if (!timeOffRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Time off request not found" });
+            }
+
+            await EmployeeUnavailability.create({
+                employeeID: timeOffRequest.employeeID,
+                startTime: timeOffRequest.startDate,
+                endTime: timeOffRequest.endDate,
+            });
+
+            await TimeOffRequestNotification.destroy({
+                where: { timeOffRequestID: id },
+            });
+
+            await timeOffRequest.destroy();
+
+            return res.status(200).json({ message: "Time off approved" });
+        } catch (error: any) {
+            Logger.error("Error approving Time off request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    private static async denyRequest(req: Request, res: Response) {
+        try {
+            const { id } = req.body;
+
+            const shiftOfferRequest = await TimeOffRequest.findByPk(id);
+
+            if (!shiftOfferRequest) {
+                return res
+                    .status(404)
+                    .json({ message: "Time off request not found" });
+            }
+
+            await TimeOffRequest.update(
+                { approvalStatus: "Denied" },
+                { where: { id } },
+            );
+
+            await TimeOffRequestNotification.destroy({
+                where: { timeOffRequestID: id },
+            });
+
+            return res.status(200).json({ message: "Time off denied" });
+        } catch (error: any) {
+            Logger.error("Error denying Time off request:", error.message);
+            return res.status(500).json({ message: error.message });
+        }
     }
 
     private async getTimeOffRequestForBusiness(req: Request, res: Response) {

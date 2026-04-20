@@ -3,8 +3,8 @@ import { ModelRouter } from "../classes/databaseModel";
 import { ScheduleDatabase } from "../classes/scheduleDatabase";
 import { Employee } from "../models/employee";
 import { Shift } from "../models/shift";
-import { ShiftTradeRequest } from "../models/shiftTradeRequest";
-import { ShiftTradeRequestNotification } from "../models/shiftTradeRequestNotification";
+import { ShiftOfferRequest } from "../models/shiftOfferRequest";
+import { ShiftOfferRequestNotification } from "../models/shiftOfferRequestNotification";
 import { User } from "../models/user";
 import {
     businessAuth,
@@ -13,19 +13,19 @@ import {
 } from "../authorization/businessAuthorization";
 import { Logger } from "../classes/util/logger";
 
-const shiftTradeRequestNotificationIDResolver: IDResolver = async (
+const shiftOfferRequestNotificationIDResolver: IDResolver = async (
     req: Request,
 ) => {
     let id = req.params?.id;
     if (!id) id = req.body?.id;
     if (!id) return undefined;
     try {
-        const shiftTradeRequestNotification =
-            await ShiftTradeRequestNotification.findOne({
+        const shiftOfferRequestNotification =
+            await ShiftOfferRequestNotification.findOne({
                 where: { id },
                 include: [
                     {
-                        model: ShiftTradeRequest,
+                        model: ShiftOfferRequest,
                         include: [
                             {
                                 model: Shift,
@@ -35,51 +35,50 @@ const shiftTradeRequestNotificationIDResolver: IDResolver = async (
                     },
                 ],
             });
-        return (shiftTradeRequestNotification as any)?.ShiftTradeRequest?.Shift
+        return (shiftOfferRequestNotification as any)?.ShiftOfferRequest?.Shift
             .businessID?.businessID;
     } catch (error: any) {
         Logger.error(
-            `Error fetching ${ShiftTradeRequestNotification.name}: ${error}`,
+            `Error fetching ${ShiftOfferRequestNotification.name}: ${error}`,
         );
     }
 };
 
-class ShiftTradeRequestNotificationRouter extends ModelRouter {
+class ShiftOfferRequestNotificationRouter extends ModelRouter {
     public path(): string {
-        return "/shiftTradeRequestNotifications";
+        return "/shiftOfferRequestNotifications";
     }
 
     protected buildRouter(router: Router): void {
         router.get("/business/:businessID", businessAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(
-                ShiftTradeRequestNotification,
+                ShiftOfferRequestNotification,
                 req,
                 res,
                 {
                     include: [
                         {
-                            model: ShiftTradeRequest,
+                            model: ShiftOfferRequest,
                             required: true,
                             include: [
                                 {
                                     model: Shift,
                                     required: true,
+                                    where: {
+                                        businessID: req.params.businessID,
+                                    },
                                     include: [
                                         {
                                             model: Employee,
-                                            as: "Employee",
-                                            required: true,
+                                            required: false,
                                             include: [
-                                                { model: User, required: true },
+                                                {
+                                                    model: User,
+                                                    required: true,
+                                                },
                                             ],
                                         },
                                     ],
-                                },
-                                {
-                                    model: Employee,
-                                    as: "TargetEmployee",
-                                    required: true,
-                                    include: [{ model: User, required: true }],
                                 },
                             ],
                         },
@@ -89,9 +88,9 @@ class ShiftTradeRequestNotificationRouter extends ModelRouter {
         );
         router.put(
             "/dismiss",
-            managerAuth(shiftTradeRequestNotificationIDResolver),
+            managerAuth(shiftOfferRequestNotificationIDResolver),
             (req, res) => {
-                ShiftTradeRequestNotificationRouter.dismiss(req, res);
+                ShiftOfferRequestNotificationRouter.dismiss(req, res);
             },
         );
     }
@@ -100,26 +99,24 @@ class ShiftTradeRequestNotificationRouter extends ModelRouter {
         const { id } = req.body;
         Logger.log(id);
 
-        const shiftTradeRequestNotification =
-            await ShiftTradeRequestNotification.findByPk(id);
+        const shiftOfferRequestNotification =
+            await ShiftOfferRequestNotification.findByPk(id);
 
-        if (!shiftTradeRequestNotification) {
+        if (!shiftOfferRequestNotification) {
             Logger.error(
-                `Error updating ${ShiftTradeRequestNotification.name}: not found`,
+                `Error updating ${ShiftOfferRequestNotification.name}: not found`,
             );
             return res.status(404).json({ message: "Notification not found" });
         }
 
-        await ShiftTradeRequestNotification.update(
+        await ShiftOfferRequestNotification.update(
             { dismissed: true },
             { where: { id } },
         );
 
-        Logger.log(`Dismissed ${ShiftTradeRequestNotification.name}`);
+        Logger.log(`Dismissed ${ShiftOfferRequestNotification.name}`);
         return res.status(200).json({ message: "Notification dismissed" });
     }
 }
-
-export const shiftTradeRequestNotificationRouter =
-    new ShiftTradeRequestNotificationRouter();
-
+export const shiftOfferRequestNotificationRouter =
+    new ShiftOfferRequestNotificationRouter();

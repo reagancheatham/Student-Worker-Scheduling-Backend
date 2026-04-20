@@ -203,6 +203,10 @@ Shift.hasMany(ShiftTradeRequest, {
 Employee.hasMany(ShiftTradeRequest, {
     foreignKey: "targetEmployeeID",
 });
+ShiftTradeRequest.belongsTo(Employee, {
+    foreignKey: "targetEmployeeID",
+    as: "TargetEmployee",
+});
 
 ShiftOfferRequest.belongsTo(Shift, {
     foreignKey: "shiftID",

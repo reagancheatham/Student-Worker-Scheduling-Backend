@@ -26,6 +26,10 @@ import { taskTemplateRouter } from "./routers/taskTemplateRouter.ts";
 import { timeOffRequestRouter } from "./routers/timeOffRequestRouter.ts";
 import { timesheetRouter } from "./routers/timesheetRouter.ts";
 import { Logger } from "./classes/util/logger.ts";
+import { messageNotificationRouter } from "./routers/messageNotificationRouter.ts";
+import { shiftOfferRequestNotificationRouter } from "./routers/shiftOfferRequestNotificationRouter.ts";
+import { shiftTradeRequestNotificationRouter } from "./routers/shiftTradeRequestNotificationRouter.ts";
+import { timeOffRequestNotificationRouter } from "./routers/timeOffRequestNotificationRouter.ts";
 
 const router = Router();
 const modelRouters: ModelRouter[] = [
@@ -55,6 +59,10 @@ const modelRouters: ModelRouter[] = [
     timesheetRouter,
     authenticationRouter,
     inviteRouter,
+    messageNotificationRouter,
+    shiftOfferRequestNotificationRouter,
+    shiftTradeRequestNotificationRouter,
+    timeOffRequestNotificationRouter,
 ];
 
 router.use((req: Request, res: Response, next: NextFunction) => {
