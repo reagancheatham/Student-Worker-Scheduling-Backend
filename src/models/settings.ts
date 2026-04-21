@@ -69,6 +69,46 @@ Settings.init(
             allowNull: false,
             defaultValue: false,
         },
+        doubleTaskSignOff: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        employeeSignOff: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        allowClockInOut: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
+        clockInThreshold: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 5,
+        },
+        onTimeThreshold: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 15,
+        },
+        automaticShiftTrades: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        enableOpenShift: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        enableShiftTrades: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
     },
     {
         sequelize: sequelizeInstance,
