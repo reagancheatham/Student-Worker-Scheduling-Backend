@@ -35,16 +35,22 @@ TaskCheckOff.init(
         },
         sourceEmployeeID: {
             type: DataTypes.INTEGER,
-            allowNull: true,
+            allowNull: false,
             references: {
                 model: Employee,
                 key: "id",
             },
-            onDelete: "SET NULL",
+            onDelete: "CASCADE",
         },
     },
     {
         sequelize: sequelizeInstance,
         timestamps: false,
+        indexes: [
+            {
+                unique: true,
+                fields: ["taskID", "sourceEmployeeID"],
+            },
+        ],
     },
 );

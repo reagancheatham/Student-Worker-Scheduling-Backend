@@ -110,18 +110,6 @@ export class ScheduleDatabase {
             Logger.error(`Error deleting ${model.name}: ${error}`);
             res.status(500).send({ error });
         }
-        await model
-            .destroy({
-                where,
-            })
-            .then(() => {
-                Logger.log(`Successfully deleted ${model.name}`);
-                res.status(200).send({});
-            })
-            .catch((error) => {
-                Logger.error(`Error deleting ${model.name}: ${error}`);
-                res.status(500).send({ error });
-            });
     }
 
     public static async get<M extends Model>(

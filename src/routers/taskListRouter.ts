@@ -102,7 +102,7 @@ class TaskListRouter extends ModelRouter {
 
             await TaskListRouter.updateTaskListTasks(tasks);
             res.status(200).send(list);
-        } catch (error) {
+        } catch (error: any) {
             Logger.error(`Error creating ${TaskList.name}: ${error}`);
             res.status(500).send({ error });
         }

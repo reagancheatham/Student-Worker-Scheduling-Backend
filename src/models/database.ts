@@ -175,6 +175,7 @@ Business.hasMany(TaskListTemplate, {
 
 TaskTemplate.belongsTo(TaskListTemplate, {
     foreignKey: "taskListTemplateID",
+    onDelete: "CASCADE",
 });
 TaskListTemplate.hasMany(TaskTemplate, {
     foreignKey: "taskListTemplateID",

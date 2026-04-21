@@ -12,6 +12,9 @@ import { Employee } from "../models/employee.ts";
 import { Shift } from "../models/shift.ts";
 import { User } from "../models/user.ts";
 import { Role } from "../models/role.ts";
+import { TaskList } from "../models/taskList.ts";
+import { Task } from "../models/task.ts";
+import { TaskCheckOff } from "../models/taskCheckOff.ts";
 
 type ShiftRangeParams = {
     businessID: string;
@@ -52,6 +55,35 @@ const employeeIDResolver: IDResolver = async (req: Request) => {
     else return employee.businessID;
 };
 
+const shiftWhere = {
+    include: [
+        {
+            model: Employee,
+            include: [User, Role],
+        },
+        Role,
+        {
+            model: TaskList,
+            include: [
+                {
+                    model: Task,
+                    include: [
+                        {
+                            model: TaskCheckOff,
+                            include: [
+                                {
+                                    model: Employee,
+                                    include: [User],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+};
+
 class ShiftRouter extends ModelRouter {
     public path(): string {
         return "/shifts";
@@ -84,36 +116,14 @@ class ShiftRouter extends ModelRouter {
                 this.getShiftsForEmployeeWithinRange(req, res, true),
         );
         router.get("/:id", businessAuth(shiftIDResolver), (req, res) =>
-            ScheduleDatabase.getWhere(
-                Shift,
-                req,
-                res,
-                {
-                    include: [
-                        {
-                            model: Employee,
-                            include: [User, Role],
-                        },
-                        Role,
-                    ],
-                },
-                "id",
-            ),
+            ScheduleDatabase.getWhere(Shift, req, res, shiftWhere, "id"),
         );
         router.get("/business/:businessID", businessAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(
                 Shift,
                 req,
                 res,
-                {
-                    include: [
-                        {
-                            model: Employee,
-                            include: [User, Role],
-                        },
-                        Role,
-                    ],
-                },
+                shiftWhere,
                 "businessID",
             ),
         );
@@ -139,13 +149,7 @@ class ShiftRouter extends ModelRouter {
 
         await Shift.findAll({
             where,
-            include: [
-                {
-                    model: Employee,
-                    include: [User, Role],
-                },
-                Role,
-            ],
+            include: shiftWhere.include,
         })
             .then((result) => {
                 Logger.log(`Found ${result.length} ${Shift.name}s`);
@@ -180,13 +184,7 @@ class ShiftRouter extends ModelRouter {
 
         await Shift.findAll({
             where,
-            include: [
-                {
-                    model: Employee,
-                    include: [User, Role],
-                },
-                Role,
-            ],
+            include: shiftWhere.include,
         })
             .then((result) => {
                 Logger.log(`Found ${result.length} ${Shift.name}s`);
