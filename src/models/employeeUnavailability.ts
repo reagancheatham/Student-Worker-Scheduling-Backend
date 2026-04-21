@@ -5,6 +5,7 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
+import { Employee } from "./employee.ts";
 
 export class EmployeeUnavailability extends Model<
     InferAttributes<EmployeeUnavailability>,
@@ -29,7 +30,7 @@ EmployeeUnavailability.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "Employee",
+                model: Employee,
                 key: "id",
             },
             onDelete: "CASCADE",
