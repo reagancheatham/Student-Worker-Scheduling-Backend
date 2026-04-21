@@ -12,6 +12,7 @@ import { ShiftTaskListTemplate } from "../models/shiftTaskListTemplate.ts";
 import { ShiftTaskTemplate } from "../models/shiftTaskTemplate.ts";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
+import { Role } from "../models/role.ts";
 
 const idResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
@@ -77,7 +78,22 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                 ScheduleShiftTemplate,
                 req,
                 res,
-                { include: [ShiftTaskListTemplate, Employee] },
+                {
+                    include: [
+                        ShiftTaskListTemplate,
+                        {
+                            model: Employee,
+                            include: [
+                                User,
+                                {
+                                    model: Role,
+                                    through: { attributes: [] },
+                                },
+                            ],
+                        },
+                        Role,
+                    ],
+                },
                 "id",
             ),
         );
@@ -97,8 +113,15 @@ class ScheduleShiftTemplateRouter extends ModelRouter {
                             },
                             {
                                 model: Employee,
-                                include: [User],
+                                include: [
+                                    User,
+                                    {
+                                        model: Role,
+                                        through: { attributes: [] },
+                                    },
+                                ],
                             },
+                            Role,
                         ],
                     },
                     "scheduleTemplateID",
