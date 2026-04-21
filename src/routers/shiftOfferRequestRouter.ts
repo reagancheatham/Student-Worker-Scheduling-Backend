@@ -69,7 +69,8 @@ class ShiftOfferRequestRouter extends ModelRouter {
         router.post(
             "/",
             userBusinessAuth(offerRequestIDResolver, userIDResolver),
-            (req, res) => ScheduleDatabase.create(ShiftOfferRequest, req, res),
+            (req, res) =>
+                ShiftOfferRequestRouter.createShiftOfferRequest(req, res),
         );
         router.put(
             "/",
@@ -101,27 +102,47 @@ class ShiftOfferRequestRouter extends ModelRouter {
         router.get(
             "/business/:businessID",
             businessAuth(),
-            this.getAllRequestsForBusiness,
+            (req, res) => ScheduleDatabase.getAllWhere(ShiftOfferRequest, req, res, { include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID: "businessID" },
+                },
+            ],}),
         );
-        router.put("/approve", userBusinessAuth(offerRequestIDResolver, userIDResolver), (req, res) =>
-            ShiftOfferRequestRouter.approveRequest(req, res),
+        router.put(
+            "/approve",
+            userBusinessAuth(offerRequestIDResolver, userIDResolver),
+            (req, res) => ShiftOfferRequestRouter.approveRequest(req, res),
         );
-        router.put("/deny", userBusinessAuth(offerRequestIDResolver, userIDResolver), (req, res) =>
-            ShiftOfferRequestRouter.denyRequest(req, res),
+        router.put(
+            "/deny",
+            userBusinessAuth(offerRequestIDResolver, userIDResolver),
+            (req, res) => ShiftOfferRequestRouter.denyRequest(req, res),
         );
     }
 
     private static async createShiftOfferRequest(req: Request, res: Response) {
-        const shiftOfferRequest =
-            await ScheduleDatabase.create<ShiftOfferRequest>(
-                ShiftOfferRequest,
-                req,
-                res,
-            );
-        if (shiftOfferRequest != null) {
-            await ShiftOfferRequestNotification.create({
-                shiftOfferRequestID: shiftOfferRequest.id,
-            });
+        try {
+            const shiftOfferRequest =
+                await ScheduleDatabase.create<ShiftOfferRequest>(
+                    ShiftOfferRequest,
+                    req,
+                    res,
+                );
+
+            if (shiftOfferRequest != null) {
+                await ShiftOfferRequestNotification.create({
+                    shiftOfferRequestID: shiftOfferRequest.id,
+                });
+            }
+
+            return res
+                .status(200)
+                .json({ message: "Created Shift Offer Request" });
+        } catch (error: any) {
+            Logger.error("Error creating shift offer request:", error.message);
+            return res.status(500).json({ message: error.message });
         }
     }
 
@@ -184,34 +205,6 @@ class ShiftOfferRequestRouter extends ModelRouter {
             Logger.error("Error denying shift offer request:", error.message);
             return res.status(500).json({ message: error.message });
         }
-    }
-
-    private async getAllRequestsForBusiness(req: Request, res: Response) {
-        const businessID = req.params["businessID"];
-
-        await ShiftOfferRequest.findAll({
-            include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID },
-                },
-            ],
-        })
-            .then((results) => {
-                Logger.log(
-                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
-                );
-
-                res.status(200).send({ results });
-            })
-            .catch((error) => {
-                Logger.error(
-                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
-                );
-
-                res.status(500).send({ error });
-            });
     }
 }
 
