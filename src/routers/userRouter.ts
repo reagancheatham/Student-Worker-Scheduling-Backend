@@ -98,48 +98,40 @@ class UserRouter extends ModelRouter {
                 return;
             }
 
-            const requestTermCode = String(req.body?.termCode ?? "").trim();
-            const defaultEnvTermCode = String(
-                process.env.STUDENT_SCHEDULE_DEFAULT_TERM_CODE ?? "",
-            ).trim();
+            const targetEmployeeID = Number.parseInt(String(req.body?.employeeID ?? ""), 10);
+            const shouldTargetSpecificEmployee = Number.isInteger(targetEmployeeID) && targetEmployeeID > 0;
 
-            const employees = await Employee.findAll({
+            let employees = await Employee.findAll({
                 where: { userID },
             });
-            const businessTermCodeLookup = new Map<number, string>();
 
-            let employeesProcessed = 0;
-            let employeesSkipped = 0;
-            let employeesSkippedNoTermCode = 0;
-            let blocksPrepared = 0;
-            let blocksInserted = 0;
-            let blocksUpdated = 0;
-            let blocksRemoved = 0;
+            if (shouldTargetSpecificEmployee) {
+                employees = employees.filter((emp) => emp.id === targetEmployeeID);
+            }
 
+            // Resolve term code: use request param, fall back to business settings, else error
+            let termCode = String(req.body?.termCode ?? "").trim();
+            
+            if (!termCode) {
+                const businessSettings = await Settings.findByPk(employees[0]?.businessID);
+                termCode = String(businessSettings?.defaultTermCode ?? "").trim();
+            }
+
+            if (!termCode) {
+                const defaultEnvTermCode = String(
+                    process.env.STUDENT_SCHEDULE_DEFAULT_TERM_CODE ?? "",
+                ).trim();
+                termCode = defaultEnvTermCode;
+            }
+
+            if (!termCode) {
+                res.status(400).send({ message: "No term code provided or configured" });
+                return;
+            }
+
+            // Sync unavailability for all resolved employees
             for (const employee of employees) {
-                let termCode = requestTermCode;
-
-                if (!termCode) {
-                    let businessDefaultTermCode = businessTermCodeLookup.get(employee.businessID);
-
-                    if (businessDefaultTermCode === undefined) {
-                        const businessSettings = await Settings.findByPk(employee.businessID);
-                        businessDefaultTermCode = String(
-                            businessSettings?.defaultTermCode ?? "",
-                        ).trim();
-                        businessTermCodeLookup.set(employee.businessID, businessDefaultTermCode);
-                    }
-
-                    termCode = businessDefaultTermCode || defaultEnvTermCode;
-                }
-
-                if (!termCode) {
-                    employeesSkipped += 1;
-                    employeesSkippedNoTermCode += 1;
-                    continue;
-                }
-
-                const syncResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
+                await EmployeeUnavailabilitySyncService.syncForEmployee(
                     employee.id,
                     {
                         studentID: updatedUser.studentID,
@@ -147,31 +139,11 @@ class UserRouter extends ModelRouter {
                     },
                     termCode,
                 );
-
-                if (!syncResult) {
-                    employeesSkipped += 1;
-                    continue;
-                }
-
-                employeesProcessed += 1;
-                blocksPrepared += syncResult.blocksPrepared;
-                blocksInserted += syncResult.blocksInserted;
-                blocksUpdated += syncResult.blocksUpdated;
-                blocksRemoved += syncResult.blocksRemoved;
             }
 
             res.status(200).send({
                 affectedCount,
                 studentIDSyncTriggered: true,
-                requestTermCode,
-                employeesFound: employees.length,
-                employeesProcessed,
-                employeesSkipped,
-                employeesSkippedNoTermCode,
-                blocksPrepared,
-                blocksInserted,
-                blocksUpdated,
-                blocksRemoved,
             });
         } catch (error: any) {
             if (error.name === "SequelizeUniqueConstraintError") {

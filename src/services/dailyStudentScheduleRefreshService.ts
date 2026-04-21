@@ -48,11 +48,6 @@ export class DailyStudentScheduleRefreshService {
 
             let employeesProcessed = 0;
             let employeesSkipped = 0;
-            let employeesSkippedNoTermCode = 0;
-            let blocksPrepared = 0;
-            let blocksInserted = 0;
-            let blocksUpdated = 0;
-            let blocksRemoved = 0;
 
             for (const employee of employees) {
                 const user = (employee as Employee & { User?: User }).User;
@@ -76,7 +71,6 @@ export class DailyStudentScheduleRefreshService {
 
                 if (!termCode) {
                     employeesSkipped += 1;
-                    employeesSkippedNoTermCode += 1;
                     continue;
                 }
 
@@ -95,21 +89,12 @@ export class DailyStudentScheduleRefreshService {
                 }
 
                 employeesProcessed += 1;
-                blocksPrepared += syncResult.blocksPrepared;
-                blocksInserted += syncResult.blocksInserted;
-                blocksUpdated += syncResult.blocksUpdated;
-                blocksRemoved += syncResult.blocksRemoved;
             }
 
             console.log("Daily student schedule refresh completed", {
                 employeesFound: employees.length,
                 employeesProcessed,
                 employeesSkipped,
-                employeesSkippedNoTermCode,
-                blocksPrepared,
-                blocksInserted,
-                blocksUpdated,
-                blocksRemoved,
             });
         } catch (error) {
             console.error(`Error during daily student schedule refresh: ${error}`);

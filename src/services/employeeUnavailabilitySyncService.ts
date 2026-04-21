@@ -8,10 +8,7 @@ export type StudentScheduleIdentity = {
 };
 
 export type EmployeeUnavailabilitySyncResult = {
-    blocksPrepared: number;
-    blocksInserted: number;
-    blocksUpdated: number;
-    blocksRemoved: number;
+    success: boolean;
 };
 
 export class EmployeeUnavailabilitySyncService {
@@ -108,10 +105,7 @@ export class EmployeeUnavailabilitySyncService {
         }
 
         return {
-            blocksPrepared: blocks.length,
-            blocksInserted: blocksToInsert.length,
-            blocksUpdated: blockNamesToUpdate.length,
-            blocksRemoved: blockIDsToDelete.length,
+            success: true,
         };
     }
 

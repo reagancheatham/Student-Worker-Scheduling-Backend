@@ -43,24 +43,16 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             });
 
             let employeesProcessed = 0;
-            let employeesSkipped = 0;
-            let blocksPrepared = 0;
-            let blocksInserted = 0;
-            let blocksUpdated = 0;
-            let blocksRemoved = 0;
             const employeeErrors: Array<{ employeeID: number; message: string }> = [];
 
             for (const employee of employees) {
                 const user = (employee as Employee & { User?: User }).User;
                 if (!user) {
-                    employeesSkipped += 1;
                     continue;
                 }
 
-                let importResult = null;
-
                 try {
-                    importResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
+                    const importResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
                         employee.id,
                         {
                             studentID: user.studentID,
@@ -68,6 +60,12 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                         },
                         termCode,
                     );
+
+                    if (!importResult) {
+                        continue;
+                    }
+
+                    employeesProcessed += 1;
                 } catch (error) {
                     const message =
                         error instanceof Error
@@ -78,32 +76,13 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                         employeeID: employee.id,
                         message,
                     });
-                    employeesSkipped += 1;
-                    continue;
                 }
-
-                if (!importResult) {
-                    employeesSkipped += 1;
-                    continue;
-                }
-
-                employeesProcessed += 1;
-                blocksPrepared += importResult.blocksPrepared;
-                blocksInserted += importResult.blocksInserted;
-                blocksUpdated += importResult.blocksUpdated;
-                blocksRemoved += importResult.blocksRemoved;
             }
 
             res.status(200).send({
                 businessID,
                 termCode,
-                employeesFound: employees.length,
                 employeesProcessed,
-                employeesSkipped,
-                blocksPrepared,
-                blocksInserted,
-                blocksUpdated,
-                blocksRemoved,
                 employeeErrors,
             });
         } catch (error) {
@@ -167,10 +146,7 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
             res.status(200).send({
                 employeeID,
                 termCode,
-                blocksPrepared: importResult.blocksPrepared,
-                blocksInserted: importResult.blocksInserted,
-                blocksUpdated: importResult.blocksUpdated,
-                blocksRemoved: importResult.blocksRemoved,
+                success: true,
             });
         } catch (error) {
             console.error(`Error importing student schedule for employee ${employeeID}: ${error}`);
