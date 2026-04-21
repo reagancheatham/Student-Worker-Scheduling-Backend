@@ -85,8 +85,57 @@ export class Authentication {
             },
         });
 
-        if (!user)
-            user = await User.create({
+        Logger.log("Found User");
+
+        const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
+
+        if (user && process.env.AUTH_SECRET) {
+
+            if (code) {
+                await Invite.handleInvite(user.email, code, user.id);
+            }
+
+
+            const session = await Session.findOne({
+                where: {
+                    userID: user.id,
+                },
+            });
+
+            if (session) {
+                Logger.log(`Found Existing Session`);
+                res.status(200).send({
+                    token: session.token,
+                    valid: true,
+                    profilePicture: payload.picture,
+                    user,
+                });
+            } else {
+                const token = jwt.sign(
+                    { id: user.email },
+                    process.env.AUTH_SECRET,
+                    {
+                        expiresIn: EXPIRATION_WINDOW,
+                    },
+                );
+
+                await Session.create({
+                    userID: user.id,
+                    token: token,
+                    expirationTime: expirationTime,
+                });
+
+                Logger.log(`Created New Session`);
+
+                res.status(200).send({
+                    token: token,
+                    valid: true,
+                    profilePicture: payload.picture,
+                    user,
+                });
+            }
+        } else {
+            const newUser = await User.create({
                 studentID: 1,
                 permissionRoleID: 1,
                 firstName: payload.given_name || "",
@@ -95,56 +144,7 @@ export class Authentication {
                 phoneNumber: "",
             });
 
-        if (!user) {
-            Logger.error("Failed to create user!");
-            res.status(500).send({ message: "Failed to create user!" });
-
-            return;
-        }
-
-        if (code) await Invite.handleInvite(user.email, code, user.id);
-
-        Logger.log("Found User");
-
-        const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
-
-        const session = await Session.findOne({
-            where: {
-                userID: user.id,
-            },
-        });
-
-        if (session) {
-            Logger.log(`Found Existing Session`);
-            res.status(200).send({
-                token: session.token,
-                valid: true,
-                profilePicture: payload.picture,
-                user,
-            });
-        } else {
-            const token = jwt.sign(
-                { id: user.email },
-                process.env.AUTH_SECRET,
-                {
-                    expiresIn: EXPIRATION_WINDOW,
-                },
-            );
-
-            await Session.create({
-                userID: user.id,
-                token: token,
-                expirationTime: expirationTime,
-            });
-
-            Logger.log(`Created New Session`);
-
-            res.status(200).send({
-                token: token,
-                valid: true,
-                profilePicture: payload.picture,
-                user,
-            });
+            await this.handleLogin(req, res, payload, undefined);
         }
     }
 
