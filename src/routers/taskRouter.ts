@@ -101,6 +101,8 @@ class TaskRouter extends ModelRouter {
         task: Task,
         listOrder: number,
     ): Promise<void> {
+        console.log(`Task: ${JSON.stringify(task)}`);
+
         let id = task.id;
         let taskPromises: Promise<any>[] = [];
         task.listOrder = listOrder;
