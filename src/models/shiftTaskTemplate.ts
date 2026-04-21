@@ -51,8 +51,8 @@ ShiftTaskTemplate.init(
         timestamps: false,
         indexes: [
             {
-                unique: true,
-                fields: ["shiftTaskListID", "name"],
+                unique: false,
+                fields: ["name", "listOrder"],
             },
         ],
     },
