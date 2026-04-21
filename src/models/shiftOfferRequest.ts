@@ -97,6 +97,11 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 "id",
             ),
         );
+        router.get("/available/:businessID", this.getAllRequestsForBusiness);
+        router.get(
+            "/pending/:businessID",
+            this.getAllPendingRequestsForBusiness,
+        );
         router.get("/:id", (req, res) =>
             ScheduleDatabase.get(ShiftOfferRequest, req, res, "id"),
         );
@@ -108,11 +113,6 @@ class ShiftOfferRequestRouter extends ModelRouter {
                 {},
                 "shiftID",
             ),
-        );
-        router.get("/available/:businessID", this.getAllRequestsForBusiness);
-        router.get(
-            "/pending/:businessID",
-            this.getAllPendingRequestsForBusiness,
         );
     }
 

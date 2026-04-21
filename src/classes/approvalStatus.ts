@@ -1,4 +1,5 @@
 export const ApprovalStatus = {
+    Unsbumitted: "Unsubmitted",
     Pending: "Pending",
     Approved: "Approved",
     Denied: "Denied",
