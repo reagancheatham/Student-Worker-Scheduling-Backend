@@ -78,6 +78,12 @@ export class Authentication {
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
         if (user && process.env.AUTH_SECRET) {
+
+            if (code) {
+                await Invite.handleInvite(user.email, code, user.id);
+            }
+
+
             const session = await Session.findOne({
                 where: {
                     userID: user.id,
@@ -125,10 +131,6 @@ export class Authentication {
                 email: payload.email || "",
                 phoneNumber: "",
             });
-
-            if (code) {
-                await Invite.handleInvite(newUser.email, code, newUser.id);
-            }
 
             await this.handleLogin(req, res, payload, undefined);
         }

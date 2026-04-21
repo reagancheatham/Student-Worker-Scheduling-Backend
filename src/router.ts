@@ -1,6 +1,6 @@
 import { Response, Request, Router, NextFunction } from "express";
 import { ModelRouter } from "./classes/databaseModel.ts";
-import { businessRouter } from "./models/business.ts";
+import { businessRouter } from "./routers/businessRouter.ts";
 import { scheduleShiftTemplateRouter } from "./routers/scheduleShiftTemplateRouter.ts";
 import { shiftTaskListTemplateRouter } from "./routers/shiftTaskListTemplateRouter.ts";
 import { taskRouter } from "./routers/taskRouter.ts";
