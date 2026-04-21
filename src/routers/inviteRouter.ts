@@ -19,7 +19,7 @@ const resolver: IDResolver = async (req: Request) => {
         where: { code },
     });
 
-    return invite?.businessID;
+    return invite?.businessID ?? undefined;
 };
 
 class InviteRouter extends ModelRouter {

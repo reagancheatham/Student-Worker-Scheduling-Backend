@@ -51,9 +51,11 @@ Employee.belongsTo(BusinessPermissionRole, {
 
 Business.hasMany(Invite, {
     foreignKey: "businessID",
+    constraints: false,
 });
 Invite.belongsTo(Business, {
     foreignKey: "businessID",
+    constraints: false,
 });
 
 BusinessPermissionRole.hasMany(Invite, {
