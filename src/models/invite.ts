@@ -2,6 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import type {
     InferAttributes,
     InferCreationAttributes,
+    CreationOptional,
     Transaction,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
@@ -11,6 +12,7 @@ import { Employee } from "./employee.ts";
 import nodemailer from "nodemailer";
 import { Business } from "./business.ts";
 import { Logger } from "../classes/util/logger.ts";
+import { EmailService } from "../classes/util/emailService.ts";
 
 export class Invite extends Model<
     InferAttributes<Invite>,
@@ -18,8 +20,9 @@ export class Invite extends Model<
 > {
     declare code: string;
     declare email: string;
-    declare businessID: number;
+    declare businessID: CreationOptional<number> | null;
     declare businessPermissionRoleID: number;
+    declare intendedBusinessName: string;
 
     public static async createInvite(
         email: string,
@@ -34,15 +37,15 @@ export class Invite extends Model<
         return Invite.create(
             {
                 code,
-                email: email,
+                email,
                 businessID: business.id,
                 businessPermissionRoleID,
+                intendedBusinessName: business.name,
             },
             { transaction },
         )
             .then((result) => {
                 Logger.log("Successfully created invite");
-
                 return {
                     invite: result,
                     code,
@@ -56,34 +59,92 @@ export class Invite extends Model<
             });
     }
 
+    public static async createOwnerInvite(
+        email: string,
+        intendedBusinessName: string,
+        businessPermissionRoleID: number,
+        transaction?: Transaction,
+    ) {
+        const code = CodeService.generate10DigitCode();
+
+        Logger.log("Creating owner invite (no business yet)");
+
+        return Invite.create(
+            {
+                code,
+                email,
+                businessID: null,
+                businessPermissionRoleID,
+                intendedBusinessName,
+            },
+            { transaction },
+        )
+            .then((result) => {
+                Logger.log("Successfully created owner invite");
+                return { invite: result, code, email, intendedBusinessName };
+            })
+            .catch((error) => {
+                Logger.log(`Error creating owner invite: ${error}`);
+                throw error;
+            });
+    }
+
     public static async handleInvite(
         email: string,
         code: string,
         userID: number,
     ) {
-        await Invite.findOne({ where: { code: code, email: email } })
-            .then((result) => {
-                if (!result) {
-                    Logger.log("Could not find valid invite");
-                    return;
-                }
+        const invite = await Invite.findOne({ where: { code, email } }).catch(
+            () => null,
+        );
 
-                Logger.log("Found invite");
+        if (!invite) {
+            Logger.log("Could not find valid invite");
+            return;
+        }
 
-                Employee.create({
-                    businessID: result.businessID,
-                    userID: userID,
-                    businessPermissionRoleID: result.businessPermissionRoleID,
-                })
-                    .then(() => Logger.log(`Added employee to business`))
-                    .catch((error) => {
-                        Logger.log(`Error adding employee: ${error}`);
-                    });
-            })
-            .catch(() => {
-                Logger.log("Could not find valid invite");
-                return;
+        Logger.log("Found invite");
+
+        const rawBusinessID = invite.getDataValue("businessID") as
+            | number
+            | null;
+
+        try {
+            let businessID = invite.businessID;
+
+            if (businessID === null || rawBusinessID === null) {
+                const business = await Business.create({
+                    name: invite.intendedBusinessName,
+                });
+
+                Logger.log(
+                    `Created business "${invite.intendedBusinessName}" (id: ${business.id})`,
+                );
+
+                businessID = business.id;
+            } else {
+                await Business.update(
+                    { name: invite.intendedBusinessName },
+                    { where: { id: businessID } },
+                );
+
+                Logger.log(
+                    `Applied intended name "${invite.intendedBusinessName}" to business ${businessID}`,
+                );
+            }
+
+            await Employee.create({
+                businessID,
+                userID,
+                businessPermissionRoleID: invite.businessPermissionRoleID,
             });
+
+            Logger.log(`Added employee to business ${businessID}`);
+
+            await invite.destroy();
+        } catch (error) {
+            Logger.log(`Error handling invite: ${error}`);
+        }
     }
 
     public static async sendInviteEmail(
@@ -105,13 +166,9 @@ export class Invite extends Model<
             .sendMail({
                 from: process.env.NODE_EMAIL,
                 to: email,
-                subject: "You're invited!",
-                text: `You've been invited. Click here to join: ${inviteLink}`,
-                html: `
-            <h2>You're Invited</h2>
-            <p>You have been invited to join ${businessName}.</p>
-            <a href="${inviteLink}">Accept Invite</a>
-        `,
+                subject: `You've been invited to join ${businessName}!`,
+                text: `You've been invited to join ${businessName}. Click here to accept: ${inviteLink}`,
+                html: EmailService.buildInviteEmail(businessName, inviteLink),
             })
             .then(() => {
                 Logger.log("Invite email sent");
@@ -132,20 +189,15 @@ Invite.init(
         },
         businessID: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: "Businesses",
-                key: "id",
-            },
-            onDelete: "CASCADE",
+            allowNull: true,
         },
         businessPermissionRoleID: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: BusinessPermissionRole,
-                key: "id",
-            },
+        },
+        intendedBusinessName: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
     },
     {

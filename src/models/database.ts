@@ -51,9 +51,11 @@ Employee.belongsTo(BusinessPermissionRole, {
 
 Business.hasMany(Invite, {
     foreignKey: "businessID",
+    constraints: false,
 });
 Invite.belongsTo(Business, {
     foreignKey: "businessID",
+    constraints: false,
 });
 
 BusinessPermissionRole.hasMany(Invite, {
@@ -135,6 +137,17 @@ ScheduleShiftTemplate.belongsTo(Employee, {
 });
 Employee.hasMany(ScheduleShiftTemplate, {
     foreignKey: "employeeID",
+});
+
+ScheduleShiftTemplate.belongsTo(Role, {
+    foreignKey: {
+        name: "targetRoleID",
+        allowNull: true,
+    },
+    onDelete: "SET NULL",
+});
+Role.hasMany(ScheduleShiftTemplate, {
+    foreignKey: "targetRoleID",
 });
 
 ShiftTaskListTemplate.belongsTo(ScheduleShiftTemplate, {
