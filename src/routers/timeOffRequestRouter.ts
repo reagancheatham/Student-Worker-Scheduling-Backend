@@ -5,7 +5,7 @@ import { Logger } from "../classes/util/logger.ts";
 import { Employee } from "../models/employee.ts";
 import { TimeOffRequest } from "../models/timeOffRequest.ts";
 import { User } from "../models/user.ts";
-import { EmployeeUnavailability } from "../models/employeeUnavailability";
+import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
 import { TimeOffRequestNotification } from "../models/timeOffRequestNotification.ts";
 
 class TimeOffRequestRouter extends ModelRouter {

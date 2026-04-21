@@ -29,7 +29,7 @@ EmployeeUnavailability.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "Employees",
+                model: "Employee",
                 key: "id",
             },
             onDelete: "CASCADE",

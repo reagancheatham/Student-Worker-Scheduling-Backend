@@ -1,4 +1,4 @@
-import { EmployeeUnavailability } from "../models/employeeUnavailability";
+import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
 
 const dayCodeToWeekday: Record<string, number> = {
     SU: 0,

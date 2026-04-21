@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { EmployeeUnavailability } from "../models/employeeUnavailability";
+import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
 import { StudentScheduleService } from "./studentScheduleService.ts";
 
 export type StudentScheduleIdentity = {
