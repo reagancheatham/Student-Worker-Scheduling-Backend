@@ -242,7 +242,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
                                 {
                                     model: User,
                                     required: true,
-                                    attributes: ["firstName", "lastName"],
+                                    attributes: ["firstName", "lastName", "id"],
                                 },
                             ],
                         },
@@ -288,7 +288,7 @@ class ShiftOfferRequestRouter extends ModelRouter {
                                 {
                                     model: User,
                                     required: true,
-                                    attributes: ["firstName", "lastName"],
+                                    attributes: ["firstName", "lastName", "id"],
                                 },
                             ],
                         },

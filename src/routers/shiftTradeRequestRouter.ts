@@ -130,7 +130,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                                 {
                                     model: User,
                                     required: true,
-                                    attributes: ["firstName", "lastName"],
+                                    attributes: ["firstName", "lastName", "id"],
                                 },
                             ],
                         },
@@ -176,7 +176,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                                     {
                                         model: User,
                                         required: true,
-                                        attributes: ["firstName", "lastName"],
+                                        attributes: ["firstName", "lastName", "id"],
                                     },
                                 ],
                             },
