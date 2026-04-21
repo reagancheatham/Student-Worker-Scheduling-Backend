@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { Router } from "express";
 import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { EmployeeUnavailability } from "../models/employeeUnavailability";
+import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
 import { EmployeeUnavailabilitySyncService } from "../services/employeeUnavailabilitySyncService.ts";
