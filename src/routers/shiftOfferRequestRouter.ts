@@ -12,6 +12,7 @@ import { Shift } from "../models/shift.ts";
 import { ShiftOfferRequest } from "../models/shiftOfferRequest.ts";
 import { User } from "../models/user.ts";
 import { ShiftOfferRequestNotification } from "../models/shiftOfferRequestNotification.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 const offerRequestIDResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
@@ -99,17 +100,32 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     "shiftID",
                 ),
         );
-        router.get(
-            "/business/:businessID",
-            businessAuth(),
-            (req, res) => ScheduleDatabase.getAllWhere(ShiftOfferRequest, req, res, { include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID: "businessID" },
-                },
-            ],}),
+        router.get("/business/:businessID", businessAuth(), (req, res) =>
+            ScheduleDatabase.getAllWhere(ShiftOfferRequest, req, res, {
+                include: [
+                    {
+                        model: Shift,
+                        required: true,
+                        attributes: ["startTime", "endTime"],
+                        include: [
+                            {
+                                model: Employee,
+                                required: true,
+                                include: [
+                                    {
+                                        model: User,
+                                        required: true,
+                                        attributes: ["firstName", "lastName"],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            }),
         );
+        router.get("/available/:businessID", businessAuth(), this.getAllRequestsForBusiness);
+        router.get("/pending/:businessID", businessAuth(), this.getAllPendingRequestsForBusiness);
         router.put(
             "/approve",
             userBusinessAuth(offerRequestIDResolver, userIDResolver),
@@ -205,6 +221,95 @@ class ShiftOfferRequestRouter extends ModelRouter {
             Logger.error("Error denying shift offer request:", error.message);
             return res.status(500).json({ message: error.message });
         }
+    }
+
+    private async getAllRequestsForBusiness(req: Request, res: Response) {
+        const businessID = req.params["businessID"];
+
+        await ShiftOfferRequest.findAll({
+            where: { approvalStatus: "Unsubmitted" },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send({ results });
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getAllPendingRequestsForBusiness(
+        req: Request,
+        res: Response,
+    ) {
+        const businessID = req.params["businessID"];
+
+        await ShiftOfferRequest.findAll({
+            where: { approvalStatus: "Pending" },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send({ results });
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
     }
 }
 

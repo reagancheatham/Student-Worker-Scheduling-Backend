@@ -101,6 +101,8 @@ class ShiftTradeRequestRouter extends ModelRouter {
             (req, res) =>
                 ScheduleDatabase.get(ShiftTradeRequest, req, res, "shiftID"),
         );
+        router.get("/available/:businessID", businessAuth(), this.getAllRequestsForBusiness);
+        router.get("/pending/:businessID", businessAuth(), this.getAllPendingRequestsForBusiness);
         router.put("/approve", userBusinessAuth(shiftIDResolver, userIDResolver), (req, res) =>
             ShiftTradeRequestRouter.approveRequest(req, res),
         );
@@ -109,7 +111,94 @@ class ShiftTradeRequestRouter extends ModelRouter {
         );
     }
 
+    private async getAllRequestsForBusiness(req: Request, res: Response) {
+        const businessID = req.params["businessID"];
+
+        await ShiftTradeRequest.findAll({
+            where: { approvalStatus: "Unsubmitted" },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send({ results });
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getAllPendingRequestsForBusiness(
+            req: Request,
+            res: Response,
+        ) {
+            const businessID = req.params["businessID"];
     
+            await ShiftTradeRequest.findAll({
+                where: { approvalStatus: "Pending" },
+                include: [
+                    {
+                        model: Shift,
+                        required: true,
+                        where: { businessID },
+                        attributes: ["startTime", "endTime"],
+                        include: [
+                            {
+                                model: Employee,
+                                required: true,
+                                include: [
+                                    {
+                                        model: User,
+                                        required: true,
+                                        attributes: ["firstName", "lastName"],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            })
+                .then((results) => {
+                    Logger.log(
+                        `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                    );
+    
+                    res.status(200).send({ results });
+                })
+                .catch((error) => {
+                    Logger.error(
+                        `Error finding ${ShiftTradeRequest.name}s for business ${businessID}: ${error}`,
+                    );
+    
+                    res.status(500).send({ error });
+                });
+        }
 
     private static async approveRequest(req: Request, res: Response) {
         try {
