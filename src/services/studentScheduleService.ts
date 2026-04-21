@@ -50,10 +50,10 @@ export class StudentScheduleService {
         userID: string,
         termCode: string,
     ): Promise<UnavailabilityPayload[]> {
-        const apiBaseUrl = process.env.API_ROOT;
+        const apiBaseUrl = process.env.STUDENT_SCHEDULE_URL;
 
         if (!apiBaseUrl) {
-            throw new Error("API_ROOT is missing from environment");
+            throw new Error("STUDENT_SCHEDULE_URL is missing from environment");
         }
 
         const url = `${apiBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(userID)}/${encodeURIComponent(termCode)}`;

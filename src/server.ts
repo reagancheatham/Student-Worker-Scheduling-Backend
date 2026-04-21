@@ -13,14 +13,13 @@ const app = express();
 initializeSequelize(sequelizeInstance);
 
 dotenv.config();
-process.env.API_ROOT = "/workerscheduling-t6";
 
 DailyStudentScheduleRefreshService.start();
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use(process.env.API_ROOT, router);
+    .use("/workerscheduling-t6", router);
 
 const port = Number(process.env.NODE_PORT);
 app.listen(port, () => {
