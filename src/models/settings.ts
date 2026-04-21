@@ -16,6 +16,7 @@ export class Settings extends Model<
     declare automaticShiftTrades: boolean;
     declare enableOpenShift: boolean;
     declare enableShiftTrades: boolean;
+    declare defaultTermCode: string;
 }
 
 Settings.init(
@@ -69,6 +70,10 @@ Settings.init(
             allowNull: false,
             defaultValue: false,
         },
+        defaultTermCode: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "2026SP",
         doubleTaskSignOff: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
