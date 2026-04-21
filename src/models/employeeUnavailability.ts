@@ -57,8 +57,9 @@ EmployeeUnavailability.init(
         timestamps: false,
         indexes: [
             {
-                unique: true,
-                fields: ["employeeID", "startTime", "endTime"],
+                unique: false,
+                name: "employee_unavailability_index",
+                fields: ["employeeID", "name", "startTime", "endTime"],
             },
         ],
     },

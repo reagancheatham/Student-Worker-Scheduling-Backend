@@ -10,6 +10,7 @@ import { Employee } from "../models/employee.ts";
 import { PermissionRole } from "../models/permissionRole.ts";
 import { Settings } from "../models/settings.ts";
 import { EmployeeUnavailabilitySyncService } from "../services/employeeUnavailabilitySyncService.ts";
+import { Logger } from "../classes/util/logger.ts";
 
 class UserRouter extends ModelRouter {
     public path(): string {
@@ -60,7 +61,9 @@ class UserRouter extends ModelRouter {
         const userID = Number.parseInt(String(info.id ?? ""), 10);
 
         if (!Number.isInteger(userID) || userID <= 0) {
-            res.status(400).send({ message: "id is required and must be a positive integer" });
+            res.status(400).send({
+                message: "id is required and must be a positive integer",
+            });
             return;
         }
 
@@ -71,8 +74,9 @@ class UserRouter extends ModelRouter {
         }
 
         try {
-            const [affectedCount] = await User.update(info, {
+            const [affectedCount, returnValue] = await User.update(info, {
                 where: { id: userID },
+                returning: true,
             });
 
             if (affectedCount === 0) {
@@ -80,41 +84,53 @@ class UserRouter extends ModelRouter {
                 return;
             }
 
-            const updatedUser = await User.findByPk(userID);
+            const updatedUser = returnValue[0];
             if (!updatedUser) {
+                Logger.error(`Error finding user!`);
+
                 res.status(200).send({ affectedCount });
                 return;
             }
 
             const previousStudentID = existingUser.studentID;
             const nextStudentID = updatedUser.studentID;
-            const studentIDWasSet = previousStudentID !== nextStudentID
-                && Number.isInteger(nextStudentID)
-                && nextStudentID > 0
-                && nextStudentID !== 111111;
+            const studentIDWasSet =
+                previousStudentID !== nextStudentID &&
+                Number.isInteger(nextStudentID) &&
+                nextStudentID > 0;
 
             if (!studentIDWasSet) {
                 res.status(200).send({ affectedCount });
                 return;
             }
 
-            const targetEmployeeID = Number.parseInt(String(req.body?.employeeID ?? ""), 10);
-            const shouldTargetSpecificEmployee = Number.isInteger(targetEmployeeID) && targetEmployeeID > 0;
+            const targetEmployeeID = Number.parseInt(
+                String(req.body?.employeeID ?? ""),
+                10,
+            );
+            const shouldTargetSpecificEmployee =
+                Number.isInteger(targetEmployeeID) && targetEmployeeID > 0;
 
             let employees = await Employee.findAll({
                 where: { userID },
             });
 
             if (shouldTargetSpecificEmployee) {
-                employees = employees.filter((emp) => emp.id === targetEmployeeID);
+                employees = employees.filter(
+                    (emp) => emp.id === targetEmployeeID,
+                );
             }
 
             // Resolve term code: use request param, fall back to business settings, else error
             let termCode = String(req.body?.termCode ?? "").trim();
-            
+
             if (!termCode) {
-                const businessSettings = await Settings.findByPk(employees[0]?.businessID);
-                termCode = String(businessSettings?.defaultTermCode ?? "").trim();
+                const businessSettings = await Settings.findByPk(
+                    employees[0]?.businessID,
+                );
+                termCode = String(
+                    businessSettings?.defaultTermCode ?? "",
+                ).trim();
             }
 
             if (!termCode) {
@@ -125,7 +141,9 @@ class UserRouter extends ModelRouter {
             }
 
             if (!termCode) {
-                res.status(400).send({ message: "No term code provided or configured" });
+                res.status(400).send({
+                    message: "No term code provided or configured",
+                });
                 return;
             }
 
@@ -155,7 +173,7 @@ class UserRouter extends ModelRouter {
                 return;
             }
 
-            console.error(`Error updating User: ${error}`);
+            Logger.error(`Error updating User: ${error}`);
             res.status(500).send({ error });
         }
     }

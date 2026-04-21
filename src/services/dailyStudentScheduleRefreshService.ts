@@ -1,3 +1,4 @@
+import { Logger } from "../classes/util/logger.ts";
 import { Employee } from "../models/employee.ts";
 import { Settings } from "../models/settings.ts";
 import { User } from "../models/user.ts";
@@ -14,7 +15,7 @@ export class DailyStudentScheduleRefreshService {
 
         const enabled = this.isEnabled();
         if (!enabled) {
-            console.log("Daily student schedule refresh is disabled.");
+            Logger.log("Daily student schedule refresh is disabled.");
             return;
         }
 
@@ -22,16 +23,14 @@ export class DailyStudentScheduleRefreshService {
     }
 
     private static isEnabled(): boolean {
-        const configured = String(
-            process.env.STUDENT_SCHEDULE_DAILY_REFRESH_ENABLED ?? "true",
-        ).trim().toLowerCase();
-
-        return configured !== "false" && configured !== "0";
+        return true;
     }
 
     private static async runRefresh(): Promise<void> {
         if (this.isRunning) {
-            console.log("Daily student schedule refresh already in progress. Skipping.");
+            Logger.log(
+                "Daily student schedule refresh already in progress. Skipping.",
+            );
             return;
         }
 
@@ -41,10 +40,10 @@ export class DailyStudentScheduleRefreshService {
             const employees = await Employee.findAll({
                 include: [{ model: User, required: true }],
             });
-            const businessTermCodeLookup = new Map<number, string>();
-            const fallbackTermCode = String(
-                process.env.STUDENT_SCHEDULE_DEFAULT_TERM_CODE ?? "",
-            ).trim();
+            const businessTermCodeLookup = new Map<
+                number,
+                string | undefined
+            >();
 
             let employeesProcessed = 0;
             let employeesSkipped = 0;
@@ -57,31 +56,38 @@ export class DailyStudentScheduleRefreshService {
                     continue;
                 }
 
-                let businessDefaultTermCode = businessTermCodeLookup.get(employee.businessID);
+                let businessDefaultTermCode = businessTermCodeLookup.get(
+                    employee.businessID,
+                );
 
                 if (businessDefaultTermCode === undefined) {
-                    const businessSettings = await Settings.findByPk(employee.businessID);
-                    businessDefaultTermCode = String(
-                        businessSettings?.defaultTermCode ?? "",
-                    ).trim();
-                    businessTermCodeLookup.set(employee.businessID, businessDefaultTermCode);
+                    const businessSettings = await Settings.findByPk(
+                        employee.businessID,
+                    );
+                    businessDefaultTermCode = businessSettings?.defaultTermCode;
+
+                    businessTermCodeLookup.set(
+                        employee.businessID,
+                        businessDefaultTermCode,
+                    );
                 }
 
-                const termCode = businessDefaultTermCode || fallbackTermCode;
+                const termCode = businessDefaultTermCode;
 
                 if (!termCode) {
                     employeesSkipped += 1;
                     continue;
                 }
 
-                const syncResult = await EmployeeUnavailabilitySyncService.syncForEmployee(
-                    employee.id,
-                    {
-                        studentID: user.studentID,
-                        email: user.email,
-                    },
-                    termCode,
-                );
+                const syncResult =
+                    await EmployeeUnavailabilitySyncService.syncForEmployee(
+                        employee.id,
+                        {
+                            studentID: user.studentID,
+                            email: user.email,
+                        },
+                        termCode,
+                    );
 
                 if (!syncResult) {
                     employeesSkipped += 1;
@@ -91,13 +97,15 @@ export class DailyStudentScheduleRefreshService {
                 employeesProcessed += 1;
             }
 
-            console.log("Daily student schedule refresh completed", {
+            Logger.log("Daily student schedule refresh completed", {
                 employeesFound: employees.length,
                 employeesProcessed,
                 employeesSkipped,
             });
         } catch (error) {
-            console.error(`Error during daily student schedule refresh: ${error}`);
+            Logger.error(
+                `Error during daily student schedule refresh: ${error}`,
+            );
         } finally {
             this.isRunning = false;
             this.scheduleNextMidnightRefresh();
@@ -118,11 +126,11 @@ export class DailyStudentScheduleRefreshService {
 
         this.timer = setTimeout(() => {
             this.runRefresh().catch((error) => {
-                console.error(`Daily student schedule refresh failed: ${error}`);
+                Logger.error(`Daily student schedule refresh failed: ${error}`);
             });
         }, delayMs);
 
-        console.log(
+        Logger.log(
             `Daily student schedule refresh scheduled for ${nextMidnight.toISOString()}`,
         );
     }

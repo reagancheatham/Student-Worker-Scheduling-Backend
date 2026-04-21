@@ -50,12 +50,10 @@ export class StudentScheduleService {
         userID: string,
         termCode: string,
     ): Promise<UnavailabilityPayload[]> {
-        const apiBaseUrl = process.env.STUDENT_SCHEDULE_API_BASE_URL;
+        const apiBaseUrl = process.env.API_ROOT;
 
         if (!apiBaseUrl) {
-            throw new Error(
-                "STUDENT_SCHEDULE_API_BASE_URL is missing from environment",
-            );
+            throw new Error("API_ROOT is missing from environment");
         }
 
         const url = `${apiBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(userID)}/${encodeURIComponent(termCode)}`;
@@ -87,18 +85,26 @@ export class StudentScheduleService {
             if (!courseStart || !courseEnd) continue;
 
             for (const meetingTime of meetingTimes) {
-                if (!meetingTime.days || !meetingTime.start_time || !meetingTime.end_time) {
+                if (
+                    !meetingTime.days ||
+                    !meetingTime.start_time ||
+                    !meetingTime.end_time
+                ) {
                     continue;
                 }
 
-                const startMinutes = this.parse12HourClock(meetingTime.start_time);
+                const startMinutes = this.parse12HourClock(
+                    meetingTime.start_time,
+                );
                 const endMinutes = this.parse12HourClock(meetingTime.end_time);
 
                 if (startMinutes === null || endMinutes === null) continue;
 
                 const days = meetingTime.days
                     .map((day) => dayCodeToWeekday[day.toUpperCase()])
-                    .filter((weekday): weekday is number => weekday !== undefined);
+                    .filter(
+                        (weekday): weekday is number => weekday !== undefined,
+                    );
 
                 if (days.length === 0) continue;
 
@@ -132,9 +138,12 @@ export class StudentScheduleService {
         return this.dedupeBlocks(blocks);
     }
 
-    private static isSuccess(success: StudentScheduleResponse["Success"]): boolean {
+    private static isSuccess(
+        success: StudentScheduleResponse["Success"],
+    ): boolean {
         if (typeof success === "boolean") return success;
-        if (typeof success === "string") return success.toLowerCase() === "true";
+        if (typeof success === "string")
+            return success.toLowerCase() === "true";
 
         return false;
     }
@@ -168,7 +177,10 @@ export class StudentScheduleService {
         return hour * 60 + minute;
     }
 
-    private static combineDateAndMinutes(date: Date, minutesFromMidnight: number): Date {
+    private static combineDateAndMinutes(
+        date: Date,
+        minutesFromMidnight: number,
+    ): Date {
         const hours = Math.floor(minutesFromMidnight / 60);
         const minutes = minutesFromMidnight % 60;
 

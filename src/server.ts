@@ -10,16 +10,17 @@ import { Logger } from "./classes/util/logger.ts";
 import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 
 const app = express();
-
 initializeSequelize(sequelizeInstance);
+
 dotenv.config();
+process.env.API_ROOT = "/workerscheduling-t6";
 
 DailyStudentScheduleRefreshService.start();
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())
     .use(express.urlencoded({ extended: true }))
-    .use("/workerscheduling-t6", router);
+    .use(process.env.API_ROOT, router);
 
 const port = Number(process.env.NODE_PORT);
 app.listen(port, () => {

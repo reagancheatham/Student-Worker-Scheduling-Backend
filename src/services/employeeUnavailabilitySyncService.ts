@@ -114,13 +114,11 @@ export class EmployeeUnavailabilitySyncService {
     ): string | null {
         if (!userIdentity) return null;
 
-        if (Number.isInteger(userIdentity.studentID) && userIdentity.studentID > 0 && userIdentity.studentID !== 111111) {
+        if (userIdentity.studentID && userIdentity.studentID > 0 && userIdentity.studentID !== 111111)
             return String(userIdentity.studentID);
-        }
 
-        if (typeof userIdentity.email === "string" && userIdentity.email.trim().length > 0) {
+        if (typeof userIdentity.email === "string" && userIdentity.email.trim().length > 0)
             return userIdentity.email.trim();
-        }
 
         return null;
     }
