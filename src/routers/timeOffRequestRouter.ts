@@ -7,6 +7,38 @@ import { TimeOffRequest } from "../models/timeOffRequest.ts";
 import { User } from "../models/user.ts";
 import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
 import { TimeOffRequestNotification } from "../models/timeOffRequestNotification.ts";
+import {
+    IDResolver,
+    userBusinessAuth,
+} from "../authorization/businessAuthorization.ts";
+
+const timeOffRequestIDResolver: IDResolver = async (req: Request) => {
+    let id = req.params?.id;
+
+    if (!id) id = req.body?.id;
+    if (!id) return undefined;
+
+    const timeOffRequest = await TimeOffRequest.findOne({
+        where: { id },
+        include: Employee,
+    });
+
+    return (timeOffRequest as any)?.Employee?.businessID;
+};
+
+const userIDResolver: IDResolver = async (req: Request) => {
+    let employeeID = req.params?.employeeID;
+
+    if (!employeeID) employeeID = req.body?.employeeID;
+    if (!employeeID) return undefined;
+
+    const employee = await Employee.findOne({
+        where: { id: employeeID },
+        include: [{ model: User }],
+    });
+
+    return (employee as any)?.User?.id;
+};
 
 class TimeOffRequestRouter extends ModelRouter {
     public path(): string {
@@ -14,9 +46,12 @@ class TimeOffRequestRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post("/", (req, res) =>
-            ScheduleDatabase.create(TimeOffRequest, req, res),
-        );
+        router.post("/", (req, res) => {
+            req.body.employeeID = req.body.employee?.id ?? req.body.employeeID;
+            req.body.approvalStatus =
+                req.body.approvalStatus ?? req.body.status;
+            ScheduleDatabase.create(TimeOffRequest, req, res);
+        });
         router.put("/", (req, res) =>
             ScheduleDatabase.update(TimeOffRequest, req, res, "id"),
         );
@@ -26,14 +61,17 @@ class TimeOffRequestRouter extends ModelRouter {
         router.get("/:id", (req, res) =>
             ScheduleDatabase.get(TimeOffRequest, req, res, "id"),
         );
-        router.get("/employee/:employeeID", (req, res) =>
-            ScheduleDatabase.getAllWhere(
-                TimeOffRequest,
-                req,
-                res,
-                {},
-                "employeeID",
-            ),
+        router.get(
+            "/employee/:employeeID",
+            userBusinessAuth(timeOffRequestIDResolver, userIDResolver),
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(
+                    TimeOffRequest,
+                    req,
+                    res,
+                    { include: Employee },
+                    "employeeID",
+                ),
         );
         router.get("/business/:businessID", this.getTimeOffRequestForBusiness);
         router.put("/approve", (req, res) =>
@@ -60,6 +98,8 @@ class TimeOffRequestRouter extends ModelRouter {
             }
 
             await EmployeeUnavailability.create({
+                name: "",
+                description: timeOffRequest.reason,
                 employeeID: timeOffRequest.employeeID,
                 startTime: timeOffRequest.startDate,
                 endTime: timeOffRequest.endDate,

@@ -205,7 +205,7 @@ export class ScheduleDatabase {
             where[key as string] = req.params[key as string];
         });
 
-        options.where = where;
+        options.where = { ...options.where, ...where };
 
         Logger.log(`Getting ${model.name} with info: `, options);
 

@@ -107,6 +107,11 @@ class ShiftTradeRequestRouter extends ModelRouter {
         router.put("/deny", userBusinessAuth(shiftIDResolver, userIDResolver), (req, res) =>
             ShiftTradeRequestRouter.denyRequest(req, res),
         );
+        router.get("/employee/:employeeID", userBusinessAuth(shiftIDResolver, userIDResolver), (req, res) =>
+            ScheduleDatabase.getAllWhere(ShiftTradeRequest, req, res, {
+                where: {targetEmployeeID: req.params?.employeeID}
+            })
+        )
     }
 
     

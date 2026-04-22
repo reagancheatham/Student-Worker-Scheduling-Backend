@@ -12,6 +12,9 @@ import { Shift } from "../models/shift.ts";
 import { ShiftOfferRequest } from "../models/shiftOfferRequest.ts";
 import { User } from "../models/user.ts";
 import { ShiftOfferRequestNotification } from "../models/shiftOfferRequestNotification.ts";
+import { Role } from "../models/role.ts";
+import { TaskList } from "../models/taskList.ts";
+import { Task } from "../models/task.ts";
 
 const offerRequestIDResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
@@ -99,16 +102,16 @@ class ShiftOfferRequestRouter extends ModelRouter {
                     "shiftID",
                 ),
         );
-        router.get(
-            "/business/:businessID",
-            businessAuth(),
-            (req, res) => ScheduleDatabase.getAllWhere(ShiftOfferRequest, req, res, { include: [
-                {
-                    model: Shift,
-                    required: true,
-                    where: { businessID: "businessID" },
-                },
-            ],}),
+        router.get("/business/:businessID", businessAuth(), (req, res) =>
+            ScheduleDatabase.getAllWhere(ShiftOfferRequest, req, res, {
+                include: [
+                    {
+                        model: Shift,
+                        required: true,
+                        where: { businessID: "businessID" },
+                    },
+                ],
+            }),
         );
         router.put(
             "/approve",
@@ -119,6 +122,25 @@ class ShiftOfferRequestRouter extends ModelRouter {
             "/deny",
             userBusinessAuth(offerRequestIDResolver, userIDResolver),
             (req, res) => ShiftOfferRequestRouter.denyRequest(req, res),
+        );
+        router.get(
+            "/accepted/:businessID",
+            userBusinessAuth(offerRequestIDResolver, userIDResolver),
+            (req, res) =>
+                ScheduleDatabase.getAllWhere(ShiftOfferRequest, req, res, {
+                    include: {
+                        model: Shift,
+                        where: { businessID: req.params.businessID },
+                        include: [
+                            { model: Employee },
+                            { model: Role },
+                            {
+                                model: TaskList,
+                                include: [{ model: Task }],
+                            },
+                        ],
+                    },
+                }),
         );
     }
 

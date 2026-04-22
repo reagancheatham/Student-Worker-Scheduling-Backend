@@ -115,6 +115,11 @@ class ShiftRouter extends ModelRouter {
             (req: any, res) =>
                 this.getShiftsForEmployeeWithinRange(req, res, true),
         );
+        router.get("/unassigned", businessAuth(), (req, res) =>
+            ScheduleDatabase.getAllWhere(Shift, req, res, {
+                where: { employeeID: { [Op.is]: null } } as any,
+            }),
+        );
         router.get("/:id", businessAuth(shiftIDResolver), (req, res) =>
             ScheduleDatabase.getWhere(Shift, req, res, shiftWhere, "id"),
         );
@@ -167,8 +172,8 @@ class ShiftRouter extends ModelRouter {
         published: boolean = false,
     ) {
         const employeeID = Number(req.params.employeeID);
-        const startTime = new Date(req.params.startTime);
-        const endTime = new Date(req.params.endTime);
+        const startTime = new Date(decodeURIComponent(req.params.startTime));
+        const endTime = new Date(decodeURIComponent(req.params.endTime));
 
         const where: any = {
             employeeID,
