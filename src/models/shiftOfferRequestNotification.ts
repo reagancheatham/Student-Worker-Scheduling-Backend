@@ -5,13 +5,6 @@ import type {
   InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { ModelRouter } from "../classes/databaseModel.ts";
-import { Router, Request, Response } from "express";
-import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
-import { ShiftOfferRequest } from "./shiftOfferRequest.ts";
-import { Shift } from "./shift.ts";
-import { Employee } from "./employee.ts";
-import { User } from "./user.ts";
 
 export class ShiftOfferRequestNotification extends Model<
   InferAttributes<ShiftOfferRequestNotification>,
