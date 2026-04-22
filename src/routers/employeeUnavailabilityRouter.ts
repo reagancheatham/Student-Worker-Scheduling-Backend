@@ -4,7 +4,6 @@ import { ModelRouter } from "../classes/databaseModel.ts";
 import { ScheduleDatabase } from "../classes/scheduleDatabase.ts";
 import { EmployeeUnavailability } from "../models/employeeUnavailability.ts";
 import { Employee } from "../models/employee.ts";
-import { User } from "../models/user.ts";
 import {
     businessAuth,
     IDResolver,
@@ -12,8 +11,6 @@ import {
 import { Logger } from "../classes/util/logger.ts";
 import { Business } from "../models/business.ts";
 
-// resolvers:
-// ID
 const employeeIDResolver: IDResolver = async (req: Request) => {
     let id = req.params?.employeeID;
 

@@ -69,7 +69,7 @@ const modelRouters: ModelRouter[] = [
 ];
 
 router.use(authenticationRouter.path(), authenticationRouter.router());
-//router.use(Authentication.validateSession);
+router.use(Authentication.validateSession);
 
 modelRouters.forEach((modelRouter) => {
     router.use(modelRouter.path(), modelRouter.router());
