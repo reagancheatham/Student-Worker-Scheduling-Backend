@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { Router } from "express";
 import { adminAuth, userAuth } from "../authentication.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";
@@ -8,7 +7,6 @@ import { Business } from "../models/business.ts";
 import { BusinessPermissionRole } from "../models/businessPermissionRole.ts";
 import { Employee } from "../models/employee.ts";
 import { PermissionRole } from "../models/permissionRole.ts";
-import { IDResolver } from "../authorization/businessAuthorization.ts";
 
 class UserRouter extends ModelRouter {
     public path(): string {

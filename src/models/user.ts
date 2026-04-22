@@ -63,6 +63,7 @@ User.init(
         indexes: [
             {
                 unique: true,
+                name: "user_index",
                 fields: [
                     "studentID",
                     "permissionRoleID",
