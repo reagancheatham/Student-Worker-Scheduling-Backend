@@ -143,7 +143,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                     `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                 );
 
-                res.status(200).send({ results });
+                res.status(200).send( results );
             })
             .catch((error) => {
                 Logger.error(
@@ -189,7 +189,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
                         `Successfully got ${ShiftTradeRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
                     );
     
-                    res.status(200).send({ results });
+                    res.status(200).send( results );
                 })
                 .catch((error) => {
                     Logger.error(
