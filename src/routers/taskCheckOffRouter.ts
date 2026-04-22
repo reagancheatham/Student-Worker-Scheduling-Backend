@@ -21,7 +21,7 @@ const idResolver: IDResolver = async (req: Request) => {
     if (!id) return undefined;
 
     try {
-        const checkOff = TaskCheckOff.findOne({
+        const checkOff = await TaskCheckOff.findOne({
             where: { id },
             include: [
                 {
@@ -48,11 +48,12 @@ const idResolver: IDResolver = async (req: Request) => {
 };
 
 const taskIDResolver: IDResolver = async (req: Request) => {
-    const id = req.params?.taskID;
+    let id = req.params?.taskID;
 
+    if (!id) id = req.body?.taskID;
     if (!id) return undefined;
 
-    const task = Task.findOne({
+    const task = await Task.findOne({
         where: { id },
         include: [
             {
@@ -66,20 +67,43 @@ const taskIDResolver: IDResolver = async (req: Request) => {
         ],
     });
 
-    return (task as any)?.TaskList.Shift?.businessID;
+    return (task as any)?.TaskList?.Shift?.businessID;
 };
 
-const idUserResolver: IDResolver = async (req: Request) => {
+const employeeIDUserResolver: IDResolver = async (req: Request) => {
     const id = req.body?.sourceEmployeeID;
 
     if (!id) return undefined;
 
-    const employee = Employee.findOne({
+    const employee = await Employee.findOne({
         where: { id },
-        include: { model: User, attributes: ["id"] },
+        include: { model: User, attributes: ["id"], required: true },
     });
 
     return (employee as any)?.User?.id;
+};
+
+const idUserResolver: IDResolver = async (req: Request) => {
+    const id = req.params?.id;
+
+    if (!id) return undefined;
+
+    const checkOff = await TaskCheckOff.findOne({
+        where: { id },
+        include: [
+            {
+                model: Employee,
+                include: [
+                    {
+                        model: User,
+                        attributes: ["id"],
+                    },
+                ],
+            },
+        ],
+    });
+
+    return (checkOff as any)?.Employee?.User?.id;
 };
 
 class TaskCheckOffRouter extends ModelRouter {
@@ -90,12 +114,12 @@ class TaskCheckOffRouter extends ModelRouter {
     protected buildRouter(router: Router): void {
         router.post(
             "/",
-            userBusinessAuth(taskIDResolver, idUserResolver),
+            userBusinessAuth(taskIDResolver, employeeIDUserResolver),
             (req, res) => ScheduleDatabase.create(TaskCheckOff, req, res),
         );
         router.put(
             "/",
-            userBusinessAuth(taskIDResolver, idUserResolver),
+            userBusinessAuth(taskIDResolver, employeeIDUserResolver),
             (req, res) => ScheduleDatabase.update(TaskCheckOff, req, res, "id"),
         );
         router.delete(

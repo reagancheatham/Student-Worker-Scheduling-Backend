@@ -3,6 +3,7 @@ import { WeekDay } from "../classes/weekDay.ts";
 import { Employee } from "../models/employee.ts";
 import { User } from "../models/user.ts";
 import { UserClass } from "../models/userClass.ts";
+import fetch from "node-fetch";
 
 const dayCodeToWeekday: Record<string, WeekDay> = {
     SU: WeekDay.Sunday,

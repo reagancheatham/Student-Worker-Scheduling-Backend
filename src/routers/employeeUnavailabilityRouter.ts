@@ -10,6 +10,7 @@ import {
 } from "../authorization/businessAuthorization.ts";
 import { Logger } from "../classes/util/logger.ts";
 import { Business } from "../models/business.ts";
+import { User } from "../models/user.ts";
 
 const employeeIDResolver: IDResolver = async (req: Request) => {
     let id = req.params?.employeeID;
@@ -61,7 +62,13 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                     EmployeeUnavailability,
                     req,
                     res,
-                    {},
+                    {
+                        include: {
+                            model: Employee,
+                            include: [User],
+                            required: true,
+                        },
+                    },
                     "employeeID",
                 ),
         );
@@ -91,17 +98,11 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                 include: [
                     {
                         model: Employee,
+                        where: {
+                            businessID,
+                        },
                         required: true,
-                        include: [
-                            {
-                                model: Business,
-                                where: {
-                                    id: businessID,
-                                },
-                                attributes: [],
-                            },
-                        ],
-                        attributes: [],
+                        include: [User],
                     },
                 ],
             });

@@ -136,7 +136,26 @@ class TaskListRouter extends ModelRouter {
 
             await TaskListRouter.updateTaskListTasks(tasks);
 
-            res.status(200).send({ affectedCount: result[0] });
+            const updatedList = await TaskList.findOne({
+                where: { id },
+                include: [
+                    {
+                        model: Task,
+                        include: [
+                            {
+                                model: TaskCheckOff,
+                                include: [
+                                    {
+                                        model: Employee,
+                                        include: [User],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+            res.status(200).send(updatedList);
         } catch (error) {
             Logger.error(`Error updating ${TaskList.name}: ${error}`);
             res.status(500).send({ error });

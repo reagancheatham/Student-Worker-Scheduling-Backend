@@ -98,7 +98,7 @@ class TimeOffRequestRouter extends ModelRouter {
             }
 
             await EmployeeUnavailability.create({
-                name: "",
+                name: "Time Off",
                 description: timeOffRequest.reason,
                 employeeID: timeOffRequest.employeeID,
                 startTime: timeOffRequest.startDate,

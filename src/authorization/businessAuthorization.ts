@@ -61,8 +61,10 @@ export function businessAuth(
 
                 return;
             }
-        } catch (error) {
-            Logger.error(`Unauthorized to edit business at path: ${req.path}.`);
+        } catch (error: any) {
+            Logger.error(
+                `Unauthorized to edit business at path: ${req.path}: ${error}.`,
+            );
             res.status(401).send({ valid: false });
         }
     };
@@ -156,6 +158,9 @@ export function userBusinessAuth(
 
         try {
             const userID = await userResolver(req);
+
+            console.log("received id: " + userID);
+            console.log("compare id: " + user.id);
 
             if (user.id !== userID) {
                 Logger.error(

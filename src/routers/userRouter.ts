@@ -1,4 +1,3 @@
-import type { Request, Response } from "express";
 import { Router } from "express";
 import { adminAuth, userAuth } from "../authentication.ts";
 import { ModelRouter } from "../classes/databaseModel.ts";

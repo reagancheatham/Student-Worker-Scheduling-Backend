@@ -15,6 +15,7 @@ import { ShiftOfferRequestNotification } from "../models/shiftOfferRequestNotifi
 import { Role } from "../models/role.ts";
 import { TaskList } from "../models/taskList.ts";
 import { Task } from "../models/task.ts";
+import { ApprovalStatus } from "../classes/approvalStatus.ts";
 
 const offerRequestIDResolver: IDResolver = async (req: Request) => {
     let id = req.params?.id;
@@ -109,10 +110,26 @@ class ShiftOfferRequestRouter extends ModelRouter {
                         model: Shift,
                         required: true,
                         where: { businessID: "businessID" },
+                        attributes: ["startTime", "endTime"],
+                        include: [
+                            {
+                                model: Employee,
+                                required: true,
+                                include: [
+                                    {
+                                        model: User,
+                                        required: true,
+                                        attributes: ["firstName", "lastName"],
+                                    },
+                                ],
+                            },
+                        ],
                     },
                 ],
             }),
         );
+        router.get("/available/:businessID", businessAuth(), this.getAllRequestsForBusiness);
+        router.get("/pending/:businessID", businessAuth(), this.getAllPendingRequestsForBusiness);
         router.put(
             "/approve",
             userBusinessAuth(offerRequestIDResolver, userIDResolver),
@@ -227,6 +244,95 @@ class ShiftOfferRequestRouter extends ModelRouter {
             Logger.error("Error denying shift offer request:", error.message);
             return res.status(500).json({ message: error.message });
         }
+    }
+
+    private async getAllRequestsForBusiness(req: Request, res: Response) {
+        const businessID = req.params["businessID"];
+
+        await ShiftOfferRequest.findAll({
+            where: { approvalStatus: "Unsubmitted" },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName", "id"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send( results );
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
+    }
+
+    private async getAllPendingRequestsForBusiness(
+        req: Request,
+        res: Response,
+    ) {
+        const businessID = req.params["businessID"];
+
+        await ShiftOfferRequest.findAll({
+            where: { approvalStatus: "Pending" },
+            include: [
+                {
+                    model: Shift,
+                    required: true,
+                    where: { businessID },
+                    attributes: ["startTime", "endTime"],
+                    include: [
+                        {
+                            model: Employee,
+                            required: true,
+                            include: [
+                                {
+                                    model: User,
+                                    required: true,
+                                    attributes: ["firstName", "lastName", "id"],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+            .then((results) => {
+                Logger.log(
+                    `Successfully got ${ShiftOfferRequest.name}s for business ${businessID}: ${JSON.stringify(results)}`,
+                );
+
+                res.status(200).send( results );
+            })
+            .catch((error) => {
+                Logger.error(
+                    `Error finding ${ShiftOfferRequest.name}s for business ${businessID}: ${error}`,
+                );
+
+                res.status(500).send({ error });
+            });
     }
 }
 

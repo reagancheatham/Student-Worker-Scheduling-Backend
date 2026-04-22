@@ -25,6 +25,28 @@ const idResolver: IDResolver = async (req: Request) => {
     return employee?.businessID;
 };
 
+const userIDResolver: IDResolver = async (req: Request) => {
+    const userID = req.params?.userID;
+
+    if (!userID) return undefined;
+
+    const employee = await Employee.findOne({ where: { userID } });
+
+    return employee?.businessID;
+};
+
+const emailResolver: IDResolver = async (req: Request) => {
+    const email = req.params?.email;
+
+    if (!email) return undefined;
+
+    const employee = await Employee.findOne({
+        include: { model: User, where: { email }, required: true },
+    });
+
+    return employee?.businessID;
+};
+
 class EmployeeRouter extends ModelRouter {
     public path(): string {
         return "/employees";
@@ -32,8 +54,9 @@ class EmployeeRouter extends ModelRouter {
 
     protected buildRouter(router: Router): void {
         router.get("/owners", adminAuth(), EmployeeRouter.getAllOwners);
-        router.post("/", managerAuth(), (req: any, res: any) =>
-            EmployeeRouter.createEmployee(req, res),
+        router.post("/invite", managerAuth(), EmployeeRouter.inviteEmployee);
+        router.post("/", adminAuth(), (req: any, res: any) =>
+            ScheduleDatabase.create(Employee, req, res),
         );
         router.put("/", managerAuth(), (req: any, res: any) =>
             ScheduleDatabase.update(Employee, req, res, "id"),
@@ -57,6 +80,26 @@ class EmployeeRouter extends ModelRouter {
                 },
                 "id",
             ),
+        );
+        router.get(
+            "/user/:userID",
+            businessAuth(userIDResolver),
+            (req: any, res: any) =>
+                ScheduleDatabase.getWhere(
+                    Employee,
+                    req,
+                    res,
+                    {
+                        include: [
+                            User,
+                            {
+                                model: Role,
+                                through: { attributes: [] },
+                            },
+                        ],
+                    },
+                    "userID",
+                ),
         );
         router.get(
             "/business/:businessID",
@@ -99,6 +142,11 @@ class EmployeeRouter extends ModelRouter {
                     "businessID",
                 ),
         );
+        router.get(
+            "/email/:email",
+            businessAuth(emailResolver),
+            EmployeeRouter.getEmployeeForEmail,
+        );
     }
 
     private static async getAllOwners(req: Request, res: Response) {
@@ -130,72 +178,83 @@ class EmployeeRouter extends ModelRouter {
             });
     }
 
-    private static async createEmployee(req: Request, res: Response) {
-        let email = req.body.email;
-        let businessID = req.params.businessID;
-        let isManager = req.body.isManager;
+    private static async inviteEmployee(req: Request, res: Response) {
+        const email = req.body.email;
+        const isManager = req.body.isManager;
+        const businessID = req.body.businessID;
 
-        let businessPermissionRole = "Employee";
+        let businessPermissionRole = isManager ? "Manager" : "Employee";
 
-        if (isManager) {
-            businessPermissionRole = "Manager";
+        try {
+            const permissionRole = await BusinessPermissionRole.findOne({
+                where: { name: businessPermissionRole },
+            });
+
+            if (!permissionRole) throw Error("Employee role not found!");
+
+            const business = await Business.findOne({
+                where: { id: businessID },
+            });
+
+            if (!business) throw Error("Business not found!");
+
+            const employee = await Employee.findOne({
+                where: { businessID },
+                include: {
+                    model: User,
+                    where: { email },
+                    required: true,
+                },
+            });
+
+            if (employee)
+                throw Error(`Employee already exists in business: ${email}`);
+
+            const newInvite = await Invite.createInvite(
+                email,
+                business,
+                permissionRole.id,
+            );
+
+            if (newInvite) {
+                Invite.sendInviteEmail(
+                    newInvite.email,
+                    newInvite.code,
+                    newInvite.businessName,
+                );
+            }
+
+            Logger.log("Successfully sent invite!");
+            res.status(200).send({ body: "Successfully sent invite!" });
+        } catch (error: any) {
+            Logger.error(`Error inviting employee: ${error}`);
+            res.status(500).send({ error });
+        }
+    }
+
+    private static async getEmployeeForEmail(req: Request, res: Response) {
+        const email = req.params?.email;
+
+        if (!email) {
+            Logger.error(`Employee requires email to be passed!`);
+            res.status(500).send({});
         }
 
-        return BusinessPermissionRole.findOne({
-            where: { name: businessPermissionRole },
-        }).then(async (role) => {
-            if (!role) throw new Error("Employee role not found");
+        try {
+            const employee = Employee.findOne({
+                include: {
+                    model: User,
+                    where: { email },
+                    required: true,
+                },
+            });
 
-            try {
-                const business = await Business.findOne({
-                    where: { id: businessID },
-                });
-
-                const employee = await Employee.findOne({
-                    where: { businessID: businessID },
-                    include: [
-                        {
-                            model: User,
-                            where: { email: email },
-                        },
-                        {
-                            model: Role,
-                            through: { attributes: [] },
-                        },
-                    ],
-                });
-
-                if (!business) {
-                    res.status(500).send({ err: "Business not found!" });
-                    return;
-                }
-
-                if (employee) {
-                    res.status(500).send({
-                        err: "Employee already exists in business!",
-                    });
-                    return;
-                }
-
-                const newInvite = await Invite.createInvite(
-                    email,
-                    business,
-                    role.id,
-                );
-
-                if (newInvite) {
-                    Invite.sendInviteEmail(
-                        newInvite.email,
-                        newInvite.code,
-                        newInvite.businessName,
-                    );
-                }
-                res.status(200).send({ body: "Successfully sent invite!" });
-                return;
-            } catch (err) {
-                res.status(500).send({ err });
-            }
-        });
+            Logger.log(`Successfully found employee for email: ${email}`);
+            res.status(200).send(employee);
+        } catch (error: any) {
+            Logger.error(`Error finding employee for email: ${error}`);
+            res.status(500).send({ error });
+        }
     }
 }
 
