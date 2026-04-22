@@ -5,50 +5,71 @@ import type {
     InferCreationAttributes,
 } from "sequelize";
 import { sequelizeInstance } from "../config/sequelizeInstance.ts";
-import { Employee } from "./employee.ts";
+import { User } from "./user.ts";
+import { WeekDay } from "../classes/weekDay.ts";
 
-export class EmployeeUnavailability extends Model<
-    InferAttributes<EmployeeUnavailability>,
-    InferCreationAttributes<EmployeeUnavailability>
+export class UserClass extends Model<
+    InferAttributes<UserClass>,
+    InferCreationAttributes<UserClass>
 > {
     declare id: CreationOptional<number>;
-    declare employeeID: number;
+    declare userID: number;
+    declare courseID: string;
     declare name: string;
-    declare description: string;
-    declare startTime: Date;
-    declare endTime: Date;
+    declare startDate: Date;
+    declare endDate: Date;
+    declare startTime: string;
+    declare endTime: string;
+    declare term: string;
+    declare weekDays: WeekDay[];
 }
 
-EmployeeUnavailability.init(
+UserClass.init(
     {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        employeeID: {
+        userID: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: Employee,
+                model: User,
                 key: "id",
             },
             onDelete: "CASCADE",
+        },
+        courseID: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        description: {
-            type: DataTypes.STRING,
+        startDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+        },
+        endDate: {
+            type: DataTypes.DATE,
             allowNull: false,
         },
         startTime: {
-            type: DataTypes.DATE,
+            type: DataTypes.TIME,
             allowNull: false,
         },
         endTime: {
-            type: DataTypes.DATE,
+            type: DataTypes.TIME,
+            allowNull: false,
+        },
+        term: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        weekDays: {
+            type: DataTypes.JSON,
             allowNull: false,
         },
     },
@@ -58,8 +79,8 @@ EmployeeUnavailability.init(
         indexes: [
             {
                 unique: false,
-                name: "employee_unavailability_index",
-                fields: ["employeeID", "name", "startTime", "endTime"],
+                name: "user_class_index",
+                fields: ["userID", "name", "startDate", "endDate", "term"],
             },
         ],
     },
