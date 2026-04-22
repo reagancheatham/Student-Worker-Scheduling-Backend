@@ -62,7 +62,13 @@ class EmployeeUnavailabilityRouter extends ModelRouter {
                     EmployeeUnavailability,
                     req,
                     res,
-                    {},
+                    {
+                        include: {
+                            model: Employee,
+                            include: [User],
+                            required: true,
+                        },
+                    },
                     "employeeID",
                 ),
         );
