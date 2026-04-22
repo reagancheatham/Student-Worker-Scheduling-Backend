@@ -8,6 +8,7 @@ import { Employee } from "../models/employee.ts";
 import { Business } from "../models/business.ts";
 import { businessAuth } from "../authorization/businessAuthorization.ts";
 import { StudentScheduleServices } from "../services/studentScheduleServices.ts";
+import { User } from "../models/user.ts";
 
 class UserClassRouter extends ModelRouter {
     public path(): string {
@@ -15,10 +16,7 @@ class UserClassRouter extends ModelRouter {
     }
 
     protected buildRouter(router: Router): void {
-        router.post(
-            "/import",
-            UserClassRouter.importClassesForAllUsers,
-        );
+        router.post("/import", UserClassRouter.importClassesForAllUsers);
         router.post(
             "/import/business",
             businessAuth(),
@@ -30,16 +28,25 @@ class UserClassRouter extends ModelRouter {
         router.put("/", adminAuth(), (req, res) =>
             ScheduleDatabase.update(UserClass, req, res, "id"),
         );
-        router.get("/:id", (req, res) =>
+        router.get("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.get(UserClass, req, res, "id"),
         );
         router.delete("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.delete(UserClass, req, res, "id"),
         );
-        router.get("/user/:userID", (req, res) =>
+        router.get("/user/:userID", adminAuth(), (req, res) =>
             ScheduleDatabase.getAllWhere(UserClass, req, res, {}, "userID"),
         );
-        router.get("/business/:businessID", UserClassRouter.getAllForBusiness);
+        router.get(
+            "/business/:businessID",
+            businessAuth(),
+            UserClassRouter.getAllForBusiness,
+        );
+        router.get(
+            "/employee/:employeeID",
+            businessAuth(),
+            UserClassRouter.getAllForEmployee,
+        );
     }
 
     private static async getAllForBusiness(req: Request, res: Response) {
@@ -60,18 +67,18 @@ class UserClassRouter extends ModelRouter {
             const result = await UserClass.findAll({
                 include: [
                     {
-                        model: Employee,
+                        model: User,
                         required: true,
                         include: [
                             {
-                                model: Business,
+                                model: Employee,
+                                required: true,
                                 where: {
-                                    id: businessID,
+                                    businessID,
                                 },
-                                attributes: [],
+                                include: [User],
                             },
                         ],
-                        attributes: [],
                     },
                 ],
             });
@@ -80,7 +87,47 @@ class UserClassRouter extends ModelRouter {
 
             res.status(200).send(result);
         } catch (error: any) {
-            Logger.log(`Error finding UserClasses: ${error}`);
+            Logger.error(`Error finding UserClasses: ${error}`);
+            res.status(500).send({ error });
+        }
+    }
+
+    private static async getAllForEmployee(req: Request, res: Response) {
+        const employeeID = req.params?.employeeID;
+
+        if (!employeeID) {
+            Logger.error(
+                `Could not find employeeID when looking for UserClasses!`,
+            );
+            res.status(500).send({
+                message: `Could not find employeeID when looking for UserClasses!`,
+            });
+
+            return;
+        }
+
+        try {
+            const result = await UserClass.findAll({
+                include: [
+                    {
+                        model: User,
+                        required: true,
+                        include: [
+                            {
+                                model: Employee,
+                                required: true,
+                                include: [User],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            Logger.log(`Found ${result.length} UserClasses`);
+
+            res.status(200).send(result);
+        } catch (error: any) {
+            Logger.error(`Error finding UserClasses: ${error}`);
             res.status(500).send({ error });
         }
     }
