@@ -82,7 +82,7 @@ class ShiftTradeRequestRouter extends ModelRouter {
         );
         router.put(
             "/",
-            userBusinessAuth(shiftIDResolver, userIDResolver),
+            businessAuth(shiftIDResolver),
             (req, res) =>
                 ScheduleDatabase.update(ShiftTradeRequest, req, res, "id"),
         );
