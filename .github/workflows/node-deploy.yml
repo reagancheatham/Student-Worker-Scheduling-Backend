@@ -11,7 +11,6 @@ jobs:
     aws-deploy:
         runs-on: ubuntu-latest
         env:
-            STUDENT_SCHEDULE_URL: ${{ secrets.STUDENT_SCHEDULE_URL }}
             NODE_PORT: ${{ secrets.NODE_PORT }}
             DB_PORT: ${{ secrets.DB_PORT }}
             DB_HOST: ${{ secrets.DB_HOST }}
@@ -34,7 +33,6 @@ jobs:
 
             - run: |
                   touch .env
-                  echo STUDENT_SCHEDULE_URL = "$STUDENT_SCHEDULE_URL" >> .env
                   echo NODE_PORT = "$NODE_PORT" >> .env
                   echo DB_PORT = "$DB_PORT" >> .env
                   echo DB_HOST = "$DB_HOST" >> .env
