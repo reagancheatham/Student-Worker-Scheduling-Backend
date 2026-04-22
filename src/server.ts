@@ -5,16 +5,13 @@ import { defaultCorsConfig } from "./config/corsConfig.ts";
 import "./models/database.ts";
 import { sequelizeInstance } from "./config/sequelizeInstance.ts";
 import { router } from "./router.ts";
-import { DailyStudentScheduleRefreshService } from "./services/dailyStudentScheduleRefreshService.ts";
 import { Logger } from "./classes/util/logger.ts";
 import { initializeSequelize } from "./config/sequelizeInitializer.ts";
 
 const app = express();
-
 initializeSequelize(sequelizeInstance);
-dotenv.config();
 
-DailyStudentScheduleRefreshService.start();
+dotenv.config();
 
 app.use(cors(defaultCorsConfig))
     .use(express.json())

@@ -22,6 +22,7 @@ import { TaskTemplate } from "./taskTemplate.ts";
 import { TimeOffRequest } from "./timeOffRequest.ts";
 import { Timesheet } from "./timesheet.ts";
 import { User } from "./user.ts";
+import { UserClass } from "./userClass.ts";
 import { MessageNotification } from "./messageNotification.ts";
 import { ShiftOfferRequestNotification } from "./shiftOfferRequestNotification.ts";
 import { ShiftTradeRequestNotification } from "./shiftTradeRequestNotification.ts";
@@ -40,6 +41,14 @@ PermissionRole.hasOne(User, {
 });
 User.belongsTo(PermissionRole, {
     foreignKey: "permissionRoleID",
+});
+
+UserClass.belongsTo(User, {
+    foreignKey: "userID",
+    onDelete: "CASCADE",
+});
+User.hasMany(UserClass, {
+    foreignKey: "userID",
 });
 
 BusinessPermissionRole.hasMany(Employee, {

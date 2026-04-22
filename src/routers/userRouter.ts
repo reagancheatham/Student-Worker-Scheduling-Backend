@@ -8,8 +8,6 @@ import { Business } from "../models/business.ts";
 import { BusinessPermissionRole } from "../models/businessPermissionRole.ts";
 import { Employee } from "../models/employee.ts";
 import { PermissionRole } from "../models/permissionRole.ts";
-import { Settings } from "../models/settings.ts";
-import { EmployeeUnavailabilitySyncService } from "../services/employeeUnavailabilitySyncService.ts";
 
 class UserRouter extends ModelRouter {
     public path(): string {
@@ -20,7 +18,9 @@ class UserRouter extends ModelRouter {
         router.post("/", adminAuth(), (req, res) =>
             ScheduleDatabase.create(User, req, res),
         );
-        router.put("/", userAuth(), (req, res) => this.updateUser(req, res));
+        router.put("/", userAuth(), (req, res) =>
+            ScheduleDatabase.update(User, req, res, "id"),
+        );
         router.delete("/:id", adminAuth(), (req, res) =>
             ScheduleDatabase.delete(User, req, res, "id"),
         );
@@ -47,117 +47,6 @@ class UserRouter extends ModelRouter {
                 ],
             }),
         );
-    }
-
-    private async updateUser(req: Request, res: Response): Promise<void> {
-        const info = req.body;
-
-        if (!info) {
-            res.status(400).send({ message: "User payload is required" });
-            return;
-        }
-
-        const userID = Number.parseInt(String(info.id ?? ""), 10);
-
-        if (!Number.isInteger(userID) || userID <= 0) {
-            res.status(400).send({ message: "id is required and must be a positive integer" });
-            return;
-        }
-
-        const existingUser = await User.findByPk(userID);
-        if (!existingUser) {
-            res.status(404).send({ message: "User not found" });
-            return;
-        }
-
-        try {
-            const [affectedCount] = await User.update(info, {
-                where: { id: userID },
-            });
-
-            if (affectedCount === 0) {
-                res.status(200).send({ affectedCount });
-                return;
-            }
-
-            const updatedUser = await User.findByPk(userID);
-            if (!updatedUser) {
-                res.status(200).send({ affectedCount });
-                return;
-            }
-
-            const previousStudentID = existingUser.studentID;
-            const nextStudentID = updatedUser.studentID;
-            const studentIDWasSet = previousStudentID !== nextStudentID
-                && Number.isInteger(nextStudentID)
-                && nextStudentID > 0
-                && nextStudentID !== 111111;
-
-            if (!studentIDWasSet) {
-                res.status(200).send({ affectedCount });
-                return;
-            }
-
-            const targetEmployeeID = Number.parseInt(String(req.body?.employeeID ?? ""), 10);
-            const shouldTargetSpecificEmployee = Number.isInteger(targetEmployeeID) && targetEmployeeID > 0;
-
-            let employees = await Employee.findAll({
-                where: { userID },
-            });
-
-            if (shouldTargetSpecificEmployee) {
-                employees = employees.filter((emp) => emp.id === targetEmployeeID);
-            }
-
-            // Resolve term code: use request param, fall back to business settings, else error
-            let termCode = String(req.body?.termCode ?? "").trim();
-            
-            if (!termCode) {
-                const businessSettings = await Settings.findByPk(employees[0]?.businessID);
-                termCode = String(businessSettings?.defaultTermCode ?? "").trim();
-            }
-
-            if (!termCode) {
-                const defaultEnvTermCode = String(
-                    process.env.STUDENT_SCHEDULE_DEFAULT_TERM_CODE ?? "",
-                ).trim();
-                termCode = defaultEnvTermCode;
-            }
-
-            if (!termCode) {
-                res.status(400).send({ message: "No term code provided or configured" });
-                return;
-            }
-
-            // Sync unavailability for all resolved employees
-            for (const employee of employees) {
-                await EmployeeUnavailabilitySyncService.syncForEmployee(
-                    employee.id,
-                    {
-                        studentID: updatedUser.studentID,
-                        email: updatedUser.email,
-                    },
-                    termCode,
-                );
-            }
-
-            res.status(200).send({
-                affectedCount,
-                studentIDSyncTriggered: true,
-            });
-        } catch (error: any) {
-            if (error.name === "SequelizeUniqueConstraintError") {
-                const fields = error.errors.map((entry: any) => entry.path);
-
-                res.status(409).send({
-                    message: `${fields.join(", ")} must be unique`,
-                });
-                return;
-            }
-
-            console.error(`Error updating User: ${error}`);
-            res.status(500).send({ error });
-        }
     }
 }
 
