@@ -25,6 +25,16 @@ const idResolver: IDResolver = async (req: Request) => {
     return employee?.businessID;
 };
 
+const userIDResolver: IDResolver = async (req: Request) => {
+    const userID = req.params?.userID;
+
+    if (!userID) return undefined;
+
+    const employee = await Employee.findOne({ where: { userID } });
+
+    return employee?.businessID;
+};
+
 class EmployeeRouter extends ModelRouter {
     public path(): string {
         return "/employees";
@@ -57,6 +67,23 @@ class EmployeeRouter extends ModelRouter {
                 },
                 "id",
             ),
+        );
+        router.get("/user/:userID", businessAuth(userIDResolver), (req: any, res: any) =>
+            ScheduleDatabase.getWhere(
+                Employee,
+                req,
+                res,
+                {
+                    include: [
+                        User,
+                        {
+                            model: Role,
+                            through: { attributes: [] },
+                        },
+                    ],
+                },
+                "userID",
+            )
         );
         router.get(
             "/business/:businessID",
