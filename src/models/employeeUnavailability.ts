@@ -13,8 +13,10 @@ export class EmployeeUnavailability extends Model<
 > {
     declare id: CreationOptional<number>;
     declare employeeID: number;
+    declare name: string;
     declare startTime: Date;
     declare endTime: Date;
+    declare term: CreationOptional<string | null>;
 }
 
 EmployeeUnavailability.init(
@@ -33,6 +35,10 @@ EmployeeUnavailability.init(
             },
             onDelete: "CASCADE",
         },
+        name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         startTime: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -40,6 +46,10 @@ EmployeeUnavailability.init(
         endTime: {
             type: DataTypes.DATE,
             allowNull: false,
+        },
+        term: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
     },
     {

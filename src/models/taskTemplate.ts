@@ -13,6 +13,7 @@ export class TaskTemplate extends Model<
 > {
     declare id: CreationOptional<number>;
     declare taskListTemplateID: number;
+    declare listOrder: number;
     declare name: string;
     declare description: string;
 }
@@ -31,6 +32,11 @@ TaskTemplate.init(
                 model: TaskListTemplate,
                 key: "id",
             },
+            onDelete: "CASCADE"
+        },
+        listOrder: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         name: {
             type: DataTypes.STRING,
@@ -46,7 +52,7 @@ TaskTemplate.init(
         indexes: [
             {
                 unique: true,
-                fields: ["taskListTemplateID", "name", "description"],
+                fields: ["taskListTemplateID", "listOrder"],
             },
         ],
     },
