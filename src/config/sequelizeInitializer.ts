@@ -7,7 +7,7 @@ export async function initializeSequelize(
     sequelizeInstance: Sequelize,
 ): Promise<void> {
     try {
-        await sequelizeInstance.sync({ alter: true });
+        await sequelizeInstance.sync();
 
         Logger.log(`Successfully synced database.`);
 
