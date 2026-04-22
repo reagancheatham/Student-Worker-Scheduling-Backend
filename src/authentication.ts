@@ -7,6 +7,7 @@ import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
 import { PermissionRole } from "./models/permissionRole.ts";
 import { Logger } from "./classes/util/logger.ts";
+import { IDResolver } from "./authorization/businessAuthorization.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
@@ -268,7 +269,10 @@ export function userAuth(): (
         }
 
         try {
-            const id = Number(req.params?.id);
+            let id = Number(req.params?.id);
+
+            if(!id)
+                id = Number(req.body?.id);
 
             if (!id || isNaN(id) || user.id !== id) {
                 Logger.error(`User authorization failed`);
