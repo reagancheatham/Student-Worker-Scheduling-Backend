@@ -7,7 +7,6 @@ import { ModelRouter } from "./classes/databaseModel.ts";
 import { Invite } from "./models/invite.ts";
 import { PermissionRole } from "./models/permissionRole.ts";
 import { Logger } from "./classes/util/logger.ts";
-import { IDResolver } from "./authorization/businessAuthorization.ts";
 
 const DAY_IN_SECONDS = 86400;
 const EXPIRATION_WINDOW = 7 * DAY_IN_SECONDS;
@@ -80,22 +79,31 @@ export class Authentication {
             return;
         }
 
-        let user = await User.findOne({
+        const [user, _] = await User.findOrCreate({
             where: {
                 email: payload.email,
             },
+            defaults: {
+                studentID: 0,
+                permissionRoleID: 1,
+                firstName: payload.given_name || "",
+                lastName: payload.family_name || "",
+                email: payload.email || "",
+                phoneNumber: "",
+            },
         });
-
-        Logger.log("Found User");
 
         const expirationTime = new Date(Date.now() + EXPIRATION_WINDOW * 1000);
 
+        if (!user) {
+            Logger.log(`Failed to create user!`);
+            res.status(500).send({ message: "Failed to create user!" });
+
+            return;
+        }
+
         if (user && process.env.AUTH_SECRET) {
-
-            if (code) {
-                await Invite.handleInvite(user.email, code, user.id);
-            }
-
+            if (code) await Invite.handleInvite(user.email, code, user.id);
 
             const session = await Session.findOne({
                 where: {
@@ -135,17 +143,6 @@ export class Authentication {
                     user,
                 });
             }
-        } else {
-            const newUser = await User.create({
-                studentID: 1,
-                permissionRoleID: 1,
-                firstName: payload.given_name || "",
-                lastName: payload.family_name || "",
-                email: payload.email || "",
-                phoneNumber: "",
-            });
-
-            await this.handleLogin(req, res, payload, undefined);
         }
     }
 
@@ -271,8 +268,7 @@ export function userAuth(): (
         try {
             let id = Number(req.params?.id);
 
-            if(!id)
-                id = Number(req.body?.id);
+            if (!id) id = Number(req.body?.id);
 
             if (!id || isNaN(id) || user.id !== id) {
                 Logger.error(`User authorization failed`);
